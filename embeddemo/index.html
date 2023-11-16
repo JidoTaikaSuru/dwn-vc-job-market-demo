@@ -85,7 +85,6 @@
     </form>
 
     <form id="loginform">
-
         <input type="email"  id="login-email" required />
         pin
         <input type="password" id="login-key-encryption-pin"  required/>
@@ -259,6 +258,7 @@ await checkLoginStatus( );
 
 
     let randologinid=Math.random();
+    
     const loginform = document.querySelector('#loginform')
     loginform.addEventListener('submit', async function (event) {
         event.preventDefault()

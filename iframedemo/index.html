@@ -48,7 +48,7 @@
     // Send a message to the iframe
     function sendMessageToIframe() {
         if (!pubkey) {
-            alert("Click login in the iframe to login before trying to send a message")
+            console.log("Click login in the iframe to login before trying to send a message")
             return
         }
         lastMessage = document.getElementById('messageText').value;

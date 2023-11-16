@@ -4,12 +4,42 @@
     <title>Iframe Content</title>
 </head>
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.8.1/ethers.umd.min.js" integrity="sha512-k7vcwydSEAD9e/QV/qvviPCbOl332HGM4ttMpgC/LH0mQMfmKi22YCNo8lmJ3r4kf+5L7jgEuxzLlc5JU/pjeA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <h1>Iframe Content</h1>
 
 <div style="flex-direction: column; max-width: 500px">
-<input type="button" value="Login" onclick="createAccountSendPub()"/>
+
+    <label id="issignedin"> </label>
+    <form id="signup">
+        <input type="email" id="signup-email" required />
+        pin 
+        <input type="password" id="signup-key-encryption-pin" required />
+        <input type="submit" value="Signup" id="signup-submit" />
+    </form>
+
+
+    <form id="loginform"  >
+        <input type="email"  id="login-email" required />
+        pin
+        <input type="password" id="login-key-encryption-pin"  required/>
+        <input type="submit" value="Login" id="login-submit" />
+    </form>
+
+    <form  style="display: none;" id="emailotp">
+           <input type="text" id="emailotp-token"  required/>
+           <input type="submit" value="validate" id="emailotp-submit" />
+       </form>
+       <p id="check-email"  style="display: none;">Please check your email for a sign in code</p>
+         
+       <form id="logout">
+        <input type="submit" value="LogOut" id="logout-submit" />
+    </form>
+
+<input type="button" value="makeWalletNoLogin" onclick="createAccountSendPub()"/>
 <h3>Wallet Public Key</h3>
 <p id="pubkeyDisplay">(user hasn't signed in yet)</p>
 <h3>Message received from parent</h3>
@@ -22,16 +52,212 @@
     let wallet;
 
 
+const client = supabase.createClient('https://api.gotid.org', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0')
+        let signupdata;
+        let logedinuser ;
+
+        let device_key ;
+    let device_pubkey;
+    if (  localStorage.getItem("deviceprivatekey") ){
+        device_key=localStorage.getItem("deviceprivatekey")
+        device_pubkey = localStorage.getItem("devicepublickey");
+       
+    }
+
+    if(device_key)
+         checkLoginStatus( );
+
     let currentDomain="http://"+window.location.host;
     console.log("iframe.html window.location.host="+window.location.host)
 
+
+
+
+    async function checkLoginStatus( ){
+        console.log('checkLoginStatus()')
+        const { data: { user } } = await client.auth.getUser()
+        if( user && user.user_metadata){
+        console.log("loggedin user:",user)
+        console.log("user.user_metadata:"+JSON.stringify(user.user_metadata))
+        
+            if(!device_key && document.getElementById('login-key-encryption-pin').value){ 
+                        private_key = CryptoJS.AES.decrypt(user.user_metadata.pin_encrypted_private_key, document.getElementById('login-key-encryption-pin').value ).toString(CryptoJS.enc.Utf8);
+                        console.log("pin decrypted private key from db :"+ private_key)
+                    }
+                    else if(device_key){
+                        private_key=CryptoJS.AES.decrypt(user.user_metadata.device_encrypted_private_key, device_key ).toString(CryptoJS.enc.Utf8);
+                        console.log("device key decrypted private key from db :"+ private_key)
+                    }
+                    else {
+                        console.log("no device key found please login with including pin")
+                    }
+                if(private_key){
+                    wallet = new ethers.Wallet(private_key);
+                    messagePubKeyToParent();
+                }
+            }
+
+        1===1;
+
+        console.log("checkLoginStatus() device private key "+device_key||"no key")
+        if(user){
+            console.log("logged in decrypted private key "+private_key);
+
+            document.getElementById('issignedin').innerText="your signed in"+user.id+" pubkey decrypted: "+(wallet?.address||"no wallet");
+            logedinuser=user;
+        }
+        else 
+            document.getElementById('issignedin').innerText="not logged in"
+
+
+
+    }
+        
+
+
+    const signupform = document.querySelector('#signup')
+    signupform.addEventListener('submit', async function (event) {
+        // don't reload the page!
+        event.preventDefault()
+
+        if(!device_key){
+       
+        const devicewallet = ethers.Wallet.createRandom()
+        localStorage.setItem("devicepublickey", devicewallet.address);
+        localStorage.setItem("deviceprivatekey", devicewallet.privateKey);
+        device_pubkey = localStorage.getItem("devicepublickey");
+        device_key = localStorage.getItem("deviceprivatekey");
+
+        console.log("No device key found on signu[] createing a new one "+devicewallet.privateKey)
+        }
+
+
+        wallet = ethers.Wallet.createRandom()
+        console.log('address:', wallet.address)
+        console.log('mnemonic:', wallet.mnemonic.phrase)
+        console.log('privateKey:', wallet.privateKey)
+
+        private_key=wallet.privateKey;
+
+        let pin_encrypted_private_key = CryptoJS.AES.encrypt(wallet.privateKey, document.getElementById('signup-key-encryption-pin').value ).toString();
+        let device_encrypted_private_key = CryptoJS.AES.encrypt(wallet.privateKey,device_key ).toString();
+
+
+        try{
+        const { data, error } = await client.auth.signUp({
+            email:  document.getElementById('signup-email').value,
+            password: "WorkAroundForPasswordlessLogin"+Math.random(),
+            options: {
+                data: {
+                    pubkey: wallet.address,
+                    pin_encrypted_private_key: pin_encrypted_private_key,
+                    device_encrypted_private_key: device_encrypted_private_key,
+                }
+            }
+            })
+            
+            if(data){
+              console.log("signUp data:",data)
+              messagePubKeyToParent();
+            }
+            if(error)
+              console.log("signUp error:",error)
+          
+            await checkLoginStatus();
+
+          }
+          catch(e){
+            console.log("singup catch error e:",e)
+          }
+        
+
+      }, false)
+
+
+      messagePubKeyToParent = () => {
+        if( wallet && wallet.address)
+          parent.postMessage(JSON.stringify({messageType: "giveParentPubkey", message: wallet.address}), currentDomain);
+      }
     
     createAccountSendPub = () => {
         wallet = ethers.Wallet.createRandom();
         document.getElementById("pubkeyDisplay").innerHTML = wallet.address;
         console.log("Finished loading iframe", wallet);
-        parent.postMessage(JSON.stringify({messageType: "giveParentPubkey", message: wallet.address}), currentDomain);
+        messagePubKeyToParent();
     }
+
+
+
+    const emailotp = document.getElementById('emailotp')
+
+    const loginform = document.getElementById('loginform')
+    if(device_key){
+        loginform.style.display='block';
+        signupform.style.display='none';
+    }
+    loginform.addEventListener('submit', async function (event) {
+        event.preventDefault()
+        const { data, error } = await client.auth.signInWithOtp({   //This also signs up users if they have not yet created an account. 
+        email: document.getElementById('login-email').value,
+        shouldCreateUser: false,
+        //password:document.getElementById('login-password').value,  //we will use the password for encrypting like the pin before 
+        })
+
+        document.getElementById('check-email').style.display='block';
+        emailotp.style.display='block';
+        //const { data: { user } } = await client.auth.getUser()//Removed this b/c now we need to validate the OTP first.
+        1==1;
+        //await checkLoginStatus();
+    },false);
+ 
+
+
+    emailotp.addEventListener('submit', async function (event) {
+              event.preventDefault()
+
+
+              try{
+              const {
+              data: { session },
+              error,
+            } = await client.auth.verifyOtp({
+              email: document.getElementById('login-email').value,
+              token: document.getElementById('emailotp-token').value,
+              type: 'email',
+            })
+
+            
+
+            if(session){
+            console.log(" supabase.auth.verifyOtp() data=",session)
+
+            await checkLoginStatus( );
+
+            }
+            if(error)
+            console.log(" supabase.auth.verifyOtp() error=",error)
+          }
+          catch(e){
+            console.log(" supabase.auth.verifyOtp() catch e=",e)
+          }
+        },false);
+
+
+    const logoutform = document.querySelector('#logout')   
+    logoutform.addEventListener('submit', async function (event) {  
+        event.preventDefault()
+        try {
+            const { error } = await client.auth.signOut()//This logout is broken in Firefox for some reason,  even if i explicitly remove the localstorage token 
+            if (error) throw error
+            localStorage.removeItem('sb-api-auth-token')
+        } catch (error) {
+            console.error("signout error,",error.message)
+        }
+
+
+     //   await checkLoginStatus();
+    },false);
+
 
 
     // Receive message from parent
