@@ -32,6 +32,11 @@
     let lastMessage;
     let iframe = document.getElementById('myIframe');
 
+    let currentDomain="http://"+window.location.host;
+    console.log("index.html window.location.host="+window.location.host)
+
+    
+    const alloweddomains = ['localhost:3000','http://localhost:3000','rubenwolff.com','http://rubenwolff.com', 'dev.gotid.org','https://dev.gotid.org','http://localhost:8080',currentDomain] //TODO Remove the currentDomain here its just debugging 
 
     //Uncomment to send a generated message to iframe every second
     // setInterval(function () {
@@ -47,7 +52,7 @@
             return
         }
         lastMessage = document.getElementById('messageText').value;
-        iframe.contentWindow.postMessage(lastMessage, "http://localhost:3000"); // Adjust the target origin as needed
+        iframe.contentWindow.postMessage(lastMessage, currentDomain); // Adjust the target origin as needed
     }
 
     // Function to recover the signer's address from the signed message
@@ -74,8 +79,8 @@
     // Receive message from iframe
     window.addEventListener("message", (event) => {
         //You'll need to run this through a server, VSCode should have one that works OOB for HTML. Change the below to your server address
-        if (event.origin !== "http://localhost:3000") {
-            console.log("Received message from unexpected origin:", event.origin, "expected http://localhost:3000")
+        if (  alloweddomains.indexOf(event.origin) === -1) {
+            console.log("Received message from unexpected origin:", event.origin, "expected ["+alloweddomains+"]")
             return;
         }
         const message = JSON.parse(event.data);

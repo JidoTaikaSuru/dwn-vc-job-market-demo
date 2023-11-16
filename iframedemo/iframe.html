@@ -20,17 +20,24 @@
 <div id="signedMessageDisplay"></div>
 <script>
     let wallet;
+
+
+    let currentDomain="http://"+window.location.host;
+    console.log("iframe.html window.location.host="+window.location.host)
+
+    
     createAccountSendPub = () => {
         wallet = ethers.Wallet.createRandom();
         document.getElementById("pubkeyDisplay").innerHTML = wallet.address;
         console.log("Finished loading iframe", wallet);
-        parent.postMessage(JSON.stringify({messageType: "giveParentPubkey", message: wallet.address}), "http://localhost:3000");
+        parent.postMessage(JSON.stringify({messageType: "giveParentPubkey", message: wallet.address}), currentDomain);
     }
 
 
     // Receive message from parent
     window.addEventListener("message", (event) => {
-        if (event.origin !== "http://localhost:3000") {
+        if (event.origin !== currentDomain) {
+            console.log('event.origin='+event.origin)
             return;
         }
         console.log("Received message from parent", event.data);
@@ -39,7 +46,7 @@
             .then(signedMessage => {
                 signedMessageDisplay.innerHTML = signedMessage;
                 console.log("Signed Message:", signedMessage);
-                parent.postMessage(JSON.stringify({messageType: "signedMessage", message: signedMessage}), "http://localhost:3000");
+                parent.postMessage(JSON.stringify({messageType: "signedMessage", message: signedMessage}), currentDomain);
             })
             .catch(error => {
                 console.error("Error signing message:", error);
