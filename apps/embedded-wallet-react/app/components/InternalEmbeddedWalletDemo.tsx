@@ -1,38 +1,27 @@
 import type { FC } from "react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { createClient } from "@supabase/supabase-js";
-import { decryptData } from "~/lib/cryptoLib";
+import { decryptData, messagePubKeyToParent } from "~/lib/cryptoLib";
 import ethers from "ethers";
+import {
+  DeviceKeyContext,
+  supabaseClient,
+} from "~/components/InternalIframeDemo";
 
 const iv = crypto.getRandomValues(new Uint8Array(12)); // random initialization vector
+
 console.log("IV, whatever, make this constant", iv);
 
 export const InternalEmbeddedWalletDemo: FC = () => {
   let wallet;
-  const client = createClient(
-    "https://api.gotid.org",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0"
-  );
+
   const [loginEncryptionKeyPin, setLoginEncryptionKeyPin] = useState("");
-  const [devicePrivateKey, setDevicePrivateKey] = useState("");
-  const [devicePublicKey, setDevicePublicKey] = useState("");
   const [walletPrivKey, setWalletPrivKey] = useState("");
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState<any>(); //TODO fix any
   // let signupdata;
   // let logedinuser;
-
-  if (localStorage.getItem("deviceprivatekey")) {
-    console.log("device key found in local storage");
-    const localStorageDevicePrivKey = localStorage.getItem("deviceprivatekey");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const localStorageDevicePubKey = localStorage.getItem("devicepublickey");
-    setDevicePrivateKey(localStorageDevicePrivKey || "");
-    setDevicePublicKey(localStorageDevicePubKey || "");
-  } else {
-    console.log("no device key found in local storage");
-  }
+  const { devicePrivateKey } = useContext(DeviceKeyContext);
 
   if (devicePrivateKey) {
     checkLoginStatus();
@@ -45,7 +34,7 @@ export const InternalEmbeddedWalletDemo: FC = () => {
     console.log("checkLoginStatus()");
     const {
       data: { user },
-    } = await client.auth.getUser();
+    } = await supabaseClient.auth.getUser();
     if (user && user.user_metadata) {
       console.log("loggedin user:", user);
       console.log("user.user_metadata:" + JSON.stringify(user.user_metadata));
@@ -76,7 +65,7 @@ export const InternalEmbeddedWalletDemo: FC = () => {
       }
       if (walletPrivKey) {
         wallet = new ethers.Wallet(walletPrivKey);
-        messagePubKeyToParent();
+        messagePubKeyToParent(`walletAddress: ${wallet.address}`);
       }
     }
 
@@ -90,23 +79,12 @@ export const InternalEmbeddedWalletDemo: FC = () => {
     }
   }
 
-  messagePubKeyToParent = () => {
-    if (wallet && wallet.address)
-      parent.postMessage(
-        JSON.stringify({
-          messageType: "giveParentPubkey",
-          message: wallet.address,
-        }),
-        currentDomain
-      );
-  };
-
-  createAccountSendPub = () => {
-    wallet = ethers.Wallet.createRandom();
-    document.getElementById("pubkeyDisplay").innerHTML = wallet.address;
-    console.log("Finished loading iframe", wallet);
-    messagePubKeyToParent();
-  };
+  // createAccountSendPub = () => {
+  //   wallet = ethers.Wallet.createRandom();
+  //   document.getElementById("pubkeyDisplay").innerHTML = wallet.address;
+  //   console.log("Finished loading iframe", wallet);
+  //   messagePubKeyToParent();
+  // };
 
   const emailotp = document.getElementById("emailotp");
 
@@ -119,7 +97,7 @@ export const InternalEmbeddedWalletDemo: FC = () => {
     "submit",
     async function (event) {
       event.preventDefault();
-      const { data, error } = await client.auth.signInWithOtp({
+      const { data, error } = await supabaseClient.auth.signInWithOtp({
         //This also signs up users if they have not yet created an account.
         email: document.getElementById("login-email").value,
         shouldCreateUser: false,
@@ -144,7 +122,7 @@ export const InternalEmbeddedWalletDemo: FC = () => {
         const {
           data: { session },
           error,
-        } = await client.auth.verifyOtp({
+        } = await supabaseClient.auth.verifyOtp({
           email: document.getElementById("login-email").value,
           token: document.getElementById("emailotp-token").value,
           type: "email",

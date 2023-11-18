@@ -40,3 +40,20 @@ export const decryptData = async (
     throw err;
   }
 };
+
+export const convertStringToCryptoKey = async (str: string) => {
+  const encoder = new TextEncoder();
+  const encoded = encoder.encode(str);
+  const key = await crypto.subtle.importKey(
+    "raw", // format
+    encoded, // key data
+    { name: "AES-GCM" }, // algorithm
+    false, // not extractable
+    ["encrypt", "decrypt"] // usage
+  );
+  return key;
+};
+
+export const messagePubKeyToParent = (message: any) => {
+  console.log("messagePubKeyToParent", message);
+};
