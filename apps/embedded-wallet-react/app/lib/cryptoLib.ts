@@ -1,24 +1,25 @@
+import { Wallet } from "ethers";
+
 const fixedIv = new Uint8Array([
   40, 133, 229, 32, 33, 3, 159, 207, 108, 91, 200, 205,
 ]);
 
 export const encryptData = async (
   secretData: string,
-  key: CryptoKey
-): Promise<{ iv: Uint8Array; encryptedData: ArrayBuffer }> => {
+  key: CryptoKey,
+  iv: Uint8Array
+): Promise<ArrayBuffer> => {
   const encodedData = new TextEncoder().encode(secretData);
 
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const encryptedData = await crypto.subtle.encrypt(
-    {
-      name: "AES-GCM",
-      // iv: fixedIv,
-      iv,
-    },
-    key,
-    encodedData
+  return await crypto.subtle.encrypt(
+      {
+          name: "AES-GCM",
+          // iv: fixedIv,
+          iv,
+      },
+      key,
+      encodedData
   );
-  return { iv, encryptedData };
 };
 
 export const decryptData = async (
@@ -101,3 +102,26 @@ export const base64ToUint8Array = (b64: string) => {
 export const base64ToArrayBuffer = (b64: string) => {
     return base64ToUint8Array(b64).buffer;
 }
+export const decryptPrivateKeyGetWallet = async (
+  encryptedSecret: string | ArrayBuffer,
+  decryptionKey: string | CryptoKey,
+  iv: string | Uint8Array
+): Promise<Wallet> => {
+    console.log("decryptPrivateKeyGetWallet", encryptedSecret, decryptionKey, iv)
+  if (!encryptedSecret) {
+    throw new Error("No pinEncryptedPrivateKey provided");
+  }
+  const privateKey = await decryptData(
+    encryptedSecret instanceof ArrayBuffer
+      ? encryptedSecret
+      : base64ToArrayBuffer(encryptedSecret),
+    decryptionKey instanceof CryptoKey
+      ? decryptionKey
+      : await convertStringToCryptoKey(decryptionKey),
+    iv instanceof Uint8Array
+        ? iv
+        : base64ToUint8Array(iv)
+  );
+  console.log("pin decrypted private key from db:", privateKey);
+  return new Wallet(privateKey);
+};

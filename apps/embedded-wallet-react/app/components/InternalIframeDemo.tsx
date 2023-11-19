@@ -1,12 +1,10 @@
 import type { FC } from "react";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { createClient } from "@supabase/supabase-js";
-import {
-  DeviceKeyContext,
-  RequireUserLoggedIn,
-} from "~/components/RequireUserLoggedIn";
-import { CryptoLibSmokeTest } from "~/components/CryptoLibSmokeTest";
+import { RequireUserLoggedIn } from "~/components/RequireUserLoggedIn";
+import { InternalEmbeddedWalletDemo } from "~/components/InternalEmbeddedWalletDemo";
+import Frame  from "react-frame-component";
 
 export const supabaseClient = createClient(
   "https://api.gotid.org",
@@ -44,7 +42,6 @@ export function useHydrated() {
 }
 
 export const InternalIframeDemo: FC = () => {
-  const { wallet } = useContext(DeviceKeyContext);
   return (
     <Box>
       <Typography>Parent container</Typography>
@@ -61,24 +58,22 @@ export const InternalIframeDemo: FC = () => {
           <>
             {/*{*/}
             {/*<Frame>*/}
-            {/*<FrameContextConsumer>*/}
-            {/*    {*/}
-            {/*// Callback is invoked with iframe's window and document*/}
-            {/*instances*/}
-            {/*({document, window}) => {*/}
-            {/*    return (*/}
-            <RequireUserLoggedIn>
-              <div style={{ display: "flex" }}>
-                signed in with wallet address: {wallet?.address}
-              </div>
-            </RequireUserLoggedIn>
-            {/*)*/}
-            {/*}*/}
-            {/*}*/}
-            {/*</FrameContextConsumer>*/}
+              {/*<FrameContextConsumer>*/}
+              {/*    {*/}
+              {/*// Callback is invoked with iframe's window and document*/}
+              {/*instances*/}
+              {/*({document, window}) => {*/}
+              {/*    return (*/}
+              <RequireUserLoggedIn>
+                <InternalEmbeddedWalletDemo />
+              </RequireUserLoggedIn>
+              {/*)*/}
+              {/*}*/}
+              {/*}*/}
+              {/*</FrameContextConsumer>*/}
             {/*</Frame>*/}
-              <hr/>
-            <CryptoLibSmokeTest />
+            {/*  <hr/>*/}
+            {/*<CryptoLibSmokeTest />*/}
             {/*}*/}
           </>
         ) : (
