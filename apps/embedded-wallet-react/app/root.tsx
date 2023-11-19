@@ -1,18 +1,15 @@
-import {cssBundleHref} from "@remix-run/css-bundle";
-import type {LinksFunction} from "@remix-run/node";
 import {Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration,} from "@remix-run/react";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
-import {AppBar, Button, createTheme, Toolbar, Typography,} from "@mui/material";
-// Annoying as hell: https://github.com/mui/material-ui/issues/31835
-
-export const links: LinksFunction = () => [
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
-];
-
-const theme = createTheme({});
+import {AppBar, Button, Toolbar, Typography} from "@mui/material";
+//
+// export const logger = pino({
+//   colorize: true, // colorizes the log output
+//   translateTime: "SYS:standard", // formats timestamp
+//   ignore: "pid,hostname", // hides pid and hostname from log messages
+// });
 
 export default function App() {
   return (
