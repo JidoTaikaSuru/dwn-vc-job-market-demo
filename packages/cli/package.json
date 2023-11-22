@@ -1,0 +1,31 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.9.1",
+    "@veramo/core": "^5.5.3",
+    "@veramo/credential-w3c": "^5.5.3",
+    "@veramo/data-store": "^5.5.3",
+    "@veramo/did-manager": "^5.5.3",
+    "@veramo/did-provider-ethr": "^5.5.3",
+    "@veramo/did-provider-web": "^5.5.3",
+    "@veramo/did-resolver": "^5.5.3",
+    "@veramo/key-manager": "^5.5.3",
+    "@veramo/kms-local": "^5.5.3",
+    "did-resolver": "^4.1.0",
+    "ethr-did-resolver": "^10.0.0",
+    "sqlite3": "^5.1.6",
+    "typeorm": "^0.3.17",
+    "typescript": "^5.2.2",
+    "web-did-resolver": "^2.0.27"
+  },
+  "type": "module"
+}

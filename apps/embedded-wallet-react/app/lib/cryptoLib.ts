@@ -54,7 +54,6 @@ export const isEmpty = (obj: Object): boolean =>  {
   return true;
 }
 
-
 export const convertStringToCryptoKey = async (str: string) => {
   console.log("convertStringToCryptoKey", str);
   const encoded = new TextEncoder().encode(str);

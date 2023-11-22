@@ -4,9 +4,9 @@
     <title>Parent Page</title>
 </head>
 <body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.8.1/ethers.umd.min.js"
+<script crossorigin="anonymous"
         integrity="sha512-k7vcwydSEAD9e/QV/qvviPCbOl332HGM4ttMpgC/LH0mQMfmKi22YCNo8lmJ3r4kf+5L7jgEuxzLlc5JU/pjeA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        referrerpolicy="no-referrer" src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.8.1/ethers.umd.min.js"></script>
 <h1>Parent Page</h1>
 <div>
     <p>Message received from IFrame</p>
@@ -15,7 +15,7 @@
 <div style="flex-direction: column; width: 500px">
     <h3>My public key</h3>
     <p id="walletPubkey">(user hasn't signed in yet)</p>
-    <textarea id="messageText" rows="8" cols="100" placeholder="Enter your message here..."></textarea>
+    <textarea cols="100" id="messageText" placeholder="Enter your message here..." rows="8"></textarea>
     <button onclick="sendMessageToIframe()">Send Message to iframe</button>
     <h2>Message received from iframe</h2>
     <p id="parentReceiveText" style="word-wrap: break-word;">(haven't received a message back)</p>
@@ -25,20 +25,20 @@
     <p id="verificationResultVerified"></p>
 
 </div>
-<iframe id="myIframe" src="iframe.html" width="500" height="500"></iframe>
+<iframe height="500" id="myIframe" src="iframe.html" width="500"></iframe>
 
 <script>
     let pubkey;
     let lastMessage;
     let iframe = document.getElementById('myIframe');
 
-    let currentDomain="http://"+window.location.host;
-    console.log("index.html window.location.host="+window.location.host)
+    let currentDomain = "http://" + window.location.host;
+    console.log("index.html window.location.host=" + window.location.host)
 
-    
-    const alloweddomains = ['localhost:3000','http://localhost:3000','rubenwolff.com','http://rubenwolff.com', 'dev.gotid.org','https://dev.gotid.org','http://localhost:8080',currentDomain] //TODO Remove the currentDomain here its just debugging 
 
-    //Uncomment to send a generated message to iframe every second
+    const alloweddomains = ['localhost:3000', 'http://localhost:3000', 'rubenwolff.com', 'http://rubenwolff.com', 'dev.gotid.org', 'https://dev.gotid.org', 'http://localhost:8080', currentDomain] //TODO Remove the currentDomain here its just debugging
+
+    //Uncomment to send a __generated__ message to iframe every second
     // setInterval(function () {
     //     let message = `Hello from parent! ${new Date()}`;
     //     //You'll need to run this through a server, VSCode should have one that works OOB for HTML. Change the below to your server address
@@ -79,8 +79,8 @@
     // Receive message from iframe
     window.addEventListener("message", (event) => {
         //You'll need to run this through a server, VSCode should have one that works OOB for HTML. Change the below to your server address
-        if (  alloweddomains.indexOf(event.origin) === -1) {
-            console.log("Received message from unexpected origin:", event.origin, "expected ["+alloweddomains+"]")
+        if (alloweddomains.indexOf(event.origin) === -1) {
+            console.log("Received message from unexpected origin:", event.origin, "expected [" + alloweddomains + "]")
             return;
         }
         const message = JSON.parse(event.data);
