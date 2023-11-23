@@ -1,7 +1,7 @@
 import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import { createClient } from "@supabase/supabase-js";
-import { agent } from "./setup.js";
 import { Database } from "./__generated__/supabase-types.js";
+import credentialRoutes from "./credentials/index.js";
 
 const server = fastify();
 export const supabaseClient = createClient<Database>(
@@ -9,12 +9,7 @@ export const supabaseClient = createClient<Database>(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0"
 );
 
-interface MyAuthenticatedRequestBody {
-  authData: any;
-  user: any; // Replace 'any' with a more specific type as per your user model
-}
-
-const jwtAuthentication = async (
+export const jwtAuthentication = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
@@ -41,7 +36,6 @@ const jwtAuthentication = async (
     .eq("id", authData.user.id)
     .single();
   console.log("data", user, "error", fetchError);
-
   if (fetchError) {
     return reply.status(400).send(fetchError);
   }
@@ -53,44 +47,7 @@ const jwtAuthentication = async (
   request.user = user;
 };
 
-server.route<{
-  Body: MyAuthenticatedRequestBody;
-}>({
-  method: "POST",
-  url: "/credentials/issue/has-account",
-  schema: {
-    headers: {
-      type: "object",
-      properties: {
-        "x-access-token": { type: "string" },
-      },
-      required: ["x-access-token"],
-    },
-  },
-  preHandler: jwtAuthentication,
-  handler: async (request, reply) => {
-    // User has authenticated, they exist, issue the credential
-    const { user } = request;
-    console.log("Issuing has account credential to", user);
-    const identifier = await agent.didManagerGetByAlias({ alias: "default" });
-    const verifiableCredential = await agent.createVerifiableCredential({
-      credential: {
-        issuer: {
-          id: identifier.did,
-          name: "Decentralinked Issuer",
-        },
-        type: ["VerifiableCredential", "HasAccountWithTrustAuthority"],
-        credentialSubject: {
-          id: `did:eth:${user.public_key}`, // This should be did:ethr:<the public key of the embedded wallet, or the id of the user from supabase>
-          signinMethod: "OTP",
-        },
-      },
-      proofFormat: "jwt",
-    });
-    console.log("Finished issuing has account credential");
-    console.log(verifiableCredential);
-  },
-});
+server.register(credentialRoutes);
 
 server.listen({ port: 8080 }, (err, address) => {
   if (err) {

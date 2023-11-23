@@ -1,5 +1,12 @@
 // Core interfaces
-import { createAgent } from "@veramo/core";
+import {
+  createAgent,
+  ICredentialPlugin,
+  IDataStoreORM,
+  IDIDManager,
+  IKeyManager,
+  IResolver,
+} from "@veramo/core";
 
 // Core identity manager plugin
 import { DIDManager } from "@veramo/did-manager";
@@ -27,8 +34,10 @@ import { getResolver as webDidResolver } from "web-did-resolver";
 
 // Storage plugin using TypeOrm
 import {
+  DataStore, DataStoreORM,
   DIDStore,
   Entities,
+  IDataStore,
   KeyStore,
   migrations,
   PrivateKeyStore,
@@ -37,6 +46,8 @@ import {
 // TypeORM is installed with `@veramo/data-store`
 import { DataSource } from "typeorm";
 
+
+export const DEFAULT_IDENTIFIER_SCHEMA = "default";
 // This will be the name for the local sqlite database for demo purposes
 const DATABASE_FILE = "database.sqlite";
 
@@ -57,7 +68,14 @@ const dbConnection = new DataSource({
   entities: Entities,
 }).initialize();
 
-export const agent = createAgent({
+export const agent = createAgent<
+  IDIDManager &
+    IKeyManager &
+    IDataStore &
+    IDataStoreORM &
+    IResolver &
+    ICredentialPlugin
+>({
   plugins: [
     new KeyManager({
       store: new KeyStore(dbConnection),
@@ -67,6 +85,8 @@ export const agent = createAgent({
         ),
       },
     }),
+      new DataStore(dbConnection),
+      new DataStoreORM(dbConnection),
     new DIDManager({
       store: new DIDStore(dbConnection),
       defaultProvider: "did:ethr:goerli",
@@ -81,6 +101,7 @@ export const agent = createAgent({
         }),
       },
     }),
+
     new DIDResolverPlugin({
       resolver: new Resolver({
         ...ethrDidResolver({ infuraProjectId: INFURA_PROJECT_ID }),
