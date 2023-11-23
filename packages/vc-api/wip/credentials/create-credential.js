@@ -1,4 +1,4 @@
-import { agent } from './setup.js'
+import { agent } from './setup.ts'
 
 
 /*

@@ -4,7 +4,6 @@ import { Box, Typography } from "@mui/material";
 import { createClient } from "@supabase/supabase-js";
 import { RequireUserLoggedIn } from "~/components/RequireUserLoggedIn";
 import { InternalEmbeddedWalletDemo } from "~/components/InternalEmbeddedWalletDemo";
-import Frame  from "react-frame-component";
 
 export const supabaseClient = createClient(
   "https://api.gotid.org",

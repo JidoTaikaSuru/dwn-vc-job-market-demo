@@ -55,7 +55,7 @@ export const getUserEmbeddedWallet = async (
   const { pin_encrypted_private_key, device_encrypted_private_key, iv } =
     user.user_metadata;
 
-  console.log("logged in user.user_metadata:", user.user_metadata);
+  console.log("logged in user:", user);
   //Basic validation
   if (!pin_encrypted_private_key && !device_encrypted_private_key) {
     throw new Error("user has no embedded wallet"); //TODO, carve exception when user logged in with web3 wallet
@@ -203,6 +203,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         email: formData.email,
         password: formData.password,
       });
+      console.log("emailPassSubmit", data);
 
       if (error && !(error instanceof AuthApiError)) {
         setAdditionalError(error.message);
@@ -282,6 +283,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
       console.log("error", error);
       setAdditionalError(error.message);
     }
+
   };
 
   console.log("Outermost wallet:", wallet);

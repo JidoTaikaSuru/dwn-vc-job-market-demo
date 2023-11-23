@@ -30,6 +30,8 @@ export const InternalEmbeddedWalletDemo = () => {
 
   return (
     <div>
+      {/*  LIST OF CREDENTIALS ISSUED TO USER */}
+      {/*  TRUST SCORE APPEARS HERE */}
       <Typography>Signed in with wallet address: {wallet?.address}</Typography>
       <Typography>Signing message with embedded wallet</Typography>
       <TextareaAutosize
