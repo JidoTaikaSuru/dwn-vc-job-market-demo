@@ -1,5 +1,5 @@
 {
-  "name": "cli",
+  "name": "vc-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -24,9 +24,7 @@
     "did-resolver": "^4.1.0",
     "ethr-did-resolver": "^10.0.0",
     "fastify": "^4.24.3",
-    "nodemon": "^3.0.1",
     "sqlite3": "^5.1.6",
-    "tsc-watch": "^6.0.4",
     "typeorm": "^0.3.17",
     "web-did-resolver": "^2.0.27"
   },
@@ -34,6 +32,8 @@
   "devDependencies": {
     "@types/node": "^20.9.1",
     "fastify-tsconfig": "^2.0.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "nodemon": "^3.0.1",
+    "tsc-watch": "^6.0.4"
   }
 }
