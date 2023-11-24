@@ -1,9 +1,9 @@
 import { FastifyInstance, FastifyServerOptions } from "fastify";
 import { jwtAuthentication } from "../index.js";
-import { issueHasAccessCredentialHandler } from "./issue/hasAccount.js";
+import { issueHasAccountCredentialHandler } from "./issue/hasAccount.js";
 import { getUserCredentials } from "./getCredentials.js";
-import {issueHasVerifiedEmailCredentialHandler} from "./issue/hasVerifiedEmail.js";
-import {issuePassedCaptchaCredential} from "./issue/passedCaptcha.js";
+import { issueHasVerifiedEmailCredentialHandler } from "./issue/hasVerifiedEmail.js";
+import { issuePassedCaptchaCredential } from "./issue/passedCaptcha.js";
 
 export default async function credentialRoutes(
   server: FastifyInstance,
@@ -22,7 +22,7 @@ export default async function credentialRoutes(
       },
     },
     preHandler: jwtAuthentication,
-    handler: issueHasAccessCredentialHandler,
+    handler: issueHasAccountCredentialHandler,
   });
   server.route({
     method: "POST",

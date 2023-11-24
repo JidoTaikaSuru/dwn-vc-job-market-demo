@@ -1,6 +1,7 @@
 import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "./__generated__/supabase-types.js";
+import cors from "@fastify/cors";
 import credentialRoutes from "./credentials/index.js";
 
 const server = fastify();
@@ -13,6 +14,7 @@ export const jwtAuthentication = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
+  console.log("jwtAuthentication")
   const jwt = request.headers["x-access-token"] as string;
   if (!jwt) {
     return reply.status(400).send("No JWT provided");
@@ -46,10 +48,15 @@ export const jwtAuthentication = async (
   request.authData = authData.user;
   request.user = user;
 };
-
+await server.register(cors, {
+  origin: "*"
+})
 server.register(credentialRoutes);
 
-server.listen({ port: 8080 }, (err, address) => {
+server.listen({
+  port: 8080,
+  host: "0.0.0.0"
+}, (err, address) => {
   if (err) {
     console.error(err);
     process.exit(1);

@@ -3,7 +3,7 @@ import {agent, DEFAULT_IDENTIFIER_SCHEMA} from "../../setup.js";
 
 import {storeCredential} from "../lib.js";
 
-export const issueHasAccessCredentialHandler = async (request: FastifyRequest, reply: FastifyReply) => {
+export const issueHasAccountCredentialHandler = async (request: FastifyRequest, reply: FastifyReply) => {
     // User has authenticated, they exist, issue the credential
     const { user } = request;
     console.log("Issuing has account credential to", user);

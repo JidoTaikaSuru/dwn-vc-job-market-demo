@@ -2,7 +2,7 @@ import type {FC, PropsWithChildren} from "react";
 import {createContext, useState} from "react";
 import type {SubmitHandler} from "react-hook-form";
 import {useForm} from "react-hook-form";
-import {supabaseClient} from "~/components/InternalIframeDemo";
+import {credentialStore, supabaseClient} from "~/components/InternalIframeDemo";
 import {Button, TextField, Typography} from "@mui/material";
 import {ethers, Wallet, Wallet as WalletType} from "ethers";
 import {
@@ -135,6 +135,12 @@ const createNewEmbeddedWalletForUser = async (
   await supabaseClient.auth.updateUser({
     data: updateUserData,
   });
+  await supabaseClient.from("users").upsert({
+    id: session.data.session?.user?.id || "",
+    public_key: newEmbeddedWallet.address,
+    password_encrypted_private_key: updateUserData.pin_encrypted_private_key,
+    iv: updateUserData.iv,
+  })
   console.log("Finished updating user");
 };
 
@@ -150,6 +156,8 @@ export const userHasEmbeddedWallet = ({
     (!!device_encrypted_private_key && !isEmpty(device_encrypted_private_key))
   );
 };
+
+
 
 export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
   const [devicePrivateKey, setDevicePrivateKey] = useState("");
@@ -223,13 +231,17 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
           setAdditionalError("No user found after signup");
           return
         }
+
         console.log("user signed up", signupData);
         user = signupData.user;
+        console.log("asking the issuer to provide basic credentials")
+        await logUserIntoApp(user.user_metadata, pin);
+        const vcs = await credentialStore.requestIssueBasicCredentials({jwt: signupData.session?.access_token || ""});
+        console.log("Issuer issued the following credentials", vcs)
       } else {
         console.log("user with email", formData.email, "found");
         user = data.user;
       }
-
       await logUserIntoApp(user.user_metadata, pin);
     } catch (error: any) {
       console.log("error", error);

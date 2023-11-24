@@ -9,7 +9,6 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "credential-client": "workspace:*",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.1",
     "@emotion/server": "^11.11.0",
@@ -23,6 +22,9 @@
     "@remix-run/react": "^2.3.0",
     "@remix-run/serve": "^2.3.0",
     "@supabase/supabase-js": "^2.38.4",
+    "@veramo/core": "^5.5.3",
+    "axios": "^1.6.2",
+    "credential-client": "workspace:^",
     "embedded-wallet": "workspace:*",
     "ethers": "^6.8.1",
     "isbot": "^3.7.1",

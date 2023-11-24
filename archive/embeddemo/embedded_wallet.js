@@ -139,7 +139,7 @@ export async function checkLoginStatusSupabase( ){
         }
     }
     catch{
-        console.error(" checkLoginStatusSupabase( ) ~~ error maybe client.auth.getUser() failed ")
+        console.error(" checkLoginStatusSupabase( ) ~~ error maybe (IGNORE)client.auth.getUser() failed ")
         return undefined;
     }
 }
