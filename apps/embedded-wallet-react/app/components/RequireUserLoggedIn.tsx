@@ -236,7 +236,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
     try {
       console.log("Signing in with email and pass", formData);
       let user: User;
-
+      //TODO use random password because only OTP sign in should be available
       const { data, error } = await supabaseClient.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
