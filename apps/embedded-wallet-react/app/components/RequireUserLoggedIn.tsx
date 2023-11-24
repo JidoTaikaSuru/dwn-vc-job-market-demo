@@ -76,6 +76,8 @@ export const getUserEmbeddedWallet = async (
   pin?: string,
   deviceKey?: string
 ): Promise<Wallet> => {
+  console.log("pin", pin, deviceKey);
+
   const {
     data: { user },
   } = await supabaseClient.auth.getUser(); //TODO should this be getSession()?
@@ -138,11 +140,6 @@ const createNewEmbeddedWalletForUser = async (
   };
   console.log("Creating new embedded wallet for user", session);
 
-  const deviceWallet = ethers.Wallet.createRandom();
-  localStorage.setItem("devicepublickey", deviceWallet!.address);
-  localStorage.setItem("deviceprivatekey", deviceWallet!.privateKey);
-  deviceKey = deviceWallet!.privateKey;
-  console.log("🚀 ~ file: RequireUserLoggedIn.tsx:144 ~ deviceKey:", deviceKey);
   if (pin) {
     const pinCryptoKey = await convertStringToCryptoKey(pin);
     const pinEncryptedPrivateKey = await encryptData(
@@ -209,14 +206,20 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
   const logUserIntoApp = async (userMetadata: UserMetadata, pin: string) => {
     try {
       //TODO currently only supports pin, not device key
+      let deviceKey;
       if (!userHasEmbeddedWallet(userMetadata)) {
         console.log("user doesn't have an embedded wallet, creating one now");
-        await createNewEmbeddedWalletForUser(pin, undefined);
+
+        const deviceWallet = ethers.Wallet.createRandom();
+        localStorage.setItem("devicekey", deviceWallet!.privateKey);
+        deviceKey = deviceWallet!.privateKey;
+        console.log(
+          "🚀 ~ file: RequireUserLoggedIn.tsx:144 ~ deviceKey:",
+          deviceKey
+        );
+        await createNewEmbeddedWalletForUser(pin, deviceKey);
       }
-      const localWallet = await getUserEmbeddedWallet(
-        pin,
-        devicePrivateKey || ""
-      );
+      const localWallet = await getUserEmbeddedWallet(pin, deviceKey);
       console.log("localWallet", localWallet);
       window.localStorage.setItem("pin", pin);
       setWallet(localWallet);
@@ -343,23 +346,29 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
       if (session) {
         console.log("navb", localStorage.getItem("deviceprivatekey"));
         const user = session.user;
-        const deviceKey = localStorage.getItem("deviceprivatekey");
         console.log(
           "🚀 ~ file: RequireUserLoggedIn.tsx:344 ~ supabaseClient.auth.getSession ~ user:",
           user
         );
-        const iv = crypto.getRandomValues(new Uint8Array(12));
+        // const iv = crypto.getRandomValues(new Uint8Array(12));
+        const deviceKey = localStorage.getItem("devicekey");
         const encryptedKey = await convertStringToCryptoKey(deviceKey!);
-        const exampleData = decryptData(
+        console.log(
+          "🚀 ~ file: RequireUserLoggedIn.tsx:356 ~ supabaseClient.auth.getSession ~ encryptedKey:",
+          encryptedKey
+        );
+        const exampleData = await decryptPrivateKeyGetWallet(
           user!.user_metadata.device_encrypted_private_key,
           encryptedKey,
-          iv
+          user!.user_metadata.iv
         );
-        setDevicePrivateKey(localStorage.getItem("deviceprivatekey")!);
+        // const  await logUserIntoApp
+        setDevicePrivateKey(localStorage.getItem("devicekey")!);
         console.log(
           "🚀 ~ file: LoginWithEmail.tsx:30 ~ login ~ exampleData:",
           exampleData
         );
+        setWallet(exampleData);
         // setLocalAccount(exampleData);
         setUser(user!);
         setLoggedIn(true);
@@ -427,7 +436,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         {/* <button onClick={sendMessage}>Send message to parent</button> */}
         {/* <p>received from parent: {recievedMessage}</p> */}
         <Card className=" p-8 bg-slate-100">
-          <Tabs defaultValue="magic-link" className="w-[400px]">
+          <Tabs defaultValue="password" className="w-[400px]">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger className="bg-slate-200" value="password">
                 Password
@@ -453,21 +462,14 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
                         placeholder="test3@test.com"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        {...emailPassRegister("password", { required: true })}
-                        type="password"
-                        id="password"
-                        defaultValue="password"
-                      />
-                    </div>
+
                     <div className="space-y-1">
                       <Label htmlFor="email">Pin</Label>
                       <Input
                         type={"password"}
+                        {...emailPassRegister("password", { required: true })}
                         onChange={(e) => setPin(e.target.value)}
-                        defaultValue={localStorage.getItem("pin") ?? ""}
+                        defaultValue={localStorage.getItem("pin") ?? "password"}
                         value={pin}
                       />
                     </div>
