@@ -672,20 +672,23 @@ export interface Database {
         Row: {
           created_at: string
           id: string
-          password_encrypted_private_key: string
-          public_key: string
+          iv: string | null
+          password_encrypted_private_key: string | null
+          public_key: string | null
         }
         Insert: {
           created_at?: string
           id: string
-          password_encrypted_private_key: string
-          public_key: string
+          iv?: string | null
+          password_encrypted_private_key?: string | null
+          public_key?: string | null
         }
         Update: {
           created_at?: string
           id?: string
-          password_encrypted_private_key?: string
-          public_key?: string
+          iv?: string | null
+          password_encrypted_private_key?: string | null
+          public_key?: string | null
         }
         Relationships: []
       }
