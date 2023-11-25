@@ -5,6 +5,7 @@ import {VerifiableCredential} from "@veramo/core";
 // adding jwt property to req
 // authenticate property to FastifyInstance
 declare module "fastify" {
+  // TODO We should use generics to load these properties into specific routes/plugins
   interface FastifyRequest {
     authData: SupabaseUser;
     user: Database["public"]["Tables"]["users"]["Row"];

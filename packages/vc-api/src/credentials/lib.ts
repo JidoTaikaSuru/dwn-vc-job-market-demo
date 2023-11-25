@@ -35,7 +35,7 @@ export async function nslookup(domain: string): Promise<string[]> {
     }
 }
 
-const mainstreamProviders = ["8.8.8.8","8.8.4.4", //Google
+const mainstreamDnsProviders = ["8.8.8.8","8.8.4.4", //Google
 "1.1.1.1","1.0.0.1", //Cloudflare
 "208.67.222.222","208.67.220.220", //OpenDNS
 "9.9.9.9","149.112.112.112", //Quad9
@@ -45,5 +45,5 @@ const mainstreamProviders = ["8.8.8.8","8.8.4.4", //Google
 // Not secure, easy to spoof, but signals intent for the hackathon
 export async function usesMainstreamDnsProvider(domain: string): Promise<boolean> {
     const addresses = await nslookup(domain);
-    return addresses.some((address) => mainstreamProviders.includes(address));
+    return addresses.some((address) => mainstreamDnsProviders.includes(address));
 }

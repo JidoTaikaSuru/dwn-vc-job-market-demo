@@ -46,10 +46,11 @@ import {
 // TypeORM is installed with `@veramo/data-store`
 import { DataSource } from "typeorm";
 
-
+import dotenv from 'dotenv';
+dotenv.config()
 export const DEFAULT_IDENTIFIER_SCHEMA = "default";
 // This will be the name for the local sqlite database for demo purposes
-const DATABASE_FILE = "database.sqlite";
+// const DATABASE_FILE = "database.sqlite";
 
 // You will need to get a project ID from infura https://www.infura.io
 const INFURA_PROJECT_ID = "3586660d179141e3801c3895de1c2eba";
@@ -58,9 +59,13 @@ const INFURA_PROJECT_ID = "3586660d179141e3801c3895de1c2eba";
 const KMS_SECRET_KEY =
   "11b574d316903ced6cc3f4787bbcc3047d9c72d1da4d83e36fe714ef785d10c1";
 
+console.log(process.env)
 const dbConnection = new DataSource({
-  type: "sqlite",
-  database: DATABASE_FILE,
+  type: "postgres",
+  host: process.env.DATABASE_HOST || "0.0.0.0",
+  database: process.env.DATABASE_NAE || "postgres",
+  username: process.env.DATABASE_USERNAME || "postgres",
+  password: process.env.DATABASE_PASSWORD || "postgres",
   synchronize: false,
   migrations,
   migrationsRun: true,
