@@ -43,6 +43,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import OTPCard from "./OTPCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 //TODO Remix has loaders, which can break up this code into smaller, easier to manage/test parts
 type VerifyEmailPasswordFormProps = {
@@ -190,6 +192,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
   const [additionalError, setAdditionalError] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isOTPScreen, setIsOTPScreen] = useState(false);
   const {
     register: emailPassRegister,
     handleSubmit: emailPassHandleSubmit,
@@ -435,181 +438,157 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         </div> */}
         {/* <button onClick={sendMessage}>Send message to parent</button> */}
         {/* <p>received from parent: {recievedMessage}</p> */}
-        <Card className=" p-8 bg-slate-100">
-          <Tabs defaultValue="password" className="w-[400px]">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger className="bg-slate-200" value="password">
-                Password
-              </TabsTrigger>
-              <TabsTrigger className="bg-slate-200" value="magic-link">
-                Magic Link
-              </TabsTrigger>
-            </TabsList>
-            <form onSubmit={emailPassHandleSubmit(emailPassSubmit)}>
-              <TabsContent value="password">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Password Login</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        {...emailPassRegister("email", { required: true })}
-                        defaultValue={"test3@test.com"}
-                        type="email"
-                        id="email"
-                        placeholder="test3@test.com"
-                      />
-                    </div>
+        {isOTPScreen ? (
+          <OTPCard />
+        ) : (
+          <ScrollArea className="h-[100vh] rounded-md ">
+            <Card className=" p-8  bg-slate-100">
+              <Tabs defaultValue="password" className="h-full w-[435px]">
+                <form onSubmit={emailPassHandleSubmit(emailPassSubmit)}>
+                  <TabsContent value="password">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Password Login</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="space-y-1">
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            {...emailPassRegister("email", { required: true })}
+                            defaultValue={"test3@test.com"}
+                            type="email"
+                            id="email"
+                            placeholder="test3@test.com"
+                          />
+                        </div>
 
-                    <div className="space-y-1">
-                      <Label htmlFor="email">Pin</Label>
-                      <Input
-                        type={"password"}
-                        {...emailPassRegister("password", { required: true })}
-                        onChange={(e) => setPin(e.target.value)}
-                        defaultValue={localStorage.getItem("pin") ?? "password"}
-                        value={pin}
-                      />
-                    </div>
-                  </CardContent>
-                  <CardFooter className="flex w-full items-center justify-center">
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      className="px-4 w-full text-lg font-semibold tracking-wide"
-                    >
-                      Submit
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-            </form>
-            <form onSubmit={verifyOtpHandleSubmit(verifyOtpSubmit)}>
-              <TabsContent value="magic-link">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Magic Link/OTP</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex gap-2 relative">
-                    <CiMail className="absolute left-9 bottom-9" />
-                    <Input
-                      {...verifyOtpRegister("email", { required: true })}
-                      placeholder="test3@test.com"
-                      className="pl-8"
-                      id="email2"
-                      type="email"
-                    />
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      className="px-4 w-20 text-base font-semibold tracking-tighter"
-                    >
-                      Submit
-                    </Button>
-                    {/* <div className="space-y-1">
-                    <Label htmlFor="otp">OTP Code</Label>
-                    <Input id="otp" type="password" placeholder="Code" />
-                  </div> */}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </form>
-          </Tabs>
-          <div className="flex mt-2 gap-4 w-full">
-            <Button
-              variant="outline"
-              className="border flex items-center justify-center px-8 w-1/3  rounded-md"
-            >
-              <IoKey className="w-8 h-8" />
-            </Button>
-            <Button
-              variant="outline"
-              disabled
-              className="border cursor-not-allowed flex items-center justify-center px-8 w-1/3  rounded-md"
-            >
-              <FaTwitter className="w-7 h-7 fill-current " />
-            </Button>
-            <Button
-              variant="outline"
-              disabled
-              className="border flex cursor-not-allowed items-center justify-center px-8 w-1/3  rounded-md"
-            >
-              <FaDiscord className="w-8 h-8" />
-            </Button>
-          </div>
-          <div className="w-full mt-3">
-            <Accordion type="single" collapsible className="w-full border-none">
-              <AccordionItem value="item-1">
-                <AccordionTrigger>
-                  {" "}
-                  <Button
-                    variant="outline"
-                    className="border  font-semibold text-lg tracking-tighter flex items-center justify-center px-8 w-full  rounded-md"
-                  >
-                    Connect Wallet
-                  </Button>
-                </AccordionTrigger>
-                <AccordionContent className="flex flex-col space-y-2">
-                  <Button
-                    variant="outline"
-                    className="w-full flex justify-between"
-                  >
-                    <div className="flex gap-2">
-                      <img
-                        width={24}
-                        height={24}
-                        src="/metamask.svg"
-                        alt="metamask"
-                      />
-                      <span className="flex-1 text-base font-semibold ms-3 whitespace-nowrap">
-                        MetaMask
-                      </span>
-                    </div>
-                    <span className="inline-flex items-center justify-center px-2 py-0.5 ms-3 text-xs font-medium text-gray-500 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-400">
-                      Popular
-                    </span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full flex justify-between"
-                  >
-                    <div className="flex gap-2">
-                      <img
-                        width={24}
-                        height={24}
-                        src="/coinbase.svg"
-                        className="rounded-lg"
-                        alt="coinbase"
-                      />
-                      <span className="flex-1 text-base font-semibold ms-3 whitespace-nowrap">
-                        Coinbase Wallet
-                      </span>
-                    </div>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full flex justify-between"
-                  >
-                    <div className="flex gap-2">
-                      <img
-                        width={24}
-                        height={24}
-                        src="/wallet-connect.svg"
-                        className="rounded-lg"
-                        alt="wallet-connect"
-                      />
-                      <span className="flex-1 text-base font-semibold ms-3 whitespace-nowrap">
-                        WalletConnect
-                      </span>
-                    </div>
-                  </Button>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        </Card>
+                        <div className="space-y-1">
+                          <Label htmlFor="email">Pin</Label>
+                          <Input
+                            type={"password"}
+                            {...emailPassRegister("password", {
+                              required: true,
+                            })}
+                            onChange={(e) => setPin(e.target.value)}
+                            defaultValue={
+                              localStorage.getItem("pin") ?? "password"
+                            }
+                            value={pin}
+                          />
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex w-full items-center justify-center">
+                        <Button
+                          type="submit"
+                          variant="outline"
+                          className="px-4 w-full text-lg font-semibold tracking-wide"
+                        >
+                          Submit
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </TabsContent>
+                </form>
+              </Tabs>
+              <div className="flex mt-2 gap-4 w-full">
+                <Button
+                  variant="outline"
+                  className="border flex items-center justify-center px-8 w-1/3  rounded-md"
+                >
+                  <IoKey className="w-8 h-8" />
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled
+                  className="border cursor-not-allowed flex items-center justify-center px-8 w-1/3  rounded-md"
+                >
+                  <FaTwitter className="w-7 h-7 fill-current " />
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled
+                  className="border flex cursor-not-allowed items-center justify-center px-8 w-1/3  rounded-md"
+                >
+                  <FaDiscord className="w-8 h-8" />
+                </Button>
+              </div>
+              <div className="w-full mt-3">
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="w-full border-none"
+                >
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger>
+                      {" "}
+                      <Button
+                        variant="outline"
+                        className="border  font-semibold text-lg tracking-tighter flex items-center justify-center px-8 w-full  rounded-md"
+                      >
+                        Connect Wallet
+                      </Button>
+                    </AccordionTrigger>
+                    <AccordionContent className="flex flex-col space-y-2">
+                      <Button
+                        variant="outline"
+                        className="w-full flex justify-between"
+                      >
+                        <div className="flex gap-2">
+                          <img
+                            width={24}
+                            height={24}
+                            src="/metamask.svg"
+                            alt="metamask"
+                          />
+                          <span className="flex-1 text-base font-semibold ms-3 whitespace-nowrap">
+                            MetaMask
+                          </span>
+                        </div>
+                        <span className="inline-flex items-center justify-center px-2 py-0.5 ms-3 text-xs font-medium text-gray-500 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-400">
+                          Popular
+                        </span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full flex justify-between"
+                      >
+                        <div className="flex gap-2">
+                          <img
+                            width={24}
+                            height={24}
+                            src="/coinbase.svg"
+                            className="rounded-lg"
+                            alt="coinbase"
+                          />
+                          <span className="flex-1 text-base font-semibold ms-3 whitespace-nowrap">
+                            Coinbase Wallet
+                          </span>
+                        </div>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full flex justify-between"
+                      >
+                        <div className="flex gap-2">
+                          <img
+                            width={24}
+                            height={24}
+                            src="/wallet-connect.svg"
+                            className="rounded-lg"
+                            alt="wallet-connect"
+                          />
+                          <span className="flex-1 text-base font-semibold ms-3 whitespace-nowrap">
+                            WalletConnect
+                          </span>
+                        </div>
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            </Card>
+          </ScrollArea>
+        )}
       </>
     );
   }

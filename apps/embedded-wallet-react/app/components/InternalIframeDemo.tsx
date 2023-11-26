@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Links } from "@remix-run/react";
 import { LinksFunction } from "@remix-run/node";
 import styles from "../tailwind.css";
+import OTPCard from "./OTPCard";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -100,33 +101,33 @@ export const InternalIframeDemo: FC = () => {
         <button onClick={sendMessage}>Send message to child</button>
         <p className="break-words">received: {recievedMessage}</p>
       </div>
-
+      {/* <OTPCard /> */}
       <div className="flex items-center -mt-16 justify-center">
         {useHydrated() ? (
           <>
             {/*{*/}
-            <Frame width={465} height={600} head={<Links />} ref={iframeRef}>
-              {/* <iframe
+            {/* <Frame width={500} height={600} head={<Links />} ref={iframeRef}> */}
+            {/* <iframe
               width="600"
               height="300"
               title="Child iframe"
               ref={iframeRef}
             > */}
-              {/* <FrameContextConsumer> */}
-              {/*    {*/}
-              {/*// Callback is invoked with iframe's window and document*/}
-              {/*instances*/}
-              {/*({document, window}) => {*/}
-              {/*    return (*/}
-              <RequireUserLoggedIn>
-                <InternalEmbeddedWalletDemo />
-              </RequireUserLoggedIn>
-              {/* </iframe> */}
-              {/*)*/}
-              {/*}*/}
-              {/*}*/}
-              {/* </FrameContextConsumer> */}
-            </Frame>
+            {/* <FrameContextConsumer> */}
+            {/*    {*/}
+            {/*// Callback is invoked with iframe's window and document*/}
+            {/*instances*/}
+            {/*({document, window}) => {*/}
+            {/*    return (*/}
+            <RequireUserLoggedIn>
+              <InternalEmbeddedWalletDemo />
+            </RequireUserLoggedIn>
+            {/* </iframe> */}
+            {/*)*/}
+            {/*}*/}
+            {/*}*/}
+            {/* </FrameContextConsumer> */}
+            {/* </Frame> */}
             {/*  <hr/>*/}
             {/*<CryptoLibSmokeTest />*/}
             {/*}*/}
