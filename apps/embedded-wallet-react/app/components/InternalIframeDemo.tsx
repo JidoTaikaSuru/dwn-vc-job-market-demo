@@ -1,12 +1,18 @@
 import type { FC } from "react";
-import { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { RequireUserLoggedIn } from "~/components/RequireUserLoggedIn";
 import { InternalEmbeddedWalletDemo } from "~/components/InternalEmbeddedWalletDemo";
-import {RenderCredentials} from "~/components/RenderCredentials";
-import {SupabaseCredentialManager} from "~/lib/client";
-import {Database} from "~/__generated__/supabase-types";
+import Frame, { useFrame } from "react-frame-component";
+
+import { LinksFunction } from "@remix-run/node";
+import styles from "../tailwind.css";
+import OTPCard from "./OTPCard";
+
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+import { RenderCredentials } from "~/components/RenderCredentials";
+import { SupabaseCredentialManager } from "~/lib/client";
+import { Database } from "~/__generated__/supabase-types";
 
 export const supabaseClient = createClient<Database>(
   "https://api.gotid.org",
@@ -45,37 +51,86 @@ export function useHydrated() {
 }
 
 export const InternalIframeDemo: FC = () => {
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [recievedMessage, setRecievedMessage] = useState("");
+
+  const sendMessage = () => {
+    console.log("iframe", iframeRef);
+
+    if (!iframeRef.current) return;
+    iframeRef.current.contentWindow?.postMessage(
+      "Hello son!",
+      "http://localhost:3000"
+    );
+  };
+
+  useEffect(() => {
+    window!.addEventListener("message", function (e) {
+      console.log("parent", e.data.address);
+
+      if (e.origin !== "http://localhost:3000" || !e.data.address) return;
+      setRecievedMessage("Got this message from child: " + e.data.address);
+    });
+  }, []);
+
+  const { document: doc, window } = useFrame(); // <iframe ref="iframe" /> then this.$refs.iframe....
+  console.log("🚀 ~ file: InternalIframeDemo.tsx:69 ~ doc:", doc, window);
+  // we can replace useEffect by mounted in Vue
+  useLayoutEffect(() => {
+    if (iframeRef && iframeRef.current) {
+      const iframeDoc = iframeRef.current.contentDocument;
+
+      // Clone and append stylesheets from the parent document to the iframe's head
+      document.head
+        .querySelectorAll('style, link[as="style"], link[rel="stylesheet"]')
+        .forEach((style) => {
+          const frameStyles = style.cloneNode(true);
+          iframeDoc?.head.append(frameStyles);
+        });
+
+      // Insert the Tailwind CSS CDN script into the iframe's body using createElement
+      const script = doc!.createElement("script");
+      script!.src = "https://cdn.tailwindcss.com";
+
+      iframeDoc?.body.appendChild(script!);
+    }
+  }, [iframeRef]);
+
   return (
-    <Box>
-      <Typography>Parent container</Typography>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          maxWidth: 800,
-          maxHeight: 800,
-          border: "1px solid black",
-        }}
-      >
+    <section>
+      <h1>Parent container</h1>
+      <div className="w-80">
+        <button onClick={sendMessage}>Send message to child</button>
+        <p className="break-words">received: {recievedMessage}</p>
+      </div>
+      {/* <OTPCard /> */}
+      <div className="flex items-center -mt-16 justify-center">
         {useHydrated() ? (
           <>
             {/*{*/}
-            {/*<Frame>*/}
-              {/*<FrameContextConsumer>*/}
-              {/*    {*/}
-              {/*// Callback is invoked with iframe's window and document*/}
-              {/*instances*/}
-              {/*({document, window}) => {*/}
-              {/*    return (*/}
-              <RequireUserLoggedIn>
-                <InternalEmbeddedWalletDemo />
-                  <RenderCredentials/>
-              </RequireUserLoggedIn>
-              {/*)*/}
-              {/*}*/}
-              {/*}*/}
-              {/*</FrameContextConsumer>*/}
-            {/*</Frame>*/}
+            {/* <Frame width={500} height={600} head={<Links />} ref={iframeRef}> */}
+            {/* <iframe
+              width="600"
+              height="300"
+              title="Child iframe"
+              ref={iframeRef}
+            > */}
+            {/* <FrameContextConsumer> */}
+            {/*    {*/}
+            {/*// Callback is invoked with iframe's window and document*/}
+            {/*instances*/}
+            {/*({document, window}) => {*/}
+            {/*    return (*/}
+            <RequireUserLoggedIn>
+              <InternalEmbeddedWalletDemo />
+              <RenderCredentials />
+            </RequireUserLoggedIn>
+            {/* </iframe> */}
+            {/*)*/}
+            {/*}*/}
+            {/*}*/}
+            {/* </FrameContextConsumer> */}
+            {/* </Frame> */}
             {/*  <hr/>*/}
             {/*<CryptoLibSmokeTest />*/}
             {/*}*/}
@@ -83,8 +138,7 @@ export const InternalIframeDemo: FC = () => {
         ) : (
           <>Client-side code is loading</>
         )}
-        ;
-      </Box>
-    </Box>
+      </div>
+    </section>
   );
 };
