@@ -31,6 +31,8 @@ export const issueHasAccountCredentialHandler = async (
       },
     },
     proofFormat: "jwt",
+    proofPurpose: "assertionMethod",
+    // removeOriginalFields: false,
   });
   await storeCredential(verifiableCredential);
   reply.send(verifiableCredential);
