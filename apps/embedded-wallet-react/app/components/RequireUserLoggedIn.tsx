@@ -632,7 +632,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
       value={{
         deviceKey: devicePrivateKey,
         pin,
-        wallet,
+        // wallet,
       }}
     >
       {children}

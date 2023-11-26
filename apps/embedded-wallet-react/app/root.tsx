@@ -15,6 +15,9 @@ import { LinksFunction } from "@remix-run/node";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import EmbeddedWalletModal from "./components/WalletModal";
+import { WalletProvider, useWallet } from "./context/WalletContext";
+import Navbar from "./components/Navbar";
+
 //
 // export const logger = pino({
 //   colorize: true, // colorizes the log output
@@ -25,7 +28,6 @@ import EmbeddedWalletModal from "./components/WalletModal";
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export default function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   return (
     <html lang="en">
       <head>
@@ -35,33 +37,13 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <nav className="flex w-screen items-center justify-between p-4 bg-fuchsia-200/50">
-          {/*<IconButton edge="start" color="inherit" aria-label="home">*/}
-          {/*  <HomeIcon />*/}
-          {/*</IconButton>*/}
-          <h5 className="tracking-tighter text-xl">Embedded Wallet Demo</h5>
-          {/* Jazzicon - Conditional Rendering */}
-          {/*{isUserSignedIn && (*/}
-          {/*  <div style={{ width: 40, height: 40, marginRight: 15 }}>*/}
-          {/*    {jazzicon(userAddress)}*/}
-          {/*  </div>*/}
-          {/*)}*/}
-
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            variant="outline"
-            className="tracking-wider"
-          >
-            Login
-          </Button>
-          {isModalOpen && (
-            <EmbeddedWalletModal setIsWalletModal={setIsModalOpen} />
-          )}
-        </nav>
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
+        <WalletProvider>
+          <Navbar />
+          <Outlet />
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </WalletProvider>
       </body>
     </html>
   );

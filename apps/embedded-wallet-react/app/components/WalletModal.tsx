@@ -6,6 +6,7 @@ import { ethers, formatEther } from "ethers";
 //@ts-ignore
 import Identicon from "react-identicons";
 import { DeviceKeyContext } from "./RequireUserLoggedIn";
+import { useWallet } from "~/context/WalletContext";
 interface IEmbeddedWalletModal {
   //   logout: () => void;
   setIsWalletModal: (val: boolean) => void;
@@ -24,17 +25,18 @@ const EmbeddedWalletModal: React.FC<IEmbeddedWalletModal> = ({
   //   logout,
   setIsWalletModal,
 }) => {
-  const [address, setAddress] = useState("");
   //   const { data } = useBalance({
   //     address: wallet?.address,
   //   });
   //   console.log("🚀 ~ file: EmbeddedWalletModal.tsx:33 ~ data:", data);
+
   const ref = useRef<HTMLDivElement | null>(null);
   const [balance, setBalance] = useState("0");
   const [isCopied, setIsCopied] = useState(false);
+  const { address } = useWallet();
   const truncatedAddress = truncateAddress(address as string);
   //   const balance = data && formatEther(data?.value!);
-  console.log("🚀 ~ file: EmbeddedWalletModal.tsx:38 ~ balance:", balance!);
+  console.log("🚀 ~ file: EmbeddedWalletModal.tsx:38 ~ balance:", address);
   //   const { address, isConnected, isConnecting, isReconnecting, connector } =
   //     useAccount();
 
@@ -42,17 +44,18 @@ const EmbeddedWalletModal: React.FC<IEmbeddedWalletModal> = ({
     const getBalance = async () => {
       try {
         const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = provider.getSigner();
-        const accounts = await provider.send("eth_requestAccounts", []);
-        console.log(
-          "🚀 ~ file: WalletModal.tsx:47 ~ getBalance ~ accounts:",
-          accounts,
-          signer
-        );
-        const balance = await provider.getBalance(address);
 
-        setAddress(accounts[0]);
+        const balance = await provider.getBalance(address!);
+        console.log(
+          "🚀 ~ file: WalletModal.tsx:49 ~ getBalance ~ balance:",
+          balance
+        );
+
         const balanceInEth = formatEther(balance);
+        console.log(
+          "🚀 ~ file: WalletModal.tsx:51 ~ getBalance ~ balanceInEth:",
+          balanceInEth
+        );
         setBalance(balanceInEth);
       } catch (error) {
         console.error("Error fetching balance:", error);

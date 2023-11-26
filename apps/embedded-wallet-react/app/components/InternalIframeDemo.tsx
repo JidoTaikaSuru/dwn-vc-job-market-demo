@@ -1,20 +1,18 @@
 import type { FC } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Box, Typography } from "@mui/material";
 import { createClient } from "@supabase/supabase-js";
 import { RequireUserLoggedIn } from "~/components/RequireUserLoggedIn";
 import { InternalEmbeddedWalletDemo } from "~/components/InternalEmbeddedWalletDemo";
 import Frame, { useFrame } from "react-frame-component";
-import { Button } from "@/components/ui/button";
-import { Links } from "@remix-run/react";
+
 import { LinksFunction } from "@remix-run/node";
 import styles from "../tailwind.css";
 import OTPCard from "./OTPCard";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
-import {RenderCredentials} from "~/components/RenderCredentials";
-import {SupabaseCredentialManager} from "~/lib/client";
-import {Database} from "~/__generated__/supabase-types";
+import { RenderCredentials } from "~/components/RenderCredentials";
+import { SupabaseCredentialManager } from "~/lib/client";
+import { Database } from "~/__generated__/supabase-types";
 
 export const supabaseClient = createClient<Database>(
   "https://api.gotid.org",
@@ -99,8 +97,8 @@ export const InternalIframeDemo: FC = () => {
   }, [iframeRef]);
 
   return (
-    <Box>
-      <Typography>Parent container</Typography>
+    <section>
+      <h1>Parent container</h1>
       <div className="w-80">
         <button onClick={sendMessage}>Send message to child</button>
         <p className="break-words">received: {recievedMessage}</p>
@@ -125,7 +123,7 @@ export const InternalIframeDemo: FC = () => {
             {/*    return (*/}
             <RequireUserLoggedIn>
               <InternalEmbeddedWalletDemo />
-                  <RenderCredentials/>
+              <RenderCredentials />
             </RequireUserLoggedIn>
             {/* </iframe> */}
             {/*)*/}
@@ -141,6 +139,6 @@ export const InternalIframeDemo: FC = () => {
           <>Client-side code is loading</>
         )}
       </div>
-    </Box>
+    </section>
   );
 };
