@@ -59,7 +59,6 @@ const INFURA_PROJECT_ID = "3586660d179141e3801c3895de1c2eba";
 const KMS_SECRET_KEY =
   "11b574d316903ced6cc3f4787bbcc3047d9c72d1da4d83e36fe714ef785d10c1";
 
-console.log(process.env)
 const dbConnection = new DataSource({
   type: "postgres",
   host: process.env.DATABASE_HOST || "0.0.0.0",
