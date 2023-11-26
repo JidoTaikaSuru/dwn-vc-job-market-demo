@@ -34,7 +34,8 @@ import { getResolver as webDidResolver } from "web-did-resolver";
 
 // Storage plugin using TypeOrm
 import {
-  DataStore, DataStoreORM,
+  DataStore,
+  DataStoreORM,
   DIDStore,
   Entities,
   IDataStore,
@@ -46,8 +47,9 @@ import {
 // TypeORM is installed with `@veramo/data-store`
 import { DataSource } from "typeorm";
 
-import dotenv from 'dotenv';
-dotenv.config()
+import dotenv from "dotenv";
+
+dotenv.config();
 export const DEFAULT_IDENTIFIER_SCHEMA = "default";
 // This will be the name for the local sqlite database for demo purposes
 // const DATABASE_FILE = "database.sqlite";
@@ -85,12 +87,12 @@ export const agent = createAgent<
       store: new KeyStore(dbConnection),
       kms: {
         local: new KeyManagementSystem(
-          new PrivateKeyStore(dbConnection, new SecretBox(KMS_SECRET_KEY))
+          new PrivateKeyStore(dbConnection, new SecretBox(KMS_SECRET_KEY)),
         ),
       },
     }),
-      new DataStore(dbConnection),
-      new DataStoreORM(dbConnection),
+    new DataStore(dbConnection),
+    new DataStoreORM(dbConnection),
     new DIDManager({
       store: new DIDStore(dbConnection),
       defaultProvider: "did:ethr:goerli",

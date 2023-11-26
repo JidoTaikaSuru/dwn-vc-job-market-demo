@@ -24,9 +24,7 @@ export const WalletProvider: React.FC<React.PropsWithChildren> = ({
   const [address, setAddress] = useState("");
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [localAccount, setLocalAccount] = useState("");
-  console.log("🚀 ~ file: WalletContext.tsx:27 ~ localAccount:", localAccount);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  console.log("🚀 ~ file: WalletContext.tsx:48 ~ localAccount:", localAccount);
 
   const account = localAccount === "" ? undefined : new Wallet(localAccount);
 

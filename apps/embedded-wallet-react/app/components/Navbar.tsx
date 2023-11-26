@@ -9,7 +9,6 @@ interface INavbar {}
 const Navbar: React.FC<INavbar> = ({}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { address, isSignedIn } = useWallet();
-  console.log("🚀 ~ file: Navbar.tsx:12 ~ isSignedIn:", isSignedIn);
   const truncatedAddress = isSignedIn ? truncateAddress(address!) : "";
   return (
     <nav className="flex w-screen items-center justify-between p-4 bg-fuchsia-200/50">

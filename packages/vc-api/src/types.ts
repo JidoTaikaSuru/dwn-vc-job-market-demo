@@ -9,7 +9,8 @@ declare module "fastify" {
   interface FastifyRequest {
     authData: SupabaseUser;
     user: Database["public"]["Tables"]["users"]["Row"];
-    vc: VerifiableCredential
+    vc?: VerifiableCredential;
+    jobListing?: Database["public"]["Tables"]["job_listings"]["Row"];
   }
 
   export interface FastifyInstance {

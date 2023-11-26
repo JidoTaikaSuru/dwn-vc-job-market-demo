@@ -33,7 +33,7 @@ export const issuePassedCaptchaCredential = async (
         id: identifier.did,
         name: "Decentralinked Issuer",
       },
-      expirationDate: date.setMonth(date.getMonth() + 1).toString(),
+      expirationDate: date,
       type: ["VerifiableCredential", "HasVerifiedEmail"],
       credentialSubject: {
         id: `did:eth:${user.public_key}`,
