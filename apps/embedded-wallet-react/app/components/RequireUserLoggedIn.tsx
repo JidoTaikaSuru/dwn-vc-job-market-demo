@@ -2,12 +2,15 @@ import type { FC, PropsWithChildren } from "react";
 import { createContext, useEffect, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
-import { credentialStore, supabaseClient ,} from "~/components/InternalIframeDemo";
+import {
+  credentialStore,
+  supabaseClient,
+} from "~/components/InternalIframeDemo";
 import { ethers, Wallet, Wallet as WalletType } from "ethers";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { IoKey } from "react-icons/io5";
 import { FaTwitter, FaDiscord } from "react-icons/fa";
-import { CiMail } from "react-icons/ci";
+import { Label } from "@/components/ui/label";
 import {
   arrayBufferToBase64,
   convertStringToCryptoKey,
@@ -15,7 +18,6 @@ import {
   decryptPrivateKeyGetWallet,
   encryptData,
   isEmpty,
- 
   uint8ArrayToBase64,
 } from "~/lib/cryptoLib";
 import { AuthApiError, User } from "@supabase/supabase-js";
@@ -29,15 +31,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { TextField, Typography } from "@mui/material";
+
 import {
   Accordion,
   AccordionContent,
@@ -162,17 +156,17 @@ const createNewEmbeddedWalletForUser = async (
       pinEncryptedPrivateKey
     );
   }
-  // if (deviceKey) {
-  //   const deviceCryptoKey = await convertStringToCryptoKey(deviceKey);
-  //   const deviceEncryptedPrivateKey = await encryptData(
-  //     newEmbeddedWallet.privateKey,
-  //     deviceCryptoKey,
-  //     iv
-  //   );
-  //   updateUserData.device_encrypted_private_key = arrayBufferToBase64(
-  //     deviceEncryptedPrivateKey
-  //   );
-  // }
+  if (deviceKey) {
+    const deviceCryptoKey = await convertStringToCryptoKey(deviceKey);
+    const deviceEncryptedPrivateKey = await encryptData(
+      newEmbeddedWallet.privateKey,
+      deviceCryptoKey,
+      iv
+    );
+    updateUserData.password_encrypted_private_key = arrayBufferToBase64(
+      deviceEncryptedPrivateKey
+    );
+  }
 
   console.log("Updating user with: ", updateUserData);
   await supabaseClient.auth.updateUser({
@@ -268,7 +262,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
       //TODO use random password because only OTP sign in should be available
       const { data, error } = await supabaseClient.auth.signInWithPassword({
         email: formData.email,
-        password: formData.password,
+        password: "random" + Math.random(),
       });
       console.log("emailPassSubmit", data);
 
@@ -281,7 +275,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         const { data: signupData, error: signupError } =
           await supabaseClient.auth.signUp({
             email: formData.email,
-            password: formData.password,
+            password: "random" + Math.random(),
           });
         if (signupError) {
           setAdditionalError(signupError.message);
@@ -381,10 +375,18 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
 
       if (session) {
         console.log("navb", localStorage.getItem("deviceprivatekey"));
-        const user = session.user;
+        // const user = session.user;
+        const {
+          data: { user },
+        } = await supabaseClient.auth.getUser();
+        const { data: userRow } = await supabaseClient
+          .from("users")
+          .select("*")
+          .eq("id", user!.id)
+          .maybeSingle();
         console.log(
           "🚀 ~ file: RequireUserLoggedIn.tsx:344 ~ supabaseClient.auth.getSession ~ user:",
-          user
+          userRow
         );
         // const iv = crypto.getRandomValues(new Uint8Array(12));
         const deviceKey = localStorage.getItem("devicekey");
@@ -394,9 +396,9 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
           encryptedKey
         );
         const exampleData = await decryptPrivateKeyGetWallet(
-          user!.user_metadata.device_encrypted_private_key,
+          userRow?.password_encrypted_private_key!,
           encryptedKey,
-          user!.user_metadata.iv
+          userRow?.iv!
         );
         // const  await logUserIntoApp
         setDevicePrivateKey(localStorage.getItem("devicekey")!);
