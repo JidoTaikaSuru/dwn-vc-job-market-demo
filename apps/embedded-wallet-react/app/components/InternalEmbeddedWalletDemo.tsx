@@ -44,6 +44,8 @@ export const InternalEmbeddedWalletDemo = () => {
 
   return (
     <Card className="flex flex-col w-[464px]  items-center gap-6  p-6">
+      {/*  LIST OF CREDENTIALS ISSUED TO USER */}
+      {/*  TRUST SCORE APPEARS HERE */}
       <h3 className="text-2xl font-semibold tracking-tighter">
         Signing message with embedded wallet
       </h3>

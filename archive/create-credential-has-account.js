@@ -11,20 +11,18 @@ If this were put into a REST API (the below has several flaws in execution but i
  */
 async function main() {
   const identifier = await agent.didManagerGetByAlias({ alias: 'default' })
+
   const verifiableCredential = await agent.createVerifiableCredential({
     credential: {
       issuer: {
         id: identifier.did,
         name: "Decentralinked Issuer"
       },
-      type: ['VerifiableCredential', 'ProofOfEmailOwnership'],
+      type: ['VerifiableCredential', 'VerifiedResidentialIPAddress'],
       credentialSubject: {
-        id: 'did:web:example.com', // This should be did:ethr:<the public key of the embedded wallet, or the id of the user from supabase>
-        email: {
-          verified: true,
-          alias: false, // Set to true when user uses SimpleLogin or Relay
-          customDomain: false, // Set to true when user uses custom domain
-        },
+        id: 'did:eth:0x939393922', // This should be did:ethr:<the public key of the embedded wallet, or the id of the user from supabase>
+        countyOfOrigin: "USA",
+        residential: false,
       },
     },
     proofFormat: 'jwt',

@@ -1,7 +1,7 @@
-import { agent } from './setup.js'
+import { agent } from './setup.ts'
 
 async function main() {
-  const identifier = await agent.didManagerCreate({ alias: 'default' })
+  const identifier = await agent.didManagerCreate({ alias: 'decentralinked' })
   console.log(`New identifier created`)
   console.log(JSON.stringify(identifier, null, 2))
 }

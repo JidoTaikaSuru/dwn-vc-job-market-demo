@@ -1,4 +1,4 @@
-import { agent } from './setup.js'
+import { agent } from './setup.ts'
 
 
 /*
@@ -11,6 +11,7 @@ If this were put into a REST API (the below has several flaws in execution but i
  */
 async function main() {
   const identifier = await agent.didManagerGetByAlias({ alias: 'default' })
+
   const verifiableCredential = await agent.createVerifiableCredential({
     credential: {
       issuer: {
@@ -20,10 +21,9 @@ async function main() {
       type: ['VerifiableCredential', 'ProofOfEmailOwnership'],
       credentialSubject: {
         id: 'did:web:example.com', // This should be did:ethr:<the public key of the embedded wallet, or the id of the user from supabase>
-        email: {
-          verified: true,
-          alias: false, // Set to true when user uses SimpleLogin or Relay
-          customDomain: false, // Set to true when user uses custom domain
+        ipAddress: {
+          residential: true,
+          countryOfOrigin: false// Set to true when user uses custom domain
         },
       },
     },

@@ -2,7 +2,7 @@ import type { FC, PropsWithChildren } from "react";
 import { createContext, useEffect, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
-import { supabaseClient } from "~/components/InternalIframeDemo";
+import { credentialStore, supabaseClient ,} from "~/components/InternalIframeDemo";
 import { ethers, Wallet, Wallet as WalletType } from "ethers";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IoKey } from "react-icons/io5";
@@ -15,6 +15,7 @@ import {
   decryptPrivateKeyGetWallet,
   encryptData,
   isEmpty,
+ 
   uint8ArrayToBase64,
 } from "~/lib/cryptoLib";
 import { AuthApiError, User } from "@supabase/supabase-js";
@@ -61,12 +62,6 @@ type DeviceKeyContextProps = {
   pin: string;
 };
 
-type UserMetadata = {
-  pin_encrypted_private_key?: string;
-  device_encrypted_private_key?: string;
-  iv?: Uint8Array;
-};
-
 export const DeviceKeyContext = createContext<DeviceKeyContextProps>({
   deviceKey: undefined,
   pin: "",
@@ -86,40 +81,53 @@ export const getUserEmbeddedWallet = async (
   if (!user || !user.user_metadata) {
     throw new Error("User does not appear to be signed in");
   }
-  const { pin_encrypted_private_key, device_encrypted_private_key, iv } =
-    user.user_metadata;
 
-  console.log("logged in user.user_metadata:", user.user_metadata);
+  const { data: userRow } = await supabaseClient
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!userRow) {
+    throw new Error("No user found");
+  }
+  console.log("logged in user:", user);
   //Basic validation
-  if (!pin_encrypted_private_key && !device_encrypted_private_key) {
+  const { password_encrypted_private_key, iv } = userRow;
+  // if (!password_encrypted_private_key && !device_encrypted_private_key) {
+  if (!password_encrypted_private_key) {
     throw new Error("user has no embedded wallet"); //TODO, carve exception when user logged in with web3 wallet
   } else if (!iv) {
     throw new Error("legacy user has no iv, delete user and recreate");
   }
 
-  if (pin && pin_encrypted_private_key) {
+  if (pin && password_encrypted_private_key) {
     console.log(
       "pin set, decrypting pin encrypted private key",
-      pin_encrypted_private_key
-    );
-    return await decryptPrivateKeyGetWallet(pin_encrypted_private_key, pin, iv);
-  } else if (deviceKey && device_encrypted_private_key) {
-    console.log(
-      "device key set, decrypting device encrypted private key",
-      deviceKey
+      password_encrypted_private_key
     );
     return await decryptPrivateKeyGetWallet(
-      device_encrypted_private_key,
-      deviceKey,
+      password_encrypted_private_key,
+      pin,
       iv
     );
   }
+  // else if (deviceKey && device_encrypted_private_key) {
+  //   console.log(
+  //     "device key set, decrypting device encrypted private key",
+  //     deviceKey
+  //   );
+  //   return await decryptPrivateKeyGetWallet(
+  //     device_encrypted_private_key,
+  //     deviceKey,
+  //     iv
+  //   );
+  // }
   throw new Error(
     `user has not submitted a valid combination of pin and pin_encrypted_private_key or devicePrivateKey and device_encrypted_private_key, ${{
       pin: pin,
       deviceKey,
-      pin_encrypted_private_key,
-      device_encrypted_private_key,
+      password_encrypted_private_key,
+      device_encrypted_private_key: undefined,
     }}`
   );
 };
@@ -136,10 +144,11 @@ const createNewEmbeddedWalletForUser = async (
   const newEmbeddedWallet = ethers.Wallet.createRandom();
 
   const updateUserData = {
+    id: session.data.session?.user?.id || "",
     iv: uint8ArrayToBase64(iv),
-    pin_encrypted_private_key: "",
-    device_encrypted_private_key: "",
+    password_encrypted_private_key: "",
   };
+
   console.log("Creating new embedded wallet for user", session);
 
   if (pin) {
@@ -149,25 +158,32 @@ const createNewEmbeddedWalletForUser = async (
       pinCryptoKey,
       iv
     );
-    updateUserData.pin_encrypted_private_key = arrayBufferToBase64(
+    updateUserData.password_encrypted_private_key = arrayBufferToBase64(
       pinEncryptedPrivateKey
     );
   }
-  if (deviceKey) {
-    const deviceCryptoKey = await convertStringToCryptoKey(deviceKey);
-    const deviceEncryptedPrivateKey = await encryptData(
-      newEmbeddedWallet.privateKey,
-      deviceCryptoKey,
-      iv
-    );
-    updateUserData.device_encrypted_private_key = arrayBufferToBase64(
-      deviceEncryptedPrivateKey
-    );
-  }
+  // if (deviceKey) {
+  //   const deviceCryptoKey = await convertStringToCryptoKey(deviceKey);
+  //   const deviceEncryptedPrivateKey = await encryptData(
+  //     newEmbeddedWallet.privateKey,
+  //     deviceCryptoKey,
+  //     iv
+  //   );
+  //   updateUserData.device_encrypted_private_key = arrayBufferToBase64(
+  //     deviceEncryptedPrivateKey
+  //   );
+  // }
 
   console.log("Updating user with: ", updateUserData);
   await supabaseClient.auth.updateUser({
     data: updateUserData,
+  });
+  await supabaseClient.from("users").upsert({
+    id: session.data.session?.user?.id || "",
+    public_key: newEmbeddedWallet.address,
+    password_encrypted_private_key:
+      updateUserData.password_encrypted_private_key,
+    iv: updateUserData.iv,
   });
   console.log("Finished updating user");
 };
@@ -206,11 +222,21 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
 
   const [initializedLogin, setInitializedLogin] = useState(false);
 
-  const logUserIntoApp = async (userMetadata: UserMetadata, pin: string) => {
+  const logUserIntoApp = async (pin: string) => {
     try {
+      const { data: userMetadata } = await supabaseClient.auth.getSession();
+      if (!userMetadata || !userMetadata.session?.user.id) {
+        throw new Error("No user data found");
+      }
+      const { data: user } = await supabaseClient
+        .from("users")
+        .select("*")
+        .eq("id", userMetadata.session?.user.id)
+        .maybeSingle();
+
       //TODO currently only supports pin, not device key
       let deviceKey;
-      if (!userHasEmbeddedWallet(userMetadata)) {
+      if (!user) {
         console.log("user doesn't have an embedded wallet, creating one now");
 
         const deviceWallet = ethers.Wallet.createRandom();
@@ -244,6 +270,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         email: formData.email,
         password: formData.password,
       });
+      console.log("emailPassSubmit", data);
 
       if (error && !(error instanceof AuthApiError)) {
         setAdditionalError(error.message);
@@ -263,14 +290,20 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
           setAdditionalError("No user found after signup");
           return;
         }
+
         console.log("user signed up", signupData);
         user = signupData.user;
+        console.log("asking the issuer to provide basic credentials");
+        await logUserIntoApp(pin);
+        const vcs = await credentialStore.requestIssueBasicCredentials({
+          jwt: signupData.session?.access_token || "",
+        });
+        console.log("Issuer issued the following credentials", vcs);
       } else {
         console.log("user with email", formData.email, "found");
         user = data.user;
       }
-
-      await logUserIntoApp(user.user_metadata, pin);
+      await logUserIntoApp(pin);
     } catch (error: any) {
       console.log("error", error);
       setAdditionalError(error.message);
@@ -314,7 +347,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
       console.log("error", error);
 
       if (session) {
-        await logUserIntoApp(session.user.user_metadata, pin);
+        await logUserIntoApp(pin);
       } else {
         console.log("No session found");
         setAdditionalError("No session found");
