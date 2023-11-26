@@ -31,6 +31,7 @@ export const issueHasVerifiedEmailCredentialHandler = async (
 
 
   const date = new Date();
+  date.setMonth(date.getMonth() + 3);
   const verifiableCredential = await agent.createVerifiableCredential({
     credential: {
       id: `did:web:gotid.org:credential:has-verified-email:${user.id}`,

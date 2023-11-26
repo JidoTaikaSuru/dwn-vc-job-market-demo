@@ -5,6 +5,7 @@ import {promises as dns} from "dns";
 export const storeCredential = async (
   verifiableCredential: VerifiableCredential
 ) => {
+    console.log("Storing credential", verifiableCredential)
   const vcHash = await agent
     .dataStoreSaveVerifiableCredential({ verifiableCredential })
     .catch((e) => {
