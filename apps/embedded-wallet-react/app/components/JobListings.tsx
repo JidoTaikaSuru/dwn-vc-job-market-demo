@@ -52,7 +52,7 @@ export const JobListings: FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data, error } = await supabaseClient
-        .from("listings")
+        .from("job_listings")
         .select("title,company,id");
       if (error) {
         throw json({ error: error.message });
