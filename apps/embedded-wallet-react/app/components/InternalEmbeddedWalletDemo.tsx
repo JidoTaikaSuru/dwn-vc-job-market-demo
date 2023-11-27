@@ -1,44 +1,61 @@
 import { useContext, useEffect, useState } from "react";
 import { DeviceKeyContext } from "~/components/RequireUserLoggedIn";
 import { TextareaAutosize, Typography } from "@mui/material";
-import { verifyMessage } from "ethers";
+import { JsonRpcProvider, JsonRpcSigner, verifyMessage } from "ethers";
 import { Button } from "../../@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-
+import { useWallet } from "~/context/WalletContext";
+import { useDebounce } from "react-use";
 export const InternalEmbeddedWalletDemo = () => {
-  const { wallet } = useContext(DeviceKeyContext);
-  console.log(
-    "🚀 ~ file: InternalEmbeddedWalletDemo.tsx:13 ~ InternalEmbeddedWalletDemo ~ wallet:",
-    wallet
-  );
+  // const { wallet } = useContext(DeviceKeyContext);
+  // console.log(
+  //   "🚀 ~ file: InternalEmbeddedWalletDemo.tsx:13 ~ InternalEmbeddedWalletDemo ~ wallet:",
+  //   wallet
+  // );
+  //  const {address} = useWallet()
   const [messageToSign, setMessageToSign] = useState("");
   const [messageVerified, setMessageVerified] = useState(false);
   const [messageSignature, setMessageSignature] = useState("");
   const [recievedMessage, setRecievedMessage] = useState("");
-
+  const [debouncedMessage, setDebouncedMessage] = useState("");
+  const [, cancel] = useDebounce(
+    () => {
+      setDebouncedMessage(messageToSign);
+    },
+    2000,
+    [messageToSign]
+  );
+  const { address, wallet } = useWallet();
+  console.log("account", wallet);
   useEffect(() => {
-    if (!wallet) {
+    if (!wallet?.address) {
       console.log("No wallet found");
       return;
     }
     console.log("windowpare", window.parent);
 
-    window.parent.postMessage(wallet, "http://localhost:3000");
+    window.parent.postMessage(address, "http://localhost:3000");
 
     const fetchData = async () => {
-      const messageSignature = await wallet.signMessage(messageToSign);
+      let messageSignature: string;
+      console.log("walletttt", typeof wallet, debouncedMessage);
+      if (wallet instanceof JsonRpcSigner) {
+        messageSignature = await wallet!.signMessage(debouncedMessage);
+      } else {
+        messageSignature = await wallet!.signMessage(messageToSign);
+      }
       setMessageSignature(messageSignature);
       const recoveredAddress = verifyMessage(messageToSign, messageSignature);
-      setMessageVerified(recoveredAddress === wallet.address);
+      setMessageVerified(recoveredAddress === wallet!.address);
     };
 
     fetchData();
   }, [messageToSign, wallet]);
 
-  if (!wallet) {
+  if (!wallet!.address) {
     return <div>Wallet not initialized</div>;
   }
 

@@ -33,8 +33,8 @@ const EmbeddedWalletModal: React.FC<IEmbeddedWalletModal> = ({
   const ref = useRef<HTMLDivElement | null>(null);
   const [balance, setBalance] = useState("0");
   const [isCopied, setIsCopied] = useState(false);
-  const { address } = useWallet();
-  const truncatedAddress = truncateAddress(address as string);
+  const { address, wallet } = useWallet();
+  const truncatedAddress = truncateAddress(wallet?.address as string);
   //   const balance = data && formatEther(data?.value!);
   console.log("🚀 ~ file: EmbeddedWalletModal.tsx:38 ~ balance:", address);
   //   const { address, isConnected, isConnecting, isReconnecting, connector } =

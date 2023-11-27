@@ -13,6 +13,11 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 import { RenderCredentials } from "~/components/RenderCredentials";
 import { SupabaseCredentialManager } from "~/lib/client";
 import { Database } from "~/__generated__/supabase-types";
+import { useWallet } from "~/context/WalletContext";
+import {
+  convertStringToCryptoKey,
+  decryptPrivateKeyGetWallet,
+} from "~/lib/cryptoLib";
 
 export const supabaseClient = createClient<Database>(
   "https://api.gotid.org",
@@ -51,8 +56,10 @@ export function useHydrated() {
 }
 
 export const InternalIframeDemo: FC = () => {
+  const { isSignedIn } = useWallet();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [recievedMessage, setRecievedMessage] = useState("");
+  const { address, setWallet, setIsSignedIn } = useWallet();
 
   const sendMessage = () => {
     console.log("iframe", iframeRef);
@@ -95,6 +102,54 @@ export const InternalIframeDemo: FC = () => {
       iframeDoc?.body.appendChild(script!);
     }
   }, [iframeRef]);
+  console.log("isSignedIn", isSignedIn);
+
+  useEffect(() => {
+    supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
+      console.log("user nav", session);
+
+      if (session) {
+        console.log("navb", localStorage.getItem("deviceprivatekey"));
+        // const user = session.user;
+        const {
+          data: { user },
+        } = await supabaseClient.auth.getUser();
+        const { data: userRow } = await supabaseClient
+          .from("users")
+          .select("*")
+          .eq("id", user!.id)
+          .maybeSingle();
+        console.log(
+          "🚀 ~ file: RequireUserLoggedIn.tsx:344 ~ supabaseClient.auth.getSession ~ user:",
+          userRow
+        );
+        // const iv = crypto.getRandomValues(new Uint8Array(12));
+        const deviceKey = localStorage.getItem("devicekey");
+        const encryptedKey = await convertStringToCryptoKey(deviceKey!);
+        console.log(
+          "🚀 ~ file: RequireUserLoggedIn.tsx:356 ~ supabaseClient.auth.getSession ~ encryptedKey:",
+          encryptedKey
+        );
+        const exampleData = await decryptPrivateKeyGetWallet(
+          userRow?.password_encrypted_private_key!,
+          encryptedKey,
+          userRow?.iv!
+        );
+        // const  await logUserIntoApp
+        console.log(
+          "🚀 ~ file: LoginWithEmail.tsx:30 ~ login ~ exampleData:",
+          exampleData
+        );
+        setWallet(exampleData);
+        // setLocalAccount(exampleData);
+        setIsSignedIn(true);
+        // setLoggedIn(true);
+        setIsSignedIn(true);
+      } else {
+        // alert("Error Accessing User");
+      }
+    });
+  }, []);
 
   return (
     <section>
@@ -121,10 +176,12 @@ export const InternalIframeDemo: FC = () => {
             {/*instances*/}
             {/*({document, window}) => {*/}
             {/*    return (*/}
-            <RequireUserLoggedIn>
-              <InternalEmbeddedWalletDemo />
-              <RenderCredentials />
-            </RequireUserLoggedIn>
+            {isSignedIn && (
+              <>
+                <InternalEmbeddedWalletDemo />
+                <RenderCredentials />
+              </>
+            )}
             {/* </iframe> */}
             {/*)*/}
             {/*}*/}

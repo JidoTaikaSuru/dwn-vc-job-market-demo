@@ -4,13 +4,22 @@ import { useWallet } from "~/context/WalletContext";
 import EmbeddedWalletModal, { truncateAddress } from "./WalletModal";
 //@ts-ignore
 import Identicon from "react-identicons";
+import { RequireUserLoggedIn } from "./RequireUserLoggedIn";
+import { useHydrated } from "./InternalIframeDemo";
 interface INavbar {}
 
 const Navbar: React.FC<INavbar> = ({}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { address, isSignedIn } = useWallet();
+  const {
+    address,
+    wallet,
+    isSignedIn,
+    isConnectionModal,
+    connectWallet,
+    setIsConnectionModal,
+  } = useWallet();
   console.log("🚀 ~ file: Navbar.tsx:12 ~ isSignedIn:", isSignedIn);
-  const truncatedAddress = isSignedIn ? truncateAddress(address!) : "";
+  const truncatedAddress = isSignedIn ? truncateAddress(wallet?.address!) : "";
   return (
     <nav className="flex w-screen items-center justify-between p-4 bg-fuchsia-200/50">
       <h5 className="tracking-tighter text-xl">Embedded Wallet Demo</h5>
@@ -20,15 +29,16 @@ const Navbar: React.FC<INavbar> = ({}) => {
             setIsModalOpen(true);
           }}
           variant="outline"
-          className="tracking-wider font-semibold   flex gap-2"
+          className="tracking-wider text-base font-semibold   flex gap-2"
         >
           {<Identicon string={truncatedAddress} size={24} />}
-          {truncateAddress(address!)}
+          {truncateAddress(wallet?.address!)}
         </Button>
       ) : (
         <Button
           onClick={() => {
-            setIsModalOpen(true);
+            console.log("isconnection", isConnectionModal);
+            setIsConnectionModal(true);
           }}
           variant="outline"
           className="tracking-wider font-semibold   flex gap-2"
@@ -38,6 +48,7 @@ const Navbar: React.FC<INavbar> = ({}) => {
       )}
 
       {isModalOpen && <EmbeddedWalletModal setIsWalletModal={setIsModalOpen} />}
+      {isConnectionModal && <RequireUserLoggedIn />}
     </nav>
   );
 };
