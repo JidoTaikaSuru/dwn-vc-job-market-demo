@@ -3,15 +3,10 @@ import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { RequireUserLoggedIn } from "~/components/RequireUserLoggedIn";
 import { InternalEmbeddedWalletDemo } from "~/components/InternalEmbeddedWalletDemo";
-
-import type { LinksFunction } from "@remix-run/node";
-import styles from "../tailwind.css";
-import { RenderCredentials } from "~/components/RenderCredentials";
 import { SupabaseCredentialManager } from "~/lib/client";
 import type { Database } from "~/__generated__/supabase-types";
 import { WalletProvider } from "~/context/WalletContext";
-
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+import { JobListings } from "~/components/JobListings";
 
 export const supabaseClient = createClient<Database>(
   "https://api.gotid.org",
@@ -41,7 +36,8 @@ export const Home: FC = () => {
             <WalletProvider>
               <RequireUserLoggedIn>
                 <InternalEmbeddedWalletDemo />
-                <RenderCredentials />
+                <JobListings />
+                {/*<RenderCredentials />*/}
               </RequireUserLoggedIn>
             </WalletProvider>
           </>

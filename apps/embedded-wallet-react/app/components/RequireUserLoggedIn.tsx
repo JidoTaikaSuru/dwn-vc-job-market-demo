@@ -232,6 +232,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
       });
       console.log("emailPassSubmit", data);
 
+      //TODO Below won't fire if the user doesn't exist (desired) OR if the user exists but provided bad credentials (not desired)
       if (error && !(error instanceof AuthApiError)) {
         setAdditionalError(error.message);
         return;
