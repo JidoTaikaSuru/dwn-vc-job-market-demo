@@ -1,6 +1,67 @@
 import { JobListingPutBody } from "./index.js";
 import { supabaseClient } from "../index.js";
 import { IPresentationDefinition } from "@sphereon/pex";
+import {
+  loadPlaceholdersIntoPresentationDefinition,
+  PresentationDefinitionPlaceholder,
+} from "../presentation/lib.js";
+
+/* This script seeds the job_listings table in Supabase
+*  It was written so we can quickly iterate on presentation definitions and troubleshoot edge cases
+* */
+
+const issuerIdPlaceholder: PresentationDefinitionPlaceholder = {
+  // issuer_id key, default did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b, validate should be a regex that matches the  pattern
+  key: "{{issuer_id}}",
+  value:
+    "did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b",
+  validate: (value: string) => {
+    //TODO validate did
+    // Check value regex match did:ethr:goerli:0x<hexString>
+    // return value.match(/^did:ethr:goerli:0x[0-9a-fA-F]{20,40}$/) !== null; // TODO fixme
+    return true;
+  },
+};
+
+const requireIssuer = {
+  path: ["$.issuer.id"],
+  purpose: "We only accept credentials issued by our issuer",
+  filter: {
+    type: "string",
+    const: "{{issuer_id}}",
+  },
+};
+
+const requireType = (typeString: string) => ({
+  path: ["$.vc.type"],
+  purpose: "Holder must possess HasAccountWithTrustAuthority VC",
+  filter: {
+    type: "array",
+    contains: {
+      type: "string",
+      const: typeString,
+    },
+  },
+});
+
+const requireJti = {
+  path: ["$.jti"],
+  purpose: "We only accept credentials with a specific jti",
+  filter: {
+    type: "string",
+    const: "did:web:gotid.org:credential:has-account:{{user_supabase_id}}",
+    // pattern: "^did:web:gotid.org:credential:has-account:.*",
+  },
+};
+
+const requireCredentialSubjectId = {
+  path: ["$.vc.credentialSubject.id"],
+  purpose: "Holder must be did:eth:null",
+  filter: {
+    type: "string",
+    const: "did:eth:{{user_wallet_pubkey}}",
+  },
+};
 
 export const hasAccountPresentationDefinition: IPresentationDefinition = {
   id: "2aec8c4c-e071-4bda-8a76-41ab27632afa",
@@ -12,45 +73,10 @@ export const hasAccountPresentationDefinition: IPresentationDefinition = {
         "Please provide your HasAccount VC that we issued to you on account creation",
       constraints: {
         fields: [
-          {
-            path: ["$.jti"],
-            purpose: "We only accept credentials with a specific jti",
-            filter: {
-              type: "string",
-              const:
-                "did:web:gotid.org:credential:has-account:4b7a6302-ca53-4472-949d-cd54adf02cf8",
-              // pattern: "^did:web:gotid.org:credential:has-account:.*",
-            },
-          },
-          {
-            path: ["$.vc.credentialSubject.id"],
-            purpose: "Holder must be did:eth:null",
-            filter: {
-              type: "string",
-              const: "did:eth:null",
-              // pattern: "^did:web:gotid.org:credential:has-account:.*",
-            },
-          },
-          {
-            path: ["$.issuer.id"],
-            purpose: "We only accept credentials issued by our issuer",
-            filter: {
-              type: "string",
-              const:
-                "did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b",
-            },
-          },
-          {
-            path: ["$.vc.type"],
-            purpose: "Holder must possess HasAccountWithTrustAuthority VC",
-            filter: {
-              type: "array",
-              contains: {
-                type: "string",
-                const: "HasAccountWithTrustAuthority",
-              },
-            },
-          },
+          requireIssuer,
+          requireType("HasAccountWithTrustAuthority"),
+          requireJti,
+          requireCredentialSubjectId,
         ],
       },
     },
@@ -58,7 +84,7 @@ export const hasAccountPresentationDefinition: IPresentationDefinition = {
 };
 
 export const hasVerifiedEmailPresentationDefinition: IPresentationDefinition = {
-  id: "2aec8c4c-e071-4bda-8a76-41ab27632afa",
+  id: "bd980aee-10ba-462c-8088-4afdda24ed97",
   input_descriptors: [
     {
       id: "user has a HasAccount VC issued by us",
@@ -67,45 +93,10 @@ export const hasVerifiedEmailPresentationDefinition: IPresentationDefinition = {
         "Please provide your HasAccount VC that we issued to you on account creation",
       constraints: {
         fields: [
-          {
-            path: ["$.jti"],
-            purpose: "We only accept credentials with a specific jti",
-            filter: {
-              type: "string",
-              const:
-                "did:web:gotid.org:credential:has-account:4b7a6302-ca53-4472-949d-cd54adf02cf8",
-              // pattern: "^did:web:gotid.org:credential:has-account:.*",
-            },
-          },
-          {
-            path: ["$.vc.credentialSubject.id"],
-            purpose: "Holder must be did:eth:null",
-            filter: {
-              type: "string",
-              const: "did:eth:null",
-              // pattern: "^did:web:gotid.org:credential:has-account:.*",
-            },
-          },
-          {
-            path: ["$.issuer.id"],
-            purpose: "We only accept credentials issued by our issuer",
-            filter: {
-              type: "string",
-              const:
-                "did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b",
-            },
-          },
-          {
-            path: ["$.vc.type"],
-            purpose: "Holder must possess HasAccountWithTrustAuthority VC",
-            filter: {
-              type: "array",
-              contains: {
-                type: "string",
-                const: "HasAccountWithTrustAuthority",
-              },
-            },
-          },
+          requireIssuer,
+          requireType("HasVerifiedEmail"),
+          requireJti,
+          requireCredentialSubjectId,
         ],
       },
     },
@@ -118,28 +109,40 @@ const preCreateJobListings: JobListingPutBody[] = [
     title: "Software Engineer",
     description: "We are looking for a software engineer",
     company: "Decentralinked",
-    presentation_definition: hasAccountPresentationDefinition,
+    presentation_definition: loadPlaceholdersIntoPresentationDefinition(
+      hasAccountPresentationDefinition,
+      [issuerIdPlaceholder],
+    ),
   },
   {
     id: "aaf168a8-1e16-41b3-8fa7-b7ee53e8aaea",
     title: "Software Engineer",
     description: "Engineer of software",
     company: "Deknilartneced",
-    presentation_definition: hasAccountPresentationDefinition,
+    presentation_definition: loadPlaceholdersIntoPresentationDefinition(
+      hasAccountPresentationDefinition,
+      [issuerIdPlaceholder],
+    ),
   },
   {
     id: "f453da48-1402-4a1c-8679-3f01ecc5849e",
     title: "Senior Software Engineer",
     description: "We are looking for a Sr software engineer",
     company: "Deknilartneced",
-    presentation_definition: hasVerifiedEmailPresentationDefinition,
+    presentation_definition: loadPlaceholdersIntoPresentationDefinition(
+      hasVerifiedEmailPresentationDefinition,
+      [issuerIdPlaceholder],
+    ),
   },
   {
     id: "47d78076-4c3c-45e8-a54f-c76c3cf1472e ",
     title: "Senior Software Engineer",
     description: "We are looking for a Sr software engineer",
     company: "Decentralinked",
-    presentation_definition: hasVerifiedEmailPresentationDefinition,
+    presentation_definition: loadPlaceholdersIntoPresentationDefinition(
+      hasVerifiedEmailPresentationDefinition,
+      [issuerIdPlaceholder],
+    ),
   },
 ];
 

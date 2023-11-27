@@ -26,8 +26,6 @@ export const issueHasVerifiedEmailCredentialHandler = async (
     domain === "anonaddy.com" ||
     domain === "mozmail.com";
 
-  console.log(authData);
-  console.log(authData.email_confirmed_at);
 
 
   const date = new Date();
