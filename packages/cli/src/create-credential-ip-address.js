@@ -1,5 +1,6 @@
 import { agent } from "./setup.js";
 
+// Get IP address information from IPinfo.io
 async function getIPAddressInfo(ipAddress, apiKey) {
   const apiUrl = `https://ipinfo.io/${ipAddress}?token=${apiKey}`;
   const response = await fetch(apiUrl);

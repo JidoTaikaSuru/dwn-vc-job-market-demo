@@ -19,9 +19,34 @@ export const issuePassedCaptchaCredential = async (
   console.log("authData", authData);
 
   /*
-    TODO Do validation to make sure the user has passed the captcha right here.
+    TODO Do validation to make sure the user has passed the captcha right here.*/
+  
+  const recaptchaToken = ""; //Get token from challenge from the request body??
+  const recaptchaSecretKey = ""; //To be added from admin console
 
-    If they fail validation, return reply.status(400 or 401).send("message about why user faileValidation");
+ try {
+    const recaptchaResponse = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        secret: recaptchaSecretKey,
+        response: recaptchaToken,
+      }),
+    });
+
+    const recaptchaData = await recaptchaResponse.json();
+    //@ts-ignore
+    if (!recaptchaData.success) {
+      return reply.status(400).send("reCAPTCHA verification failed");
+    }
+  } catch (error) {
+    console.error("Error verifying reCAPTCHA:", error);
+    return reply.status(500).send("Internal Server Error");
+  }
+
+   /* If they fail validation, return reply.status(400 or 401).send("message about why user faileValidation");
      */
 
   const date = new Date();
