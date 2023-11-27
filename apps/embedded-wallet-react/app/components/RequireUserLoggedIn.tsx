@@ -17,7 +17,7 @@ import {
   isEmpty,
   uint8ArrayToBase64,
 } from "~/lib/cryptoLib";
-import {AuthApiError, User} from "@supabase/supabase-js";
+import {AuthApiError} from "@supabase/supabase-js";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
@@ -122,6 +122,7 @@ const createNewEmbeddedWalletForUser = async (
   console.log("Creating new embedded wallet for user", session);
 
   if (pin) {
+    console.log("Pin provided, encrypting private key with", pin);
     const pinCryptoKey = await convertStringToCryptoKey(pin);
     const pinEncryptedPrivateKey = await encryptData(
       newEmbeddedWallet.privateKey,
@@ -162,8 +163,8 @@ export const userHasEmbeddedWallet = ({
   pin_encrypted_private_key,
   device_encrypted_private_key,
 }: {
-  pin_encrypted_private_key?: Object;
-  device_encrypted_private_key?: Object;
+  pin_encrypted_private_key?: object;
+  device_encrypted_private_key?: object;
 }): boolean => {
   return (
     (!!pin_encrypted_private_key && !isEmpty(pin_encrypted_private_key)) ||
@@ -202,7 +203,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         .maybeSingle();
 
       //TODO currently only supports pin, not device key
-      if (!user) {
+      if (!user?.password_encrypted_private_key) {
         console.log("user doesn't have an embedded wallet, creating one now");
         await createNewEmbeddedWalletForUser(pin, undefined);
       }
@@ -224,9 +225,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
     formData,
   ) => {
     try {
-      console.log("Signing in with email and pass", formData);
-      let user: User;
-
+      console.log("Signing in with email and pass, formdata", formData);
       const { data, error } = await supabaseClient.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
@@ -237,6 +236,8 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         setAdditionalError(error.message);
         return;
       }
+
+      console.log("userData after clicking sign in:", data);
       if (!data.user) {
         console.log("user not found, signing up");
         const { data: signupData, error: signupError } =
@@ -253,7 +254,6 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         }
 
         console.log("user signed up", signupData);
-        user = signupData.user;
         console.log("asking the issuer to provide basic credentials");
         await logUserIntoApp(pin);
         const vcs = await credentialStore.requestIssueBasicCredentials({
@@ -262,7 +262,6 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         console.log("Issuer issued the following credentials", vcs);
       } else {
         console.log("user with email", formData.email, "found");
-        user = data.user;
       }
       await logUserIntoApp(pin);
     } catch (error: any) {
@@ -292,10 +291,9 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
                           <Label htmlFor="email">Email</Label>
                           <Input
                             {...emailPassRegister("email", { required: true })}
-                            defaultValue={"test3@test.com"}
+                            defaultValue={"test15@test.com"}
                             type="email"
                             id="email"
-                            placeholder="test3@test.com"
                           />
                         </div>
 
@@ -422,6 +420,9 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
                   </AccordionItem>
                 </Accordion>
               </div>
+              {additionalError && (
+                <div className="text-red-500">{additionalError}</div>
+              )}
             </Card>
           </ScrollArea>
         )}

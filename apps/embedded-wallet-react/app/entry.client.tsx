@@ -25,6 +25,7 @@ export interface ClientStyleContextData {
 }
 
 const ClientStyleContext = createContext<ClientStyleContextData>({
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
   reset: () => {},
 });
 
@@ -37,7 +38,7 @@ function ClientCacheProvider({ children }: ClientCacheProviderProps) {
         setCache(createEmotionCache());
       },
     }),
-    []
+    [],
   );
 
   return (
@@ -53,9 +54,9 @@ const hydrate = () =>
       document,
       <StrictMode>
         <ClientCacheProvider>
-            <RemixBrowser />
+          <RemixBrowser />
         </ClientCacheProvider>
-      </StrictMode>
+      </StrictMode>,
     );
   });
 

@@ -11,11 +11,7 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import styles from "./tailwind.css";
-import { LinksFunction } from "@remix-run/node";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import EmbeddedWalletModal from "./components/WalletModal";
-import { WalletProvider, useWallet } from "./context/WalletContext";
+import type { LinksFunction } from "@remix-run/node";
 import Navbar from "./components/Navbar";
 
 //
@@ -37,11 +33,11 @@ export default function App() {
         <Links />
       </head>
       <body>
-          <Navbar />
-          <Outlet />
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
+        <Navbar />
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
       </body>
     </html>
   );

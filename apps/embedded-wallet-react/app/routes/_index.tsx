@@ -1,5 +1,4 @@
 import type { MetaFunction } from "@remix-run/node";
-import { InternalEmbeddedWalletDemo } from "~/components/InternalEmbeddedWalletDemo";
 import { Home } from "~/components/Home";
 
 export const meta: MetaFunction = () => {

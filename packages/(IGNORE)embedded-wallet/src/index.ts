@@ -1,1 +1,0 @@
-export { WalletIframe } from './WalletIFrame'

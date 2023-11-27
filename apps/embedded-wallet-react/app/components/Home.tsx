@@ -4,11 +4,11 @@ import { createClient } from "@supabase/supabase-js";
 import { RequireUserLoggedIn } from "~/components/RequireUserLoggedIn";
 import { InternalEmbeddedWalletDemo } from "~/components/InternalEmbeddedWalletDemo";
 
-import { LinksFunction } from "@remix-run/node";
+import type { LinksFunction } from "@remix-run/node";
 import styles from "../tailwind.css";
 import { RenderCredentials } from "~/components/RenderCredentials";
 import { SupabaseCredentialManager } from "~/lib/client";
-import { Database } from "~/__generated__/supabase-types";
+import type { Database } from "~/__generated__/supabase-types";
 import { WalletProvider } from "~/context/WalletContext";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -22,7 +22,7 @@ export const credentialStore = new SupabaseCredentialManager();
 let hydrating = true;
 
 export function useHydrated() {
-  let [hydrated, setHydrated] = useState(() => !hydrating);
+  const [hydrated, setHydrated] = useState(() => !hydrating);
 
   useEffect(function hydrate() {
     hydrating = false;
@@ -35,7 +35,6 @@ export function useHydrated() {
 export const Home: FC = () => {
   return (
     <div>
-
       <div className="flex items-center mt-8 justify-center">
         {useHydrated() ? (
           <>

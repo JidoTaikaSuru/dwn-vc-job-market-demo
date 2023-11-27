@@ -2,10 +2,7 @@ import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-import {
-  credentialStore,
-  supabaseClient,
-} from "~/components/Home";
+import { credentialStore, supabaseClient } from "~/components/Home";
 
 import { getUserEmbeddedWallet } from "~/components/RequireUserLoggedIn";
 

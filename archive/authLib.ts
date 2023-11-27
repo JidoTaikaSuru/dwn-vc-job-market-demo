@@ -1,8 +1,5 @@
-
 // Not named "User" since so many other libraries use that name
-type ApplicationUser = {
-
-}
+type ApplicationUser = {};
 
 /*
 Registration does not necessarily require a separate pin or password

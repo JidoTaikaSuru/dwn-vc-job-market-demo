@@ -21,7 +21,9 @@ export const CryptoLibSmokeTest: FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     const fetchData = async () => {
       if (startEncrypt) {
+          console.log("encrypting", payloadToEncrypt);
       } else if (startDecrypt) {
+        console.log("decrypting", payloadToDecrypt);
       } else if (startToCryptoKey) {
         const cryptoKey = await convertStringToCryptoKey(pin);
         console.log("cryptoKey", cryptoKey);
@@ -31,7 +33,7 @@ export const CryptoLibSmokeTest: FC<PropsWithChildren> = ({ children }) => {
     };
 
     fetchData();
-  }, [startDecrypt, startEncrypt, startToCryptoKey]);
+  }, [startDecrypt, startEncrypt, startToCryptoKey, pin, payloadToDecrypt, payloadToEncrypt]);
 
   return (
     <div>

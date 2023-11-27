@@ -3,6 +3,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { IoCopyOutline, IoLogOutOutline } from "react-icons/io5";
 import { MdDone } from "react-icons/md";
 import { ethers, formatEther } from "ethers";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import Identicon from "react-identicons";
 import { useWallet } from "~/context/WalletContext";
@@ -43,9 +44,13 @@ const EmbeddedWalletModal: React.FC<IEmbeddedWalletModal> = ({
   useEffect(() => {
     const getBalance = async () => {
       try {
+        if(!address){
+          console.log("Attempted to get balance, but no address found")
+          return
+        }
         const provider = new ethers.BrowserProvider(window.ethereum);
 
-        const balance = await provider.getBalance(address!);
+        const balance = await provider.getBalance(address);
         console.log(
           "🚀 ~ file: WalletModal.tsx:49 ~ getBalance ~ balance:",
           balance,
@@ -63,7 +68,7 @@ const EmbeddedWalletModal: React.FC<IEmbeddedWalletModal> = ({
     };
 
     getBalance();
-  }, []);
+  }, [address]);
 
   useEffect(() => {
     function handleEvent(event: MouseEvent) {

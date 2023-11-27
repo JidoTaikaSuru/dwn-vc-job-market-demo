@@ -4,17 +4,13 @@ import { Wallet, ethers } from "ethers";
 
 export type WalletContextValue = {
   address: string | undefined;
-  setLocalAccount: (val: string) => void;
   isSignedIn: boolean;
-  setIsSignedIn: (val: boolean) => void;
   account: Wallet | undefined;
 };
 
 export const WalletContext = createContext<WalletContextValue>({
   address: undefined,
-  setLocalAccount: () => {},
   isSignedIn: false,
-  setIsSignedIn: () => {},
   account: undefined,
 });
 
@@ -26,7 +22,9 @@ export const WalletProvider: React.FC<React.PropsWithChildren> = ({
   const [localAccount, setLocalAccount] = useState("");
   const [isSignedIn, setIsSignedIn] = useState(false);
 
-  const account = localAccount === "" ? undefined : new Wallet(localAccount);
+  const account = useMemo(
+      () => localAccount === "" ? undefined : new Wallet(localAccount),
+      [localAccount]);
 
   useEffect(() => {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -36,7 +34,7 @@ export const WalletProvider: React.FC<React.PropsWithChildren> = ({
       console.log(
         "🚀 ~ file: WalletModal.tsx:47 ~ getBalance ~ accounts:",
         accounts,
-        account
+        account,
       );
       if (account) {
         setAddress(account?.address);
@@ -53,7 +51,7 @@ export const WalletProvider: React.FC<React.PropsWithChildren> = ({
   const changeNetwork = async () => {
     console.log(
       "🚀 ~ file: WalletContext.tsx:57 ~ changeNetwork ~ provider:",
-      provider
+      provider,
     );
 
     try {
@@ -106,9 +104,12 @@ export const WalletProvider: React.FC<React.PropsWithChildren> = ({
   };
 
   useEffect(() => {
-    checkIfAccountChanged();
-    checkNetworkChanged();
-    checkDisconnect;
+    const doAsyncWork = async () => {
+      await checkIfAccountChanged();
+      await checkNetworkChanged();
+      await checkDisconnect();
+    }
+    doAsyncWork()
   }, []);
 
   // memo-ize the context value to prevent unnecessary re-renders
@@ -120,7 +121,7 @@ export const WalletProvider: React.FC<React.PropsWithChildren> = ({
       isSignedIn,
       account,
     }),
-    [address, localAccount, isSignedIn, account]
+    [address, isSignedIn, account],
   );
 
   return (
