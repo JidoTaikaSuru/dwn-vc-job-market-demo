@@ -21,13 +21,9 @@ export const InternalEmbeddedWalletDemo = () => {
   const [messageSignature, setMessageSignature] = useState("");
   const [recievedMessage, setRecievedMessage] = useState("");
   const [debouncedMessage, setDebouncedMessage] = useState("");
-  const [, cancel] = useDebounce(
-    () => {
-      setDebouncedMessage(messageToSign);
-    },
-    2000,
-    [messageToSign]
-  );
+
+  useDebounce(() => setDebouncedMessage(messageToSign), 1500, [messageToSign]);
+
   const { address, wallet } = useWallet();
   console.log("account", wallet);
   useEffect(() => {
@@ -35,7 +31,6 @@ export const InternalEmbeddedWalletDemo = () => {
       console.log("No wallet found");
       return;
     }
-    console.log("windowpare", window.parent);
 
     window.parent.postMessage(address, "http://localhost:3000");
 
@@ -43,9 +38,9 @@ export const InternalEmbeddedWalletDemo = () => {
       let messageSignature: string;
       console.log("walletttt", typeof wallet, debouncedMessage);
       if (wallet instanceof JsonRpcSigner) {
-        messageSignature = await wallet!.signMessage(debouncedMessage);
+        messageSignature = await wallet.signMessage(debouncedMessage);
       } else {
-        messageSignature = await wallet!.signMessage(messageToSign);
+        messageSignature = await wallet.signMessage(messageToSign);
       }
       setMessageSignature(messageSignature);
       const recoveredAddress = verifyMessage(messageToSign, messageSignature);
@@ -53,8 +48,7 @@ export const InternalEmbeddedWalletDemo = () => {
     };
 
     fetchData();
-  }, [messageToSign, wallet]);
-
+  }, [debouncedMessage, wallet]);
   if (!wallet!.address) {
     return <div>Wallet not initialized</div>;
   }
