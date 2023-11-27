@@ -37,13 +37,11 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <WalletProvider>
           <Navbar />
           <Outlet />
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
-        </WalletProvider>
       </body>
     </html>
   );

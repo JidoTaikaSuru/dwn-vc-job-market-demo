@@ -1,23 +1,19 @@
 import { useContext, useEffect, useState } from "react";
-import { DeviceKeyContext } from "~/components/RequireUserLoggedIn";
-import { TextareaAutosize, Typography } from "@mui/material";
+import { PrivateKeyContext } from "~/components/RequireUserLoggedIn";
 import { verifyMessage } from "ethers";
-import { Button } from "../../@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 export const InternalEmbeddedWalletDemo = () => {
-  const { wallet } = useContext(DeviceKeyContext);
+  const { wallet } = useContext(PrivateKeyContext);
   console.log(
     "🚀 ~ file: InternalEmbeddedWalletDemo.tsx:13 ~ InternalEmbeddedWalletDemo ~ wallet:",
-    wallet
+    wallet,
   );
   const [messageToSign, setMessageToSign] = useState("");
   const [messageVerified, setMessageVerified] = useState(false);
   const [messageSignature, setMessageSignature] = useState("");
-  const [recievedMessage, setRecievedMessage] = useState("");
+  // const [recievedMessage, setRecievedMessage] = useState("");
 
   useEffect(() => {
     if (!wallet) {

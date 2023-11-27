@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { useWallet } from "~/context/WalletContext";
 import EmbeddedWalletModal, { truncateAddress } from "./WalletModal";
-//@ts-ignore
+// @ts-ignore https://github.com/doke-v/react-identicons/issues/40
 import Identicon from "react-identicons";
 interface INavbar {}
 

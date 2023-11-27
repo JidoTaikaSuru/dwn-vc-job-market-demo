@@ -1,6 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
 import { InternalEmbeddedWalletDemo } from "~/components/InternalEmbeddedWalletDemo";
-import { InternalIframeDemo } from "~/components/InternalIframeDemo";
+import { Home } from "~/components/Home";
 
 export const meta: MetaFunction = () => {
   return [
@@ -12,7 +12,7 @@ export const meta: MetaFunction = () => {
 export default function Index() {
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <InternalIframeDemo />
+      <Home />
     </div>
   );
 }

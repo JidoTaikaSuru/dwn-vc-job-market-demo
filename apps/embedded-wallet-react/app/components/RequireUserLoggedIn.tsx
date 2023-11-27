@@ -1,45 +1,30 @@
-import type { FC, PropsWithChildren } from "react";
-import { createContext, useEffect, useState } from "react";
-import type { SubmitHandler } from "react-hook-form";
-import { useForm } from "react-hook-form";
-import {
-  credentialStore,
-  supabaseClient,
-} from "~/components/InternalIframeDemo";
-import { ethers, Wallet, Wallet as WalletType } from "ethers";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { IoKey } from "react-icons/io5";
-import { FaTwitter, FaDiscord } from "react-icons/fa";
-import { Label } from "@/components/ui/label";
+import type {FC, PropsWithChildren} from "react";
+import {createContext, useState} from "react";
+import type {SubmitHandler} from "react-hook-form";
+import {useForm} from "react-hook-form";
+import {credentialStore, supabaseClient} from "~/components/Home";
+import type {Wallet, Wallet as WalletType} from "ethers";
+import {ethers} from "ethers";
+import {Tabs, TabsContent} from "@/components/ui/tabs";
+import {IoKey} from "react-icons/io5";
+import {FaDiscord, FaTwitter} from "react-icons/fa";
+import {Label} from "@/components/ui/label";
 import {
   arrayBufferToBase64,
   convertStringToCryptoKey,
-  decryptData,
   decryptPrivateKeyGetWallet,
   encryptData,
   isEmpty,
   uint8ArrayToBase64,
 } from "~/lib/cryptoLib";
-import { AuthApiError, User } from "@supabase/supabase-js";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import {AuthApiError, User} from "@supabase/supabase-js";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card";
+import {Input} from "@/components/ui/input";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger,} from "@/components/ui/accordion";
 import OTPCard from "./OTPCard";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {ScrollArea} from "@/components/ui/scroll-area";
 
 //TODO Remix has loaders, which can break up this code into smaller, easier to manage/test parts
 type VerifyEmailPasswordFormProps = {
@@ -50,13 +35,13 @@ type VerifyOtpFormProps = {
   email: string;
   otp: string;
 };
-type DeviceKeyContextProps = {
+type PrivateKeyContextProps = {
   wallet?: WalletType;
   deviceKey?: string;
   pin: string;
 };
 
-export const DeviceKeyContext = createContext<DeviceKeyContextProps>({
+export const PrivateKeyContext = createContext<PrivateKeyContextProps>({
   deviceKey: undefined,
   pin: "",
   wallet: undefined,
@@ -65,7 +50,7 @@ export const DeviceKeyContext = createContext<DeviceKeyContextProps>({
 // Get a user, and decrypt their private key
 export const getUserEmbeddedWallet = async (
   pin?: string,
-  deviceKey?: string
+  deviceKey?: string,
 ): Promise<Wallet> => {
   console.log("pin", pin, deviceKey);
 
@@ -88,6 +73,7 @@ export const getUserEmbeddedWallet = async (
   //Basic validation
   const { password_encrypted_private_key, iv } = userRow;
   // if (!password_encrypted_private_key && !device_encrypted_private_key) {
+  console.log("userRow", userRow);
   if (!password_encrypted_private_key) {
     throw new Error("user has no embedded wallet"); //TODO, carve exception when user logged in with web3 wallet
   } else if (!iv) {
@@ -97,38 +83,28 @@ export const getUserEmbeddedWallet = async (
   if (pin && password_encrypted_private_key) {
     console.log(
       "pin set, decrypting pin encrypted private key",
-      password_encrypted_private_key
+      password_encrypted_private_key,
     );
     return await decryptPrivateKeyGetWallet(
       password_encrypted_private_key,
       pin,
-      iv
+      iv,
     );
   }
-  // else if (deviceKey && device_encrypted_private_key) {
-  //   console.log(
-  //     "device key set, decrypting device encrypted private key",
-  //     deviceKey
-  //   );
-  //   return await decryptPrivateKeyGetWallet(
-  //     device_encrypted_private_key,
-  //     deviceKey,
-  //     iv
-  //   );
-  // }
+
   throw new Error(
     `user has not submitted a valid combination of pin and pin_encrypted_private_key or devicePrivateKey and device_encrypted_private_key, ${{
       pin: pin,
       deviceKey,
       password_encrypted_private_key,
       device_encrypted_private_key: undefined,
-    }}`
+    }}`,
   );
 };
 
 const createNewEmbeddedWalletForUser = async (
   pin: string,
-  deviceKey?: string
+  deviceKey?: string,
 ) => {
   const session = await supabaseClient.auth.getSession();
   if (!session) {
@@ -150,10 +126,10 @@ const createNewEmbeddedWalletForUser = async (
     const pinEncryptedPrivateKey = await encryptData(
       newEmbeddedWallet.privateKey,
       pinCryptoKey,
-      iv
+      iv,
     );
     updateUserData.password_encrypted_private_key = arrayBufferToBase64(
-      pinEncryptedPrivateKey
+      pinEncryptedPrivateKey,
     );
   }
   if (deviceKey) {
@@ -161,10 +137,10 @@ const createNewEmbeddedWalletForUser = async (
     const deviceEncryptedPrivateKey = await encryptData(
       newEmbeddedWallet.privateKey,
       deviceCryptoKey,
-      iv
+      iv,
     );
     updateUserData.password_encrypted_private_key = arrayBufferToBase64(
-      deviceEncryptedPrivateKey
+      deviceEncryptedPrivateKey,
     );
   }
 
@@ -201,7 +177,6 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
   const [wallet, setWallet] = useState<WalletType | undefined>(undefined);
   const [additionalError, setAdditionalError] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const [isOTPScreen, setIsOTPScreen] = useState(false);
   const {
     register: emailPassRegister,
@@ -213,8 +188,6 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
     handleSubmit: verifyOtpHandleSubmit,
     formState: { errors: verifyOtpErrors },
   } = useForm<VerifyOtpFormProps>();
-
-  const [initializedLogin, setInitializedLogin] = useState(false);
 
   const logUserIntoApp = async (pin: string) => {
     try {
@@ -229,20 +202,14 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         .maybeSingle();
 
       //TODO currently only supports pin, not device key
-      let deviceKey;
       if (!user) {
         console.log("user doesn't have an embedded wallet, creating one now");
-
-        const deviceWallet = ethers.Wallet.createRandom();
-        localStorage.setItem("devicekey", deviceWallet!.privateKey);
-        deviceKey = deviceWallet!.privateKey;
-        console.log(
-          "🚀 ~ file: RequireUserLoggedIn.tsx:144 ~ deviceKey:",
-          deviceKey
-        );
-        await createNewEmbeddedWalletForUser(pin, deviceKey);
+        await createNewEmbeddedWalletForUser(pin, undefined);
       }
-      const localWallet = await getUserEmbeddedWallet(pin, deviceKey);
+      const localWallet = await getUserEmbeddedWallet(
+        pin,
+        devicePrivateKey || "",
+      );
       console.log("localWallet", localWallet);
       window.localStorage.setItem("pin", pin);
       setWallet(localWallet);
@@ -254,15 +221,15 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
   };
 
   const emailPassSubmit: SubmitHandler<VerifyEmailPasswordFormProps> = async (
-    formData
+    formData,
   ) => {
     try {
       console.log("Signing in with email and pass", formData);
       let user: User;
-      //TODO use random password because only OTP sign in should be available
+
       const { data, error } = await supabaseClient.auth.signInWithPassword({
         email: formData.email,
-        password: "random" + Math.random(),
+        password: formData.password,
       });
       console.log("emailPassSubmit", data);
 
@@ -275,7 +242,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
         const { data: signupData, error: signupError } =
           await supabaseClient.auth.signUp({
             email: formData.email,
-            password: "random" + Math.random(),
+            password: formData.password,
           });
         if (signupError) {
           setAdditionalError(signupError.message);
@@ -303,176 +270,11 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
       setAdditionalError(error.message);
     }
   };
-  //TODO Function is far too complex and encourages duplication, break into smaller parts
-  const verifyOtpSubmit: SubmitHandler<VerifyOtpFormProps> = async (
-    formData
-  ) => {
-    try {
-      console.log("Signing in with", formData);
-
-      // First "submit" sends OTP to user's email. Second "submit" verifies OTP and logs in user.
-      if (!initializedLogin) {
-        const { data, error } = await supabaseClient.auth.signInWithOtp({
-          //This also signs up users if they have not yet created an account.
-          email: formData.email,
-          options: {
-            shouldCreateUser: true,
-          },
-          //password:document.getElementById('login-password').value,  //we will use the password for encrypting like the pin before
-        });
-        console.log("start login data", data);
-        console.log("start login errors", error);
-        setInitializedLogin(true);
-        return;
-      }
-
-      // Second "submit" starts here
-      console.log("Verifying OTP");
-      const {
-        data: { session },
-        error,
-      } = await supabaseClient.auth.verifyOtp({
-        email: formData.email,
-        token: formData.otp,
-        type: "email",
-      });
-
-      console.log("session", session);
-      console.log("error", error);
-
-      if (session) {
-        await logUserIntoApp(pin);
-      } else {
-        console.log("No session found");
-        setAdditionalError("No session found");
-      }
-    } catch (error: any) {
-      console.log("error", error);
-      setAdditionalError(error.message);
-    }
-  };
-
-  // const [recievedMessage, setRecievedMessage] = useState("");
-
-  // const sendMessage = () => {
-  //   console.log("window1", window.parent);
-
-  //   window.parent.postMessage("wallet", "http://localhost:3000");
-  // };
-
-  // useEffect(() => {
-  //   window.addEventListener("message", function (e) {
-  //     console.log("child", e);
-
-  //     if (e.origin !== "http://localhost:3000") return;
-  //     setRecievedMessage("Got this message from parent: " + e.data);
-  //   });
-  // }, []);
-
-  useEffect(() => {
-    supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
-      console.log("user nav", session);
-
-      if (session) {
-        console.log("navb", localStorage.getItem("deviceprivatekey"));
-        // const user = session.user;
-        const {
-          data: { user },
-        } = await supabaseClient.auth.getUser();
-        const { data: userRow } = await supabaseClient
-          .from("users")
-          .select("*")
-          .eq("id", user!.id)
-          .maybeSingle();
-        console.log(
-          "🚀 ~ file: RequireUserLoggedIn.tsx:344 ~ supabaseClient.auth.getSession ~ user:",
-          userRow
-        );
-        // const iv = crypto.getRandomValues(new Uint8Array(12));
-        const deviceKey = localStorage.getItem("devicekey");
-        const encryptedKey = await convertStringToCryptoKey(deviceKey!);
-        console.log(
-          "🚀 ~ file: RequireUserLoggedIn.tsx:356 ~ supabaseClient.auth.getSession ~ encryptedKey:",
-          encryptedKey
-        );
-        const exampleData = await decryptPrivateKeyGetWallet(
-          userRow?.password_encrypted_private_key!,
-          encryptedKey,
-          userRow?.iv!
-        );
-        // const  await logUserIntoApp
-        setDevicePrivateKey(localStorage.getItem("devicekey")!);
-        console.log(
-          "🚀 ~ file: LoginWithEmail.tsx:30 ~ login ~ exampleData:",
-          exampleData
-        );
-        setWallet(exampleData);
-        // setLocalAccount(exampleData);
-        setUser(user!);
-        setLoggedIn(true);
-      } else {
-        // alert("Error Accessing User");
-      }
-    });
-  }, []);
 
   console.log("Outermost wallet:", wallet);
   if (!loggedIn) {
     return (
       <>
-        {/* <div>
-          <Typography variant={"h5"}>PIN (Always required)</Typography>
-          <TextField
-            label={"Decrypt Pin"}
-            type={"password"}
-            onChange={(e) => setPin(e.target.value)}
-            defaultValue={localStorage.getItem("pin")}
-            value={pin}
-          />
-          <Typography variant={"h5"}>Password login</Typography>
-          <form onSubmit={emailPassHandleSubmit(emailPassSubmit)}>
-            <TextField
-              {...emailPassRegister("email", { required: true })}
-              label={"Email"}
-              type={"email"}
-              helperText={emailPassErrors.email?.message}
-              error={!!emailPassErrors.email}
-              defaultValue={"test3@test.com"}
-            />
-            <TextField
-              {...emailPassRegister("password", { required: true })}
-              label={"Password"}
-              type={"password"}
-              helperText={emailPassErrors.email?.message}
-              error={!!emailPassErrors.email}
-              defaultValue={"password"}
-            />
-            <Button type="submit">Login</Button>
-            <Typography color={"error"}>{additionalError}</Typography>
-          </form>
-          <Typography variant={"h5"}>OTP/Magic Link Signin</Typography>
-          <form onSubmit={verifyOtpHandleSubmit(verifyOtpSubmit)}>
-            <TextField
-              {...verifyOtpRegister("email", { required: true })}
-              label={"Email"}
-              type={"email"}
-              helperText={verifyOtpErrors.email?.message}
-              error={!!verifyOtpErrors.email}
-            />
-            <TextField
-              {...verifyOtpRegister("otp", { required: initializedLogin })}
-              label={"OTP"}
-              type={"text"}
-              disabled={!initializedLogin}
-              helperText={verifyOtpErrors.otp?.message}
-              error={!!verifyOtpErrors.otp}
-            />
-            <Button type="submit">Login</Button>
-            <Typography color={"error"}>{additionalError}</Typography>
-          </form>
-        </div> */}
-        {/* <button onClick={sendMessage}>Send message to parent</button> */}
-        {/* <p>received from parent: {recievedMessage}</p> */}
         {isOTPScreen ? (
           <OTPCard />
         ) : (
@@ -508,7 +310,6 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
                             defaultValue={
                               localStorage.getItem("pin") ?? "password"
                             }
-                            value={pin}
                           />
                         </div>
                       </CardContent>
@@ -628,7 +429,7 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
     );
   }
   return (
-    <DeviceKeyContext.Provider
+    <PrivateKeyContext.Provider
       value={{
         deviceKey: devicePrivateKey,
         pin,
@@ -636,6 +437,6 @@ export const RequireUserLoggedIn: FC<PropsWithChildren> = ({ children }) => {
       }}
     >
       {children}
-    </DeviceKeyContext.Provider>
+    </PrivateKeyContext.Provider>
   );
 };

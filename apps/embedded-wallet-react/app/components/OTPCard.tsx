@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import React, { useEffect, useRef, useState } from "react";
 
 interface IOTPCard {}
+
 const initialCode = Array.from({ length: 6 }, () => "");
 
 const OTPCard: React.FC<IOTPCard> = ({}) => {

@@ -13,10 +13,8 @@ import React, {
   useState,
 } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { CssBaseline, ThemeProvider } from "@mui/material";
 import { CacheProvider } from "@emotion/react";
 import createEmotionCache from "~/lib/CreateEmotionCache";
-import theme from "~/lib/Theme";
 
 interface ClientCacheProviderProps {
   children: React.ReactNode;
@@ -55,10 +53,7 @@ const hydrate = () =>
       document,
       <StrictMode>
         <ClientCacheProvider>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
             <RemixBrowser />
-          </ThemeProvider>
         </ClientCacheProvider>
       </StrictMode>
     );

@@ -1,7 +1,7 @@
 import {
   credentialStore,
   supabaseClient,
-} from "~/components/InternalIframeDemo";
+} from "~/components/Home";
 import {
   isRouteErrorResponse,
   useLoaderData,
@@ -17,25 +17,6 @@ import {VerifiableCredential} from "@veramo/core";
 export function ErrorBoundary() {
   const error = useRouteError();
   console.log("errorBoundary", error);
-  if (isRouteErrorResponse(error)) {
-    switch (error.status) {
-      case 401:
-        return (
-          <div>
-            <p>You don't have access to this invoice.</p>
-            <p>Contact {error.data.invoiceOwnerEmail} to get access</p>
-          </div>
-        );
-      case 404:
-        return <div>Invoice not found!</div>;
-    }
-
-    return (
-      <div>
-        Something went wrong: {error.status} {error.statusText}
-      </div>
-    );
-  }
 
   return (
     <div>Something went wrong: {/*{error?.message || "Unknown Error"}*/}</div>
