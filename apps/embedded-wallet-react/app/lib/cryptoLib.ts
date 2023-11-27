@@ -77,7 +77,6 @@ export const messagePubKeyToParent = (message: any) => {
 };
 
 
-
 export const uint8ArrayToBase64 = (a: Uint8Array) => {
   let binaryString = '';
   for (let i = 0; i < a.length; i++) {

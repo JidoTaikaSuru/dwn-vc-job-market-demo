@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parent Page</title>
+  </head>
+  <body>
+    <script
+      crossorigin="anonymous"
+      integrity="sha512-k7vcwydSEAD9e/QV/qvviPCbOl332HGM4ttMpgC/LH0mQMfmKi22YCNo8lmJ3r4kf+5L7jgEuxzLlc5JU/pjeA=="
+      referrerpolicy="no-referrer"
+      src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.8.1/ethers.umd.min.js"
+    ></script>
+    <h1>Parent Page</h1>
+    <div>
+      <p>Message received from IFrame</p>
+    </div>
+
+    <div style="flex-direction: column; width: 500px">
+      <h3>My public key</h3>
+      <p id="walletPubkey">(user hasn't signed in yet)</p>
+      <textarea
+        cols="100"
+        id="messageText"
+        placeholder="Enter your message here..."
+        rows="8"
+      ></textarea>
+      <button onclick="sendMessageToIframe()">Send Message to iframe</button>
+      <h2>Message received from iframe</h2>
+      <p id="parentReceiveText" style="word-wrap: break-word">
+        (haven't received a message back)
+      </p>
+      <h2>Signer:</h2>
+      <p id="verificationResultSigner"></p>
+      <h2>Verified:</h2>
+      <p id="verificationResultVerified"></p>
+    </div>
+    <iframe
+      height="500"
+      id="myIframe"
+      src="https://www.example.com/"
+      width="500"
+    ></iframe>
+
+    <script>
+      let pubkey;
+      let lastMessage;
+      let iframe = document.getElementById("myIframe");
+
+      let currentDomain = "http://" + window.location.host;
+      console.log("index.html window.location.host=" + window.location.host);
+
+      const alloweddomains = [
+        "localhost:3000",
+        "http://localhost:3000",
+        "rubenwolff.com",
+        "http://rubenwolff.com",
+        "dev.gotid.org",
+        "https://dev.gotid.org",
+        "http://localhost:8080",
+        currentDomain,
+      ]; //TODO Remove the currentDomain here its just debugging
+
+      //Uncomment to send a __generated__ message to iframe every second
+      // setInterval(function () {
+      //     let message = `Hello from parent! ${new Date()}`;
+      //     //You'll need to run this through a server, VSCode should have one that works OOB for HTML. Change the below to your server address
+      //     iframe.contentWindow.postMessage(message, "http://localhost:3000");
+      // }, 1000);
+
+      // Send a message to the iframe
+      function sendMessageToIframe() {
+        if (!pubkey) {
+          console.log(
+            "Click login in the iframe to login before trying to send a message"
+          );
+          return;
+        }
+        lastMessage = document.getElementById("messageText").value;
+        iframe.contentWindow.postMessage(lastMessage, currentDomain); // Adjust the target origin as needed
+      }
+
+      // Function to recover the signer's address from the signed message
+      function verifySignature(originalMessage, signedMessage, signerAddress) {
+        // Hash the original message (Ethereum specific format)
+        const messageHash = ethers.hashMessage(originalMessage);
+
+        // Recover the address of the signer from the signed message
+        const recoveredAddress = ethers.recoverAddress(
+          messageHash,
+          signedMessage
+        );
+
+        document.getElementById("verificationResultSigner").innerHTML =
+          signerAddress;
+
+        // Compare and return verification result
+        if (recoveredAddress === signerAddress) {
+          document.getElementById("verificationResultVerified").innerHTML =
+            "true";
+          return true;
+        }
+        document.getElementById("verificationResultVerified").innerHTML =
+          "false";
+        return false;
+      }
+
+      console.log(ethers);
+
+      // Receive message from iframe
+      window.addEventListener("message", (event) => {
+        //You'll need to run this through a server, VSCode should have one that works OOB for HTML. Change the below to your server address
+        if (alloweddomains.indexOf(event.origin) === -1) {
+          console.log(
+            "Received message from unexpected origin:",
+            event.origin,
+            "expected [" + alloweddomains + "]"
+          );
+          return;
+        }
+        const message = JSON.parse(event.data);
+        console.log("Received message from iframe", message);
+        if (message.messageType === "giveParentPubkey") {
+          document.getElementById("walletPubkey").innerHTML = message.message;
+          pubkey = message.message;
+        } else if (message.messageType === "signedMessage") {
+          document.getElementById("parentReceiveText").innerHTML =
+            message.message;
+          verifySignature(lastMessage, message.message, pubkey);
+        } else {
+          document.getElementById(
+            "parentReceiveText"
+          ).innerHTML = `Unknown message type: ${event.data}`;
+        }
+      });
+
+      // Example: send a message after 3 seconds
+      setTimeout(sendMessageToIframe, 3000);
+    </script>
+  </body>
+</html>

@@ -13,8 +13,6 @@ import * as ReactDOMServer from "react-dom/server";
 import { renderToPipeableStream } from "react-dom/server";
 import createEmotionCache from "~/lib/CreateEmotionCache";
 import createEmotionServer from "@emotion/server/create-instance";
-import { CssBaseline, ThemeProvider } from "@mui/material";
-import theme from "~/lib/Theme";
 import { CacheProvider } from "@emotion/react";
 
 const ABORT_DELAY = 5_000;
@@ -32,11 +30,7 @@ export default function handleRequest(
   function MuiRemixServer() {
     return (
       <CacheProvider value={cache}>
-        <ThemeProvider theme={theme}>
-          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-          <CssBaseline />
           <RemixServer context={remixContext} url={request.url} />
-        </ThemeProvider>
       </CacheProvider>
     );
   }

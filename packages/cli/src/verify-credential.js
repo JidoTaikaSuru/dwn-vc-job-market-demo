@@ -1,4 +1,4 @@
-import { agent } from './setup.js'
+import { agent } from './setup.ts'
 
 async function main() {
   const result = await agent.verifyCredential({
