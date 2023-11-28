@@ -2,9 +2,8 @@ import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-
-import {getUserEmbeddedWallet} from "@/lib/embeddedWalletLib";
-import {credentialStore, supabaseClient} from "@/lib/common";
+import { getUserEmbeddedWallet } from "@/lib/embeddedWalletLib";
+import { credentialStore, supabaseClient } from "@/lib/common";
 
 export const userMetadataToUser = async () => {
   const user = await supabaseClient.auth.getUser();
@@ -36,6 +35,7 @@ export const RenderCredentials: FC = () => {
   const [startUserdataConvert, setStartUserdataConvert] = useState(false);
   const [error, setError] = useState("");
   const [credentials, setCredentials] = useState("");
+
   useEffect(() => {
     const fetchData = async () => {
       console.log("Getting credentials ", new Date());

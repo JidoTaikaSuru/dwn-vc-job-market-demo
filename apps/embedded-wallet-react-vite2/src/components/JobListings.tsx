@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabaseClient } from "@/lib/common.ts";
+import { Link } from "react-router-dom";
 
 const columns: ColumnDef<{ id: string; title: string; company: string }>[] = [
   {
@@ -25,15 +26,15 @@ const columns: ColumnDef<{ id: string; title: string; company: string }>[] = [
     header: "Company",
     accessorKey: "company",
   },
-  // {
-  //   header: "Apply",
-  //   accessorKey: "id",
-  //   cell: (value) => (
-  //     <Link to={`/listing/${value.row.original.id}`} className="text-blue-500">
-  //       Apply
-  //     </Link>
-  //   ),
-  // },
+  {
+    header: "Apply",
+    accessorKey: "id",
+    cell: (value) => (
+      <Link to={`/listing/${value.row.original.id}`} className="text-blue-500">
+        Apply
+      </Link>
+    ),
+  },
 ];
 
 //TODO Add pagination

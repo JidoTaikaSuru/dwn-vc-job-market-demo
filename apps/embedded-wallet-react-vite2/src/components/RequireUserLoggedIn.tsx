@@ -37,7 +37,6 @@ type VerifyEmailPasswordFormProps = {
 export const RequireUserLoggedIn: React.FC<PropsWithChildren> = ({
   children
 }) => {
-  const [pin, setPin] = useState("");
   const [additionalError, setAdditionalError] = useState("");
   const { session, setSession, setWallet } = useContext(SessionContext);
 
@@ -129,17 +128,17 @@ export const RequireUserLoggedIn: React.FC<PropsWithChildren> = ({
 
         console.log("user signed up", signupData);
         console.log("asking the issuer to provide basic credentials");
-        await createNewEmbeddedWalletForUser(pin, undefined);
-        await logUserIntoApp(signupData.session, pin);
+        await createNewEmbeddedWalletForUser(formData.password, undefined);
+        await logUserIntoApp(signupData.session, formData.password);
         const vcs = await credentialStore.requestIssueBasicCredentials({
           jwt: signupData.session?.access_token || "",
         });
         console.log("Issuer issued the following credentials", vcs);
-        await logUserIntoApp(signupData.session, pin);
+        await logUserIntoApp(signupData.session, formData.password);
         return;
       } else {
         console.log("user with email", formData.email, "found");
-        await logUserIntoApp(data.session, pin);
+        await logUserIntoApp(data.session, formData.password);
       }
     } catch (error: any) {
       console.log("error", error);
@@ -179,9 +178,7 @@ export const RequireUserLoggedIn: React.FC<PropsWithChildren> = ({
                         {...emailPassRegister("password", {
                           required: true,
                         })}
-                        onChange={(e) => setPin(e.target.value)}
                         defaultValue={localStorage.getItem("pin") ?? "password"}
-                        value={pin}
                       />
                     </div>
                   </CardContent>
