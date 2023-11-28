@@ -13,41 +13,48 @@ export const issuePassedCaptchaCredential = async (
   // User has already authenticated w/ JWT by the time they reach this. This means they have an account w/ us
   // User is data from the "users" table (see __generated__/supabase-types.ts, search for users: {, see the "Row" type)
   // authData is data from Supabase auth, drill into it to see the type
-  const { user, authData } = request;
+  const { user, authData, token } = request;
 
   console.log("Issuing passed captcha credential to", user);
   console.log("authData", authData);
 
   /*
     TODO Do validation to make sure the user has passed the captcha right here.*/
-  
-  const recaptchaToken = ""; //Get token from challenge from the request body??
-  const recaptchaSecretKey = ""; //To be added from admin console
 
- try {
-    const recaptchaResponse = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        secret: recaptchaSecretKey,
-        response: recaptchaToken,
-      }),
-    });
+  const recaptchaToken = token;
+  const recaptchaSecretKey = process.env.SECRET_KEY_RECAPTCHA; //To be added from admin console
 
-    const recaptchaData = await recaptchaResponse.json();
-    //@ts-ignore
-    if (!recaptchaData.success) {
-      return reply.status(400).send("reCAPTCHA verification failed");
+  if (recaptchaSecretKey && recaptchaToken) {
+    try {
+      const recaptchaResponse = await fetch(
+        "https://www.google.com/recaptcha/api/siteverify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            secret: recaptchaSecretKey,
+            response: recaptchaToken,
+          }),
+        }
+      );
+
+      const recaptchaData = await recaptchaResponse.json();
+      //@ts-ignore
+      if (!recaptchaData.success) {
+        return reply.status(400).send("reCAPTCHA verification failed");
+      }
+    } catch (error) {
+      console.error("Error verifying reCAPTCHA:", error);
+      return reply.status(500).send("Internal Server Error");
     }
-  } catch (error) {
-    console.error("Error verifying reCAPTCHA:", error);
-    return reply.status(500).send("Internal Server Error");
+  } else {
+    return reply.status(400).send("Missing reCAPTCHA secret key or token");
   }
 
-   /* If they fail validation, return reply.status(400 or 401).send("message about why user faileValidation");
-     */
+  /* If they fail validation, return reply.status(400 or 401).send("message about why user faileValidation");
+   */
 
   const date = new Date();
   date.setMonth(date.getMonth() + 3);
