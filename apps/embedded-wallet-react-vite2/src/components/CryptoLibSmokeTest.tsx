@@ -1,12 +1,12 @@
 import type { FC, PropsWithChildren } from "react";
 import { useEffect, useState } from "react";
-import { convertStringToCryptoKey } from "~/lib/cryptoLib";
-import { Button } from "@/components/ui/button";
+import { convertStringToCryptoKey } from "../lib/cryptoLib";
+import { Button } from "../../@/components/ui/button";
 
 /*
 This function exists to test out the crypto lib functions without having to sign in
  */
-export const CryptoLibSmokeTest: FC<PropsWithChildren> = ({ children }) => {
+export const CryptoLibSmokeTest: FC<PropsWithChildren> = () => {
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
   // const [pinPrivateKey, setPinPrivateKey] = useState<CryptoKey | undefined>(
