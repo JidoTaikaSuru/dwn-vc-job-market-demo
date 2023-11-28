@@ -1,59 +1,15 @@
 import type { FC } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { RequireUserLoggedIn } from "~/components/RequireUserLoggedIn";
 import { InternalEmbeddedWalletDemo } from "~/components/InternalEmbeddedWalletDemo";
-import Frame, { useFrame } from "react-frame-component";
-
-import { LinksFunction } from "@remix-run/node";
-import styles from "../tailwind.css";
-import OTPCard from "./OTPCard";
-
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+import { useFrame } from "react-frame-component";
 import { RenderCredentials } from "~/components/RenderCredentials";
-import { SupabaseCredentialManager } from "~/lib/client";
-import { Database } from "~/__generated__/supabase-types";
 import { useWallet } from "~/context/WalletContext";
 import {
   convertStringToCryptoKey,
   decryptPrivateKeyGetWallet,
 } from "~/lib/cryptoLib";
-
-export const supabaseClient = createClient<Database>(
-  "https://api.gotid.org",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0"
-);
-
-export const credentialStore = new SupabaseCredentialManager();
-let hydrating = true;
-
-/**
- * Return a boolean indicating if the JS has been hydrated already.
- * When doing Server-Side Rendering, the result will always be false.
- * When doing Client-Side Rendering, the result will always be false on the
- * first render and true from then on. Even if a new component renders it will
- * always start with true.
- *
- * Example: Disable a button that needs JS to work.
- * ```tsx
- * let hydrated = useHydrated();
- * return (
- *   <button type="button" disabled={!hydrated} onClick={doSomethingCustom}>
- *     Click me
- *   </button>
- * );
- * ```
- */
-export function useHydrated() {
-  let [hydrated, setHydrated] = useState(() => !hydrating);
-
-  useEffect(function hydrate() {
-    hydrating = false;
-    setHydrated(true);
-  }, []);
-
-  return hydrated;
-}
+import { supabaseClient } from "~/lib/common";
+import { useHydrated } from "~/components/RequireClientLoad";
 
 export const InternalIframeDemo: FC = () => {
   const { isSignedIn } = useWallet();
@@ -67,7 +23,7 @@ export const InternalIframeDemo: FC = () => {
     if (!iframeRef.current) return;
     iframeRef.current.contentWindow?.postMessage(
       "Hello son!",
-      "http://localhost:3000"
+      "http://localhost:3000",
     );
   };
 
@@ -121,24 +77,24 @@ export const InternalIframeDemo: FC = () => {
           .maybeSingle();
         console.log(
           "🚀 ~ file: RequireUserLoggedIn.tsx:344 ~ supabaseClient.auth.getSession ~ user:",
-          userRow
+          userRow,
         );
         // const iv = crypto.getRandomValues(new Uint8Array(12));
         const deviceKey = localStorage.getItem("devicekey");
         const encryptedKey = await convertStringToCryptoKey(deviceKey!);
         console.log(
           "🚀 ~ file: RequireUserLoggedIn.tsx:356 ~ supabaseClient.auth.getSession ~ encryptedKey:",
-          encryptedKey
+          encryptedKey,
         );
         const exampleData = await decryptPrivateKeyGetWallet(
-          userRow?.password_encrypted_private_key!,
+          userRow?.password_encrypted_private_key || "",
           encryptedKey,
-          userRow?.iv!
+          userRow?.iv || "",
         );
         // const  await logUserIntoApp
         console.log(
           "🚀 ~ file: LoginWithEmail.tsx:30 ~ login ~ exampleData:",
-          exampleData
+          exampleData,
         );
         setWallet(exampleData);
         // setLocalAccount(exampleData);

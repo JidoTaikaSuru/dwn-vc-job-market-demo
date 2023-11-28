@@ -1,43 +1,46 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-
-import { Wallet, ethers } from "ethers";
+import { ethers, Wallet } from "ethers";
 
 export type WalletContextValue = {
   address: string | undefined;
-  setLocalAccount: (val: string) => void;
   isSignedIn: boolean;
   setIsSignedIn: (val: boolean) => void;
   isConnectionModal: boolean;
   setIsConnectionModal: (val: boolean) => void;
   connectWallet: () => void;
-  wallet: Wallet | null | ethers.JsonRpcSigner;
-  setWallet: (val: Wallet | null | ethers.JsonRpcSigner) => void;
+  wallet?: Wallet | ethers.JsonRpcSigner;
+  setWallet: (val: Wallet | ethers.JsonRpcSigner) => void;
 };
 
 export const WalletContext = createContext<WalletContextValue>({
   address: undefined,
-  setLocalAccount: () => {},
   isSignedIn: false,
   isConnectionModal: false,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setIsSignedIn: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setIsConnectionModal: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   connectWallet: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setWallet: () => {},
-  wallet: null,
+  wallet: undefined,
 });
 
 export const WalletProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const [address, setAddress] = useState("");
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
+  const [provider, setProvider] = useState<ethers.BrowserProvider | undefined>(
+    undefined,
+  );
   const [localAccount, setLocalAccount] = useState("");
   const [isConnectionModal, setIsConnectionModal] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   console.log("🚀 ~ file: WalletContext.tsx:48 ~ localAccount:", localAccount);
-  const [wallet, setWallet] = useState<Wallet | null | ethers.JsonRpcSigner>(
-    null
-  );
+  const [wallet, setWallet] = useState<
+    Wallet | ethers.JsonRpcSigner | undefined
+  >(undefined);
 
   useEffect(() => {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -47,7 +50,7 @@ export const WalletProvider: React.FC<React.PropsWithChildren> = ({
   const changeNetwork = async () => {
     console.log(
       "🚀 ~ file: WalletContext.tsx:57 ~ changeNetwork ~ provider:",
-      provider
+      provider,
     );
 
     try {
@@ -112,31 +115,33 @@ export const WalletProvider: React.FC<React.PropsWithChildren> = ({
     console.log(
       "🚀 ~ file: WalletModal.tsx:47 ~ getBalance ~ accounts:",
       accounts,
-      wallet
+      wallet,
     );
     if (wallet) {
       setAddress(wallet?.address);
       setIsSignedIn(true);
       setIsConnectionModal(false);
-    } else {
+    } else if (signer) {
       setIsSignedIn(true);
       setAddress(accounts[0]);
       setIsConnectionModal(false);
-      setWallet(signer!);
+      setWallet(signer);
     }
   };
 
   useEffect(() => {
-    checkIfAccountChanged();
-    checkNetworkChanged();
-    checkDisconnect;
+    const doAsync = async () => {
+      await checkIfAccountChanged();
+      await checkNetworkChanged();
+      await checkDisconnect();
+    };
+    doAsync();
   }, []);
 
   // memo-ize the context value to prevent unnecessary re-renders
   const value = useMemo(
     () => ({
       address,
-      setLocalAccount,
       setIsSignedIn,
       isSignedIn,
       wallet,
@@ -145,7 +150,7 @@ export const WalletProvider: React.FC<React.PropsWithChildren> = ({
       isConnectionModal,
       setIsConnectionModal,
     }),
-    [address, localAccount, isSignedIn, wallet, isConnectionModal]
+    [address, localAccount, isSignedIn, wallet, isConnectionModal],
   );
 
   return (

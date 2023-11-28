@@ -780,6 +780,36 @@ export interface Database {
         }
         Relationships: []
       }
+      job_listings: {
+        Row: {
+          company: string
+          created_at: string
+          description: string | null
+          id: string
+          presentation_definition: Json | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          presentation_definition?: Json | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          presentation_definition?: Json | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       key: {
         Row: {
           identifierDid: string | null

@@ -26,8 +26,6 @@ export const issueHasVerifiedEmailCredentialHandler = async (
     domain === "anonaddy.com" ||
     domain === "mozmail.com";
 
-  console.log(authData);
-  console.log(authData.email_confirmed_at);
 
 
   const date = new Date();
@@ -39,7 +37,7 @@ export const issueHasVerifiedEmailCredentialHandler = async (
         id: identifier.did,
         name: "Decentralinked Issuer",
       },
-      expirationDate: date.setMonth(date.getMonth() + 1).toString(),
+      expirationDate: date,
       type: ["VerifiableCredential", "HasVerifiedEmail"],
       credentialSubject: {
         id: `did:eth:${user.public_key}`, // This should be did:ethr:<the public key of the embedded wallet, or the id of the user from supabase>

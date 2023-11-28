@@ -6,17 +6,10 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
 import styles from "./tailwind.css";
-import { LinksFunction } from "@remix-run/node";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import EmbeddedWalletModal from "./components/WalletModal";
-import { WalletProvider, useWallet } from "./context/WalletContext";
+import type { LinksFunction } from "@remix-run/node";
 import Navbar from "./components/Navbar";
+import {cssBundleHref} from "@remix-run/css-bundle";
 
 //
 // export const logger = pino({
@@ -25,11 +18,14 @@ import Navbar from "./components/Navbar";
 //   ignore: "pid,hostname", // hides pid and hostname from log messages
 // });
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+]
 
 export default function App() {
   return (
-    <html lang="en">
+      <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,14 +33,12 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <WalletProvider>
-          <Navbar />
-          <Outlet />
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
-        </WalletProvider>
+      <Navbar />
+      <Outlet />
+      <ScrollRestoration />
+      <Scripts />
+      <LiveReload />
       </body>
-    </html>
+      </html>
   );
 }

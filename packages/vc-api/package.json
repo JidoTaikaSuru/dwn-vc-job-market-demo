@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/index.js\"",
-    "dev-dummy": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/presentation/index.js\"",
+    "dev-dummy": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/presentation/testing.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

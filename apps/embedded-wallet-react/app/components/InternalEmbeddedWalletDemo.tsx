@@ -1,28 +1,16 @@
-import { useContext, useEffect, useState } from "react";
-import { DeviceKeyContext } from "~/components/RequireUserLoggedIn";
-import { TextareaAutosize, Typography } from "@mui/material";
-import { JsonRpcProvider, JsonRpcSigner, verifyMessage } from "ethers";
-import { Button } from "../../@/components/ui/button";
+import { useEffect, useState } from "react";
+import { JsonRpcSigner, verifyMessage } from "ethers";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useWallet } from "~/context/WalletContext";
-import { useDebounce } from "react-use";
+import { useDebounce } from "@uidotdev/usehooks";
+
 export const InternalEmbeddedWalletDemo = () => {
-  // const { wallet } = useContext(DeviceKeyContext);
-  // console.log(
-  //   "🚀 ~ file: InternalEmbeddedWalletDemo.tsx:13 ~ InternalEmbeddedWalletDemo ~ wallet:",
-  //   wallet
-  // );
-  //  const {address} = useWallet()
   const [messageToSign, setMessageToSign] = useState("");
   const [messageVerified, setMessageVerified] = useState(false);
   const [messageSignature, setMessageSignature] = useState("");
-  const [recievedMessage, setRecievedMessage] = useState("");
-  const [debouncedMessage, setDebouncedMessage] = useState("");
 
-  useDebounce(() => setDebouncedMessage(messageToSign), 1500, [messageToSign]);
+  useDebounce(messageToSign, 1500);
 
   const { address, wallet } = useWallet();
   console.log("account", wallet);
@@ -36,9 +24,9 @@ export const InternalEmbeddedWalletDemo = () => {
 
     const fetchData = async () => {
       let messageSignature: string;
-      console.log("walletttt", typeof wallet, debouncedMessage);
+      console.log("walletttt", typeof wallet, messageToSign);
       if (wallet instanceof JsonRpcSigner) {
-        messageSignature = await wallet.signMessage(debouncedMessage);
+        messageSignature = await wallet.signMessage(messageToSign);
       } else {
         messageSignature = await wallet.signMessage(messageToSign);
       }
@@ -48,9 +36,11 @@ export const InternalEmbeddedWalletDemo = () => {
     };
 
     fetchData();
-  }, [debouncedMessage, wallet]);
-  if (!wallet!.address) {
-    return <div>Wallet not initialized</div>;
+  }, [messageToSign, wallet]);
+
+  if (!wallet?.address) {
+      console.log("No wallet found");
+      return <></>
   }
 
   return (
@@ -66,13 +56,6 @@ export const InternalEmbeddedWalletDemo = () => {
           <span className="font-bold">{wallet?.address}</span>{" "}
         </p>
       </div>
-      {/* <TextareaAutosize
-        aria-label="Message to sign"
-        minRows={3}
-        placeholder="Message to sign"
-        value={messageToSign}
-        onChange={(e) => setMessageToSign(e.target.value)}
-      /> */}
 
       <div className="flex flex-col gap-2.5 text-end items-center space-y-1 w-full">
         {/* <Label htmlFor="message" className="text-lg">

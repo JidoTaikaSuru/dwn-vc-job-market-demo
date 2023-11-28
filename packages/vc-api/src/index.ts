@@ -4,6 +4,8 @@ import { Database } from "./__generated__/supabase-types.js";
 import cors from "@fastify/cors";
 import credentialRoutes from "./credentials/index.js";
 import identifierRoutes from "./identifiers/index.js";
+import presentationRoutes from "./presentation/index.js";
+import jobListingRoutes from "./job_listing/index.js";
 
 const server = fastify();
 export const supabaseClient = createClient<Database>(
@@ -51,6 +53,8 @@ await server.register(cors, {
   origin: "*",
 });
 server.register(credentialRoutes);
+server.register(presentationRoutes);
+server.register(jobListingRoutes);
 server.register(identifierRoutes); // You can ignore these routes, see identifiers/* for details
 server.listen(
   {
