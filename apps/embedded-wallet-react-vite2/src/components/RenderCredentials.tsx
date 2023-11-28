@@ -1,41 +1,62 @@
 import type { FC } from "react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-
-import { getUserEmbeddedWallet } from "@/lib/embeddedWalletLib";
 import { credentialStore, supabaseClient } from "@/lib/common";
+import { VerifiableCredential } from "@veramo/core";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table.tsx";
+import { RequestReissueButton } from "@/components/RequestReissueButton.tsx";
 
-export const userMetadataToUser = async () => {
-  const user = await supabaseClient.auth.getUser();
-  const { id, user_metadata } = user.data.user || {};
-  if (!id) {
-    throw new Error("No user id found");
-  }
-  if (!user_metadata) {
-    throw new Error("No user metadata found");
-  }
-  const pin = localStorage.getItem("pin");
-  if (!pin) {
-    throw new Error("No pin found");
-  }
-  const wallet = await getUserEmbeddedWallet(pin, undefined);
-
-  const users = await supabaseClient.from("users").select("*");
-  console.log("users", users.data);
-  await supabaseClient.from("users").upsert({
-    id,
-    public_key: wallet.address,
-    password_encrypted_private_key: user_metadata.pin_encrypted_private_key,
-    iv: user_metadata.iv,
-  });
+type CredentialColumns = {
+  id: string;
+  type: string;
+  issued: Date;
+  expires: Date;
+  validForJob: string;
 };
+const columns: ColumnDef<CredentialColumns>[] = [
+  {
+    header: "id",
+    accessorKey: "verifiableCredential.id",
+  },
+  {
+    header: "Type",
+    accessorKey: "verifiableCredential.type.1",
+  },
+  {
+    header: "Issued",
+    accessorKey: "verifiableCredential.issuanceDate",
+  },
+  {
+    header: "Expires",
+    accessorKey: "verifiableCredential.expirationDate",
+  },
+  {
+    header: "Valid for job",
+    // accessorKey: "id",
+  },
+];
 
 export const RenderCredentials: FC = () => {
-  const [startReissue, setStartReissue] = useState(false);
-  const [startUserdataConvert, setStartUserdataConvert] = useState(false);
   const [error, setError] = useState("");
-  const [credentials, setCredentials] = useState("");
-
+  const [credentials, setCredentials] = useState<VerifiableCredential[]>([]);
+  console.log("credentials", credentials);
+  const table = useReactTable({
+    columns,
+    data: credentials,
+    getCoreRowModel: getCoreRowModel(),
+  });
   useEffect(() => {
     const fetchData = async () => {
       console.log("Getting credentials ", new Date());
@@ -47,7 +68,7 @@ export const RenderCredentials: FC = () => {
       const credentials = await credentialStore.getCredentials({
         jwt: data.session?.access_token || "",
       });
-      setCredentials(JSON.stringify(credentials));
+      setCredentials(credentials);
     };
 
     fetchData();
@@ -55,52 +76,61 @@ export const RenderCredentials: FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  useEffect(() => {
-    if (!startReissue) return;
-    setStartReissue(false);
-
-    const fetchData = async () => {
-      const { data, error } = await supabaseClient.auth.getSession();
-      if (error) {
-        setError(error.message);
-        return;
-      }
-      console.log("requesting issue", data.session);
-      const credentials = await credentialStore
-        .requestIssueBasicCredentials({
-          jwt: data.session?.access_token || "",
-        })
-        .catch((e: any) => {
-          console.log("error from requesting issue", e);
-          setError(e.message);
-          return "";
-        });
-      console.log("got issue", credentials);
-    };
-
-    fetchData();
-  }, [startReissue]);
-
-  useEffect(() => {
-    if (!startUserdataConvert) return;
-    setStartUserdataConvert(false);
-
-    const fetchData = async () => {
-      await userMetadataToUser();
-    };
-
-    fetchData();
-  }, [startUserdataConvert]);
   return (
     <>
       <h5>Credentials</h5>
-
-      <Button onClick={() => setStartReissue(true)}>Attempt Reissue</Button>
-      <Button onClick={() => setStartUserdataConvert(true)}>
-        Convert user_metadata to User
-      </Button>
-      <p>{credentials}</p>
+      <p>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </p>
       <p>{error}</p>
+      <RequestReissueButton />
     </>
   );
 };

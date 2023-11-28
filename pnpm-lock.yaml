@@ -173,6 +173,9 @@ importers:
       '@radix-ui/react-tabs':
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
+      '@sphereon/pex':
+        specifier: workspace:*
+        version: link:../../packages/PEX
       '@supabase/supabase-js':
         specifier: ^2.38.4
         version: 2.38.4

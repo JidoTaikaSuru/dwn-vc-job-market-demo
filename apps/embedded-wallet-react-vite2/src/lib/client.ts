@@ -1,7 +1,8 @@
 import type { VerifiableCredential } from "@veramo/core";
 import axios from "axios";
 
-export const REST_API_URL = "http://0.0.0.0:8080";
+export const REST_API_URL = "http://localhost:8080";
+
 export interface CredentialManager<
   RequestParameters,
   CredentialResponse = VerifiableCredential,
@@ -17,15 +18,22 @@ export interface CredentialManager<
 export class SupabaseCredentialManager
   implements CredentialManager<{ jwt: string }, VerifiableCredential>
 {
-  getCredentials = async (requestParameters: { jwt: string }) => {
-    const res = await axios.get(`${REST_API_URL}/credentials`, {
-      headers: {
-        "x-access-token": requestParameters.jwt,
+  getCredentials = async (requestParameters: {
+    jwt: string;
+  }): Promise<VerifiableCredential[]> => {
+    const res = await axios.get<VerifiableCredential[]>(
+      `${REST_API_URL}/credentials`,
+      {
+        headers: {
+          "x-access-token": requestParameters.jwt,
+        },
       },
-    });
+    );
     return res.data;
   };
-  requestIssueBasicCredentials = async (requestParameters: { jwt: string }) => {
+  requestIssueBasicCredentials = async (requestParameters: {
+    jwt: string;
+  }): Promise<VerifiableCredential[]> => {
     console.log("requestIssueBasicCredentials", requestParameters.jwt);
     const res = await axios.post(
       `${REST_API_URL}/credentials/issue/has-account`,
@@ -46,6 +54,7 @@ export class SupabaseCredentialManager
         },
       },
     );
+    console.log("requestIssueBasicCredentials", res2);
     return [res.data, res2.data];
   };
 }
