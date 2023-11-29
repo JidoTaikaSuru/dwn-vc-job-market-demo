@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { supabaseClient , web5 , myDid } from "@/lib/common.ts";
 import { Link } from "react-router-dom";
-import { dwnQueryOtherDWN, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "./lib/utils";
+import { dwnQueryOtherDWN, dwnReadOtherDWN, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "./lib/utils";
 
 const columns: ColumnDef<{ id: string; did: string; label: string }>[] = [
   {
@@ -75,11 +75,11 @@ export const DwnJobListingsRWO: FC = () => {
           let newdata = [];
           for (let i = 0; i < data.length; i++) { //Getting most up to date job listing from each DWN  ( one might want to cache this in the search engine so not everyone has to ask all the DWN's all the time.  )
                 const row = data[i];
-                const i_name = await dwnQueryOtherDWN(row.did,selfProfileProtocol)
+                const i_name = await dwnReadOtherDWN(row.did,selfProfileProtocol)
                 let dwnname ="";
                 if  (i_name && i_name.name )
                     dwnname=i_name.name 
-                const i_job_list =  await dwnQueryOtherDWN(row.did,jobPostThatCanTakeApplicationsAsReplyProtocol)
+                const i_job_list =  await dwnReadOtherDWN(row.did,jobPostThatCanTakeApplicationsAsReplyProtocol)
                 let jobpostcount =0;
                 if(i_job_list && i_job_list.length && i_job_list.length>0)
                   jobpostcount=i_job_list.length;

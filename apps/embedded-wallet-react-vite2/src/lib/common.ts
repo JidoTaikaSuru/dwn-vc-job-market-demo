@@ -3,10 +3,10 @@ import { Database } from "@/__generated__/supabase-types";
 import { SupabaseCredentialManager } from "@/lib/client";
 import { Web5 } from "@web5/api/browser";
 //import { Web5 } from "@web5/api";
-import { applicationProtocolWithoutDirectJobLink, configureProtocol, dwnCreateAndSendJApplication, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQuerySelf, dwnQuerySelfallJSONData, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
+import { applicationProtocolWithoutDirectJobLink, configureProtocol, dwnCreateAndSendJApplication, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQueryOtherDWN, dwnQuerySelf, dwnQuerySelfallJSONData, dwnReadOtherDWN, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
 
 
-const DEBUGING=true;
+export const DEBUGING=false;
 const did_db_table='dwn_did_registry_2';
 
 
@@ -24,7 +24,9 @@ console.log("🚀 ~ file: common.ts:17 ~ web5:", web5)
 export const { data: { user } } = await supabaseClient.auth.getUser()
 
 
-
+export const { data: public_dwn_did_list } = await supabaseClient
+.from(did_db_table)
+.select('*')
 
 export let user_agent="";
 if(window.navigator.userAgent )
@@ -155,13 +157,7 @@ await dwnQuerySelfallJSONData();
 }
 
 
-export const testStuffOnAllDWNs  = async() => {
-
-
-
-      const { data: public_dwn_did_list, error } = await supabaseClient
-      .from(did_db_table)
-      .select('*')
+export const spamEveryDWNwithAJobApplication  = async() => {
 
 
       if(public_dwn_did_list){   
@@ -176,10 +172,41 @@ export const testStuffOnAllDWNs  = async() => {
 
     }
 
+}
+
+export let dids_with_names=[];
+
+export const testStuffOnAllDWNs  = async() => {
+
+
+  if(public_dwn_did_list){   
+
+    let count_dwn_with_a_name=0;
+    dids_with_names=[]
+  for (let i = 0; i < public_dwn_did_list.length; i++) {  //TODO remove  trying to apply for a job at every DID DWN  we know of  no matter if they have a job or the protocol installed 
+    const element=public_dwn_did_list[i]
+    if(element.did){
+      const data = await dwnReadOtherDWN(element.did,selfProfileProtocol)
+
+      //if(data && data.length > 0 && data[0].name  ){
+        if(data &&   data.name  ){
+            console.log("🚀 ~ file: common.ts:190 ~ data:", data)
+          count_dwn_with_a_name++;
+          dids_with_names.push({did:element.did,  name:data.name })
+      }
+
+    }
+  }
+  console.log( " %%%$$$###  out of "+public_dwn_did_list.length+" DWN's we found "+count_dwn_with_a_name+" that have a name ")
+
+console.log("🚀 ~   dids_with_names:", dids_with_names)
 
 
 
 }
+
+}
+
 
 
 

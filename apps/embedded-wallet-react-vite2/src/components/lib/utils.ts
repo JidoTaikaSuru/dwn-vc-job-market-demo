@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import {  web5 , myDid, user_agent, user } from "@/lib/common.ts";
+import {  web5 , myDid, user_agent, user, DEBUGING } from "@/lib/common.ts";
  
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -159,33 +159,89 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
   }
   
   
+    //@ts-ignore
+    export const dwnQueryOtherDWN = async(fromDWN, protocol) => {
+      if(typeof protocol !== "string" && typeof protocol === "object"){
+        if( protocol.protocol && protocol.protocol  === "string"  ){
+          protocol=protocol.protocol;
+        }
+  }
+        console.log("🚀 ~  dwnQueryOtherDWN()  about to query fromDWN "+fromDWN+" for "+JSON.stringify(protocol))
+        // Reads the indicated record from Bob's DWNs
+        try { 
+          const { records } = await web5.dwn.records.query({
+            from: fromDWN,
+            message: {
+              filter:{
+                protocol: protocol,
+  
+              }
+            }
+          });
+
+
+      // assuming the record is a json payload
+
+
+      if(records){
+
+        if(DEBUGING)
+            console.log("🚀 ~ file: utils.ts:181 ~ dwnQueryOtherDWN ~ records:", records)
+
+
+        let outdata =[];
+      records.forEach(async record => {
+
+        const  d = await record.data.json()  ;
+        outdata.push( {record_id:record.id,...d } )
+
+        
+      });
+
+      //@ts-ignore
+      return outdata; 
+    }
+    else {
+
+      return undefined;
+    }
+
+    
+        } catch (e ){
+        console.log("🚀 ~ file: utils.ts:203 ~ dwnQueryOtherDWN ~ e:", e)
+        
+          return undefined;
+        }
+  
+    }
 
   //@ts-ignore
-  export const dwnQueryOtherDWN  = async(fromDWN, protocol) => {
-    if(typeof protocol !== "string" && typeof protocol === "object"){
-      if( protocol.protocol && protocol.protocol  === "string"  ){
-        protocol=protocol.protocol;
-      }
-}
-      console.log("🚀 ~ file:  about to query fromDWN "+fromDWN+" for "+JSON.stringify(protocol))
+  export const dwnReadOtherDWN  = async(fromDWN, protocol) => {
+    let i_protocol=protocol
+
+      if( protocol.protocol  )
+        i_protocol=protocol.protocol;
+      
+
+      console.log("🚀 ~  dwnReadOtherDWN()  fromDWN "+fromDWN+" for "+JSON.stringify(i_protocol))
       // Reads the indicated record from Bob's DWNs
       try { 
         const { record } = await web5.dwn.records.read({
           from: fromDWN,
           message: {
             filter:{
-              protocol: protocol,
+              protocol: i_protocol,
 
             }
           }
         });
-        console.log("🚀 ~ file: index.html:421 ~ dwnQueryOtherDWNgetName ~ record:", record)
+        console.log("🚀 ~ file: index.html:421 ~ dwnReadOtherDWN ~ record:", record)
     // assuming the record is a json payload
     const data = await record.data.json();
-    console.log("🚀 ~ file: index.html:421 ~ dwnQueryOtherDWNgetName ~ data:", data)
+    console.log("🚀 ~ file: index.html:421 ~ dwnReadOtherDWN ~ data:", data)
     return data; 
       } catch (e ){
-        console.log("🚀 ~ file: DwnJobListingDrilldown.tsx:190 ~ dwnQueryOtherDWN ~ e:", e)
+        console.log("🚀 ~ file: DwnJobListingDrilldown.tsx:190 ~ dwnReadOtherDWN ~ e:", e)
         return undefined;
       }
 
