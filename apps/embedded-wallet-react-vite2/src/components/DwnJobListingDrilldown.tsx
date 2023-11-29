@@ -81,7 +81,7 @@ export const DwnJobListingDrilldown: FC = () => {
             "types": {
               "jobPost": {
                 "schema": "https://didcomm.org/uris/that/dont/resolve/are/funny/jobPost.json",
-                "dataFormats": ["application/json"],
+                "dataFormats": ["application/json"]
               },
               "japplication": {
                 "schema": "https://didcomm.org/uris/that/dont/resolve/are/funny/japplication.json",
@@ -121,6 +121,7 @@ export const DwnJobListingDrilldown: FC = () => {
               }
             }
           }
+        }
           `);
 
 
