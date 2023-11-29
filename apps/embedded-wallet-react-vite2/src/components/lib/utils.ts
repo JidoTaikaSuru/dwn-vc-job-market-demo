@@ -202,18 +202,25 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
       }
       console.log("🚀 ~ file: utils.ts:200 ~ dwnQuerySelf ~ protocol:", protocol)
       try { 
-        const { record } = await web5.dwn.records.read({
+        const { records } = await web5.dwn.records.query({
           message: {
             filter:{
               protocol: protocol,
             }
           }
         });
-        console.log("🚀 ~ file: utils.ts:200 ~ dwnQuerySelf ~ record:", record)
-    // assuming the record is a json payload
-    const data = await record.data.json();
-    console.log("🚀 ~ file: utils.ts:202 ~ dwnQuerySelf ~ data:", data)
-    return data; 
+        console.log("🚀 ~ file: utils.ts:200 ~ dwnQuerySelf ~ records:", JSON.stringify(records))
+
+    if(records){
+    const outlist=[];
+    for (const record of records) {
+        const data = await record.data.json();
+        const list = {record, data, id: record.id};
+        outlist.push(list);
+    }
+    return outlist;
+  }
+    return undefined; 
       } catch (e ){
       console.log("🚀 ~ file: utils.ts:205 ~ dwnQuerySelf ~ e:", e)
 
@@ -228,7 +235,8 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
       
 
         try { 
-          const { record } = await web5.dwn.records.read({
+          const { records } = await web5.dwn.records.query({
+            from: myDid,
             message: {
               filter:{
                 dataFormat: 'application/json',
@@ -236,13 +244,19 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
             }
           });
 
-      // assuming the record is a json payload
-      const data = await record.data.json();
-      console.log("🚀 ~ file: utils.ts:241 ~ dwnQuerySelfallJSONData ~ record:", record)
-      console.log("🚀 ~ file: utils.ts:241 ~ dwnQuerySelfallJSONData ~ data:", data)
+          console.log("🚀 ~ file:  ~ dwnQuerySelfallJSONData ~ records:", JSON.stringify(records))
 
-      return data; 
-        } catch (e ){
+          if(records){
+          const outlist=[];
+          for (const record of records) {
+              const data = await record.data.json();
+              const list = {record, data, id: record.id};
+              outlist.push(list);
+          }
+          return outlist;
+        } 
+      }
+      catch (e ){
         console.log("🚀 ~ file: utils.ts:244 ~ dwnQuerySelfallJSONData ~ e:", e)
 
   
@@ -283,6 +297,45 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
       }
       catch(e){
         console.log("🚀 ~ file: index.html:611 ~ dwnWriteTextRecord ~ ERROR :", e)
+        
+      }
+  }
+
+
+  //@ts-ignore
+  export async function dwnCreateJobPost(data) {
+  console.log("🚀 ~ file: utils.ts:292 ~ dwnCreateJobPost ~ data:", JSON.stringify(data))
+
+
+  
+      const profiledata = {
+          "@type": "selfprofile",
+          "rando": Math.random(),
+          "author": myDid,
+          ...data
+      }
+  
+      try {
+          const { record } = await web5.dwn.records.create({
+              data: profiledata,
+              message: {
+                  protocol: jobPostThatCanTakeApplicationsAsReplyProtocol.protocol,
+                  protocolPath: 'jobPost',
+                  schema: jobPostThatCanTakeApplicationsAsReplyProtocol.types.jobPost.schema,
+                  dataFormat: jobPostThatCanTakeApplicationsAsReplyProtocol.types.jobPost.dataFormats[0],
+                  published: true
+              }
+  
+          });
+  
+          if(record)
+            console.log("🚀 ~ file:  ~  dwnCreateJobPost protocol: "+jobPostThatCanTakeApplicationsAsReplyProtocol.protocol+" create SUCCESS  ", record)
+
+      return record;
+      }
+      catch(e){
+      console.log("🚀 ~ file: utils.ts:322 ~ dwnCreateJobPost ~ e:", e)
+
         
       }
   }

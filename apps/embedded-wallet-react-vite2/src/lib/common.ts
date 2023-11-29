@@ -2,7 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/__generated__/supabase-types";
 import { SupabaseCredentialManager } from "@/lib/client";
 import { Web5 } from "@web5/api/browser";
-import { applicationProtocolWithoutDirectJobLink, configureProtocol, dwnCreateSelfProfileName, dwnQuerySelf, dwnQuerySelfallJSONData, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
+//import { Web5 } from "@web5/api";
+import { applicationProtocolWithoutDirectJobLink, configureProtocol, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQuerySelf, dwnQuerySelfallJSONData, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
 
 
 const DEBUGING=true;
@@ -22,8 +23,6 @@ console.log("🚀 ~ file: common.ts:17 ~ web5:", web5)
 
 export const initMyTestingData  = async() => {
 
-
-  
   console.log("trigger rebuild git  go go turbo vercel netlfiy gods give us reuslts")
   console.log("HELLO WORLD, initMyTestingData()")
   const { data: { user } } = await supabaseClient.auth.getUser()
@@ -35,11 +34,8 @@ export const initMyTestingData  = async() => {
     if(!curnamerecord || curnamerecord.length==0)
         await dwnCreateSelfProfileName(user.email)
 
-
-
-
     //@ts-ignore
-    const { record_plain } = await web5.dwn.records.create({
+    const { record:record_plain } = await web5.dwn.records.create({
       data: "hello world text",
       message: {
         dataFormat: 'text/plain',
@@ -48,7 +44,7 @@ export const initMyTestingData  = async() => {
     console.log("🚀 ~ file: common.ts:27 ~ record_plain:", record_plain)
 
     //@ts-ignore
-    const { plainrecords } = await web5.dwn.records.read({
+    const { record:plainrecords } = await web5.dwn.records.read({
       message: {
         filter:{
           dataFormat:  'text/plain',
@@ -57,7 +53,7 @@ export const initMyTestingData  = async() => {
     });
 
     //@ts-ignore
-    const { insertrecord  } = await web5.dwn.records.create({
+    const { record:insertrecord  } = await web5.dwn.records.create({
       data: {
           content: "Hello World",
           description: "unstable"
@@ -71,7 +67,7 @@ export const initMyTestingData  = async() => {
 
 
     //@ts-ignore
-    const { josnrecords } = await web5.dwn.records.read({
+    const { records:josnrecords } = await web5.dwn.records.query({
       message: {
         filter:{
           dataFormat: 'application/json',
@@ -79,12 +75,21 @@ export const initMyTestingData  = async() => {
       }
     });
     // assuming the record is a json payload
-    console.log("🚀 ~ file: common.ts:28 ~ record:", josnrecords)
+    console.log("🚀 ~ file: common.ts:28 ~ records:", josnrecords)
 
 
     await configureProtocol(selfProfileProtocol );
     await configureProtocol(applicationProtocolWithoutDirectJobLink );
     await configureProtocol(jobPostThatCanTakeApplicationsAsReplyProtocol );
+
+
+
+  const jobdata ={
+    title:"Senior Software Engineer",
+    description:"We are looking for a Sr software engineer",
+    presentation_definition:`{"id":"bd980aee-10ba-462c-8088-4afdda24ed97","input_descriptors":[{"id":"user has a HasAccount VC issued by us","name":"user has a HasAccount VC issued by us","purpose":"Please provide your HasAccount VC that we issued to you on account creation","constraints":{"fields":[{"path":["$.vc.type"],"filter":{"type":"array","contains":{"type":"string","const":"HasVerifiedEmail"}},"purpose":"Holder must possess HasVerifiedEmail VC"}]}}]}`
+  }
+await dwnCreateJobPost(jobdata)
 
 
 
@@ -94,6 +99,8 @@ export const initMyTestingData  = async() => {
 
 
 if(DEBUGING){
-await dwnQuerySelfallJSONData();
+
+
 await initMyTestingData();
+await dwnQuerySelfallJSONData();
 }
