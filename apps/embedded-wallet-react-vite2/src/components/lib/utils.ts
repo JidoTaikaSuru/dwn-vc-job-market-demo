@@ -161,11 +161,10 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
   
     //@ts-ignore
     export const dwnQueryOtherDWN = async(fromDWN, protocol) => {
-      if(typeof protocol !== "string" && typeof protocol === "object"){
-        if( protocol.protocol && protocol.protocol  === "string"  ){
-          protocol=protocol.protocol;
-        }
-  }
+      let i_protocol=protocol;
+      if( protocol.protocol  )
+      i_protocol=protocol.protocol;
+    
         console.log("🚀 ~  dwnQueryOtherDWN()  about to query fromDWN "+fromDWN+" for "+JSON.stringify(protocol))
         // Reads the indicated record from Bob's DWNs
         try { 
@@ -173,7 +172,7 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
             from: fromDWN,
             message: {
               filter:{
-                protocol: protocol,
+                protocol: i_protocol,
   
               }
             }
@@ -325,10 +324,10 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
 
 
 
-  export const dwnCreateAndSendJApplication = async (recipientDWN:string) => {
+  export const dwnCreateAndSendJApplication = async (recipientDWN:string , message:string) => {
     
 
-    const rando_text_about_me_sending_to_you="JApplication test from "+location + " author_DID:"+myDid+"  user_agent:"+user_agent;
+    const mmmmessg="JApplication message: "+message;
 
     let email=""
     if(user && user.email){
@@ -338,7 +337,7 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
     const sharedListData = {
         "@type": "japplication",
         "title": "JApplication "+Math.random(),
-        "description": rando_text_about_me_sending_to_you,
+        "description": mmmmessg,
         "author": myDid,
         "email":email,
         "recipient": recipientDWN,
@@ -387,7 +386,7 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
   
       const profiledata = {
           "@type": "selfprofile",
-          "name": inputText+Math.random(),
+          "name": inputText,
           "author": myDid,
       }
   

@@ -33,15 +33,32 @@ if(window.navigator.userAgent )
   user_agent = window.navigator.userAgent;
 
 let location=""
-let ip_info="";
+let ip_info=" ";
+let ip_info_j={};
 fetch('https://ipinfo.io/json')
   .then(res => res.json())
   .then(data => { 
     console.log('Response', data);
+    if(data)
      ip_info=data ; 
-     if(ip_info && ip_info.city )
-         location=ip_info.city;
-    } )
+     ip_info_j={};
+     try{
+         ip_info_j=JSON.parse(data)
+         if(ip_info_j && ip_info_j.city )
+              location=ip_info.city;
+              if(ip_info_j.error ){
+                  console.error("🚀 ~ file: common.ts:46 ~ error :", JSON.stringify(ip_info_j))
+            }
+     }
+     catch(e){
+      console.log("🚀 ~ file: common.ts:46 ~ e:", e)
+
+     }
+
+    }
+
+    
+    )
 
 
 
@@ -59,14 +76,20 @@ fetch('https://ipinfo.io/json')
         const curnamerecord = await dwnQuerySelf(selfProfileProtocol.protocol);
         console.log("🚀 ~ file: common.ts:31 ~ initMyTestingData ~ curnamerecord:", curnamerecord)
         if(!curnamerecord || curnamerecord.length==0)
-            await dwnCreateSelfProfileName(user.email)
+            await dwnCreateSelfProfileName(user.email.split("@")[0])
 
    }
 
+
+    let send_date ={ did: myDid, protocol_list: {"lol":["lol"]} , label:label,   user_agent:user_agent , updated_client_side_time: (new Date()).toISOString()};
+    if( ip_info_j && ip_info_j.city ){
+      //@ts-ignore
+      send_date["ip_info_jsonb"]=ip_info
+    }
+
       const { data:data_after_insert, error } = await supabaseClient
     .from(did_db_table)
-    .upsert(
-      { did: myDid, protocol_list: {"lol":["lol"]} , label:label, ip_info_jsonb:ip_info  , user_agent:user_agent , updated_client_side_time: (new Date()).toISOString()},
+    .upsert(send_date,
     )
     .select()
 
@@ -94,7 +117,7 @@ export const initMyTestingData  = async() => {
     const curnamerecord = await dwnQuerySelf(selfProfileProtocol.protocol);
     console.log("🚀 ~ file: common.ts:31 ~ initMyTestingData ~ curnamerecord:", curnamerecord)
     if(!curnamerecord || curnamerecord.length==0)
-        await dwnCreateSelfProfileName(user.email)
+        await dwnCreateSelfProfileName(user.email.split("@")[0])
 
     //@ts-ignore
     const { record:record_plain } = await web5.dwn.records.create({
@@ -163,9 +186,26 @@ export const spamEveryDWNwithAJobApplication  = async() => {
       if(public_dwn_did_list){   
       for (let i = 0; i < public_dwn_did_list.length; i++) {  //TODO remove  trying to apply for a job at every DID DWN  we know of  no matter if they have a job or the protocol installed 
         const element=public_dwn_did_list[i]
+
+
         if(element.did){
-          await dwnCreateAndSendJApplication(element.did)
+
+          const jobpostlist = await dwnQueryOtherDWN(element.did,jobPostThatCanTakeApplicationsAsReplyProtocol)  //TODO RWO bookmark IDK why this is returning empt when on line 117 I create a job and it successeds 
+          console.log("🚀 ~ file: common.ts:194 ~ spamEveryDWNwithAJobApplication ~ jobpostlist:", jobpostlist)
+          if( jobpostlist && jobpostlist.length && jobpostlist.length>0){
+              const firstjobpost=jobpostlist[0];
+              console.log("🚀 ~ file: common.ts:198 ~ spamEveryDWNwithAJobApplication ~ firstjobpost:", firstjobpost)
+              console.log("🚀🚀🚀  Found a company that has a job post so i should try to apply to the job now  ")//TODO RWO bookmark 
+              //TODO RWO bookmark 
+          }
+          else{
+            1==1;
+             //await dwnCreateAndSendJApplication(element.did," Did'nt see a job post so i figured i'd try apply to the company directly");
+          }
+ 
+         
         }
+
       }
 
  
@@ -176,14 +216,14 @@ export const spamEveryDWNwithAJobApplication  = async() => {
 
 export let dids_with_names=[];
 
-export const testStuffOnAllDWNs  = async() => {
+export const getAllDWNnames  = async() => { // TODO change this 
 
 
   if(public_dwn_did_list){   
 
     let count_dwn_with_a_name=0;
     dids_with_names=[]
-  for (let i = 0; i < public_dwn_did_list.length; i++) {  //TODO remove  trying to apply for a job at every DID DWN  we know of  no matter if they have a job or the protocol installed 
+  for (let i = 0; i < public_dwn_did_list.length; i++) {  //TODO change this to 
     const element=public_dwn_did_list[i]
     if(element.did){
       const data = await dwnReadOtherDWN(element.did,selfProfileProtocol)
@@ -213,6 +253,7 @@ console.log("🚀 ~   dids_with_names:", dids_with_names)
 if(DEBUGING){
 
     await initMyTestingData();
-    await testStuffOnAllDWNs();
+    await spamEveryDWNwithAJobApplication();
+    //await getAllDWNnames();
 
 }
