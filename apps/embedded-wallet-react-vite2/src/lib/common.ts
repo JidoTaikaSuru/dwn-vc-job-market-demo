@@ -3,10 +3,12 @@ import { Database } from "@/__generated__/supabase-types";
 import { SupabaseCredentialManager } from "@/lib/client";
 import { Web5 } from "@web5/api/browser";
 //import { Web5 } from "@web5/api";
-import { applicationProtocolWithoutDirectJobLink, configureProtocol, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQuerySelf, dwnQuerySelfallJSONData, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
+import { applicationProtocolWithoutDirectJobLink, configureProtocol, dwnCreateAndSendJApplication, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQuerySelf, dwnQuerySelfallJSONData, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
 
 
 const DEBUGING=true;
+const did_db_table='dwn_did_registry_2';
+
 
 export const supabaseClient = createClient<Database>(
   "https://api.gotid.org",
@@ -19,6 +21,64 @@ export const { web5, did: myDid } = await Web5.connect({ sync: "5s" });
 console.log("🚀 ~ file: common.ts:17 ~ web5:", web5)
 
 
+export const { data: { user } } = await supabaseClient.auth.getUser()
+
+
+
+
+export let user_agent="";
+if(window.navigator.userAgent )
+  user_agent = window.navigator.userAgent;
+
+let location=""
+let ip_info="";
+fetch('https://ipinfo.io/json')
+  .then(res => res.json())
+  .then(data => { 
+    console.log('Response', data);
+     ip_info=data ; 
+     if(ip_info && ip_info.city )
+         location=ip_info.city;
+    } )
+
+
+
+  
+  export async function didCreate() {
+
+
+    const { data: { user } } = await supabaseClient.auth.getUser()
+
+    let label= ""
+
+   if(user && user.email  && myDid && web5){
+        console.log("🚀 ~ file: common.ts:34 ~ initMyTestingData ~ user:", user.email)
+        label=user.email;
+        const curnamerecord = await dwnQuerySelf(selfProfileProtocol.protocol);
+        console.log("🚀 ~ file: common.ts:31 ~ initMyTestingData ~ curnamerecord:", curnamerecord)
+        if(!curnamerecord || curnamerecord.length==0)
+            await dwnCreateSelfProfileName(user.email)
+
+   }
+
+      const { data:data_after_insert, error } = await supabaseClient
+    .from(did_db_table)
+    .upsert(
+      { did: myDid, protocol_list: {"lol":["lol"]} , label:label, ip_info_jsonb:ip_info  , user_agent:user_agent , updated_client_side_time: (new Date()).toISOString()},
+    )
+    .select()
+
+    console.log("data_after_insert: "+JSON.stringify(data_after_insert))
+    console.log("did_db_table error: "+JSON.stringify(error))
+  
+    
+      return myDid;
+  
+  
+    }
+
+
+await didCreate();
 
 
 export const initMyTestingData  = async() => {
@@ -90,17 +150,42 @@ export const initMyTestingData  = async() => {
     presentation_definition:`{"id":"bd980aee-10ba-462c-8088-4afdda24ed97","input_descriptors":[{"id":"user has a HasAccount VC issued by us","name":"user has a HasAccount VC issued by us","purpose":"Please provide your HasAccount VC that we issued to you on account creation","constraints":{"fields":[{"path":["$.vc.type"],"filter":{"type":"array","contains":{"type":"string","const":"HasVerifiedEmail"}},"purpose":"Holder must possess HasVerifiedEmail VC"}]}}]}`
   }
 await dwnCreateJobPost(jobdata)
-
-
-
+await dwnQuerySelfallJSONData();
    }
+}
+
+
+export const testStuffOnAllDWNs  = async() => {
+
+
+
+      const { data: public_dwn_did_list, error } = await supabaseClient
+      .from(did_db_table)
+      .select('*')
+
+
+      if(public_dwn_did_list){   
+      for (let i = 0; i < public_dwn_did_list.length; i++) {  //TODO remove  trying to apply for a job at every DID DWN  we know of  no matter if they have a job or the protocol installed 
+        const element=public_dwn_did_list[i]
+        if(element.did){
+          await dwnCreateAndSendJApplication(element.did)
+        }
+      }
+
+ 
+
+    }
+
+
+
 
 }
 
 
+
 if(DEBUGING){
 
+    await initMyTestingData();
+    await testStuffOnAllDWNs();
 
-await initMyTestingData();
-await dwnQuerySelfallJSONData();
 }

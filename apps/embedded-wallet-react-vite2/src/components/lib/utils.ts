@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import {  web5 , myDid } from "@/lib/common.ts";
+import {  web5 , myDid, user_agent, user } from "@/lib/common.ts";
  
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -268,6 +268,64 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
 
 
 
+
+  export const dwnCreateAndSendJApplication = async (recipientDWN:string) => {
+    
+
+    const rando_text_about_me_sending_to_you="JApplication test from "+location + " author_DID:"+myDid+"  user_agent:"+user_agent;
+
+    let email=""
+    if(user && user.email){
+      email=user.email;
+
+    }
+    const sharedListData = {
+        "@type": "japplication",
+        "title": "JApplication "+Math.random(),
+        "description": rando_text_about_me_sending_to_you,
+        "author": myDid,
+        "email":email,
+        "recipient": recipientDWN,
+    }
+
+    try {
+        const { record } = await web5.dwn.records.create({
+            data: sharedListData,
+            message: {
+                protocol: applicationProtocolWithoutDirectJobLink.protocol,
+                protocolPath: 'japplication',
+                schema: applicationProtocolWithoutDirectJobLink.types.japplication.schema,
+                dataFormat: applicationProtocolWithoutDirectJobLink.types.japplication.dataFormats[0],
+                recipient: recipientDWN
+            }
+        });
+        console.log("🚀 ~ file: utils.ts:302 ~ dwnCreateAndSendJApplication ~ record:", record)
+
+
+        if(record ){
+        const { status: sendStatus } = await record.send(recipientDWN);
+
+        if (sendStatus.code !== 202) {
+            console.log("Unable to send to target ", JSON.stringify(sendStatus));
+            return;
+        }
+        else {
+            console.log("japplication sent to recipient");
+        }
+      }
+      else{
+        console.log("🚀 ~ file: utils.ts:302 ~ dwnCreateAndSendJApplication ~ record:", record)
+        console.error(" dwnCreateAndSendJApplication record should not be undefined"); 
+      }
+    } catch (e) {
+        console.error(e);
+        return;
+    }
+
+  }
+
+
+  
   export async function dwnCreateSelfProfileName(inputText:string) {
     console.log("🚀 ~ file: index.html:588 ~ dwnCreateSelfProfileName ~ inputText:", inputText)
   
