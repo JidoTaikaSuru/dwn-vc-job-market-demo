@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyServerOptions } from "fastify";
 import { jwtAuthentication, supabaseClient } from "../index.js";
 import { uuid } from "@supabase/supabase-js/dist/main/lib/helpers.js";
-import {loadUserDataPlaceholdersIntoPresentationDefinition} from "../presentation/lib.js";
-import {IPresentationDefinition} from "@sphereon/pex";
+import { loadUserDataPlaceholdersIntoPresentationDefinition } from "../presentation/lib.js";
+import { IPresentationDefinition } from "@sphereon/pex";
 
 export type JobListingPutBody = {
   id?: string;
@@ -46,7 +46,7 @@ export default async function jobListingRoutes(
     preHandler: jwtAuthentication,
     handler: async (request, reply) => {
       let { id, title, description, company, presentation_definition } =
-          request.body;
+        request.body;
       const putBody = {
         // If id is null, do random uuidv4
         id: id || uuid(),
@@ -66,8 +66,8 @@ export default async function jobListingRoutes(
       return reply.send(data);
     },
   });
-  //TODO Chan
-  server.get<{ Params: {listingId: string} }>("/job-listing/:listingId", {
+
+  server.get<{ Params: { listingId: string } }>("/job-listing/:listingId", {
     schema: {
       headers: {
         type: "object",
@@ -83,12 +83,12 @@ export default async function jobListingRoutes(
 
       console.log("fetching job listing", listingId);
       const { data: jobListingData, error: jobListingError } =
-          await supabaseClient
-              .from("job_listings")
-              .select("*")
-              .eq("id", listingId)
-              .single();
-      
+        await supabaseClient
+          .from("job_listings")
+          .select("*")
+          .eq("id", listingId)
+          .single();
+
       if (jobListingError) {
         return reply.status(500).send(jobListingError);
       }
@@ -97,14 +97,18 @@ export default async function jobListingRoutes(
       }
 
       console.log("jobListingData", jobListingData);
-  
-      const presentationDefinition = loadUserDataPlaceholdersIntoPresentationDefinition(
+
+      const presentationDefinition =
+        loadUserDataPlaceholdersIntoPresentationDefinition(
           // @ts-ignore
           jobListingData.presentation_definition as IPresentationDefinition,
           request.user,
-      );
+        );
 
-      console.log("presentationDefinition", JSON.stringify(presentationDefinition, null, 2))
+      console.log(
+        "presentationDefinition",
+        JSON.stringify(presentationDefinition, null, 2),
+      );
       reply.send({
         ...jobListingData,
         presentation_definition: presentationDefinition,
