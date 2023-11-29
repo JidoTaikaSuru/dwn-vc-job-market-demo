@@ -86,6 +86,7 @@ export const DwnJobListingDrilldown: FC = () => {
               "japplication": {
                 "schema": "https://didcomm.org/uris/that/dont/resolve/are/funny/japplication.json",
                 "dataFormats": ["application/json"]
+              }
             },
             "structure": {
               "jobPost": {
@@ -121,8 +122,86 @@ export const DwnJobListingDrilldown: FC = () => {
               }
             }
           }
-        }
+        
           `);
+
+
+      //@ts-ignore
+      const configureProtocol = async (protocolDefinition) => {
+        // query the list of existing protocols on the DWN
+        const { protocols, status } = await web5.dwn.protocols.query({
+            message: {
+                filter: {
+                    protocol: protocolDefinition.protocol,
+                }
+            }
+        });
+      
+        if(status.code !== 200) {
+            alert('Error querying protocols');
+            console.error('Error querying protocols', status);
+            return;
+        }
+      
+        // if the protocol already exists, we return
+        if(protocols.length > 0) {
+            console.log('Protocol already exists');
+            return;
+        }
+      
+        // configure protocol on local DWN
+        const { status: configureStatus, protocol } = await web5.dwn.protocols.configure({
+            message: {
+                definition: protocolDefinition,
+            }
+        });
+      
+          
+      
+        console.log('Protocol configured', configureStatus, protocol);
+      }
+      
+      
+      await configureProtocol(selfProfileProtocol );
+      await configureProtocol(applicationProtocolWithoutDirectJobLink );
+      //await configureProtocol(jobPostThatCanTakeApplicationsAsReplyProtocol );
+      
+
+
+      //@ts-ignore
+      async function dwnQueryOtherDWN(fromDWN, protocol) {
+
+          console.log("🚀 ~ file:  about to query fromDWN "+fromDWN+" for "+JSON.stringify(protocol))
+          // Reads the indicated record from Bob's DWNs
+          try { 
+            const { record } = await web5.dwn.records.read({
+              from: fromDWN,
+              message: {
+                filter:{
+                  protocol: protocol,
+
+                }
+              }
+            });
+            console.log("🚀 ~ file: index.html:421 ~ dwnQueryOtherDWNgetName ~ record:", record)
+        // assuming the record is a json payload
+        const data = await record.data.json();
+        console.log("🚀 ~ file: index.html:421 ~ dwnQueryOtherDWNgetName ~ data:", data)
+        return data; 
+          } catch (e ){
+            console.log("🚀 ~ file: DwnJobListingDrilldown.tsx:190 ~ dwnQueryOtherDWN ~ e:", e)
+            return undefined;
+          }
+   
+      }
+
+      let gotAName= await dwnQueryOtherDWN(employerDid,selfProfileProtocol.protocol)
+      console.log("🚀 ~ file: DwnJobListingDrilldown.tsx:198 ~ runWeb5 ~ gotAName:", gotAName)
+
+      let gotAllJobPosts= await dwnQueryOtherDWN(employerDid,jobPostThatCanTakeApplicationsAsReplyProtocol.protocol)
+      console.log("🚀 ~ file: DwnJobListingDrilldown.tsx:201 ~ runWeb5 ~ gotAllJobPosts:", gotAllJobPosts)
+
+
 
 
       await web5.dwn.protocols.query({

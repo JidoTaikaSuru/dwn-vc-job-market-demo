@@ -6,6 +6,8 @@ import { RequireUserLoggedIn } from "@/components/RequireUserLoggedIn.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { JobListingDrilldown } from "@/components/JobListingDrilldown.tsx";
 import { DwnJobListings } from "./components/DwnJobListings";
+import { DwnJobListingsRWO } from "./components/DwnJobListingsRWO";
+
 import { DwnJobListingDrilldown } from "./components/DwnJobListingDrilldown";
 
 const router = createBrowserRouter([
@@ -25,6 +27,11 @@ const router = createBrowserRouter([
     path: "/dwnListings/:employerDid",
     element: <DwnJobListingDrilldown />,
   },
+  {
+    path: "/dwnListingsRWO",
+    element: <DwnJobListingsRWO />,
+  },
+ 
 ]);
 
 function App() {

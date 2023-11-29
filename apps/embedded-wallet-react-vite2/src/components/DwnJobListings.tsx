@@ -37,19 +37,21 @@ const columns: ColumnDef<{ id: string; did: string; label: string }>[] = [
   },
 ];
 
-//TODO Add pagination
+//TODO Add pagination,...  Na don't worry about it 
 export const DwnJobListings: FC = () => {
   const [listings, setListings] = useState<
     { id: string; label: string; did: string }[]
   >([]);
 
-  const formattedList = listings.map((x) => {return {id : x.id, label : x.label, did : x.did.substring(0, 32)}});
+  //const formattedList = listings.map((x) => {return {id : x.id, label : x.label, did : x.did.substring(0, 32)}}); //trying to figure out where the infinite loop is coming from 
+  console.log("🚀 ~ file: DwnJobListings.tsx:47 ")
 
   const table = useReactTable({
     columns,
-    data: formattedList,
+    data: listings,
     getCoreRowModel: getCoreRowModel(),
   });
+
   useEffect(() => {
     const fetchData = async () => {
       /* const { data, error } = await supabaseClient
@@ -62,6 +64,7 @@ export const DwnJobListings: FC = () => {
 const { data, error } = await supabaseClient
 .from(did_db_table)
 .select('*')
+console.log("🚀 ~ file: DwnJobListings.tsx:65 ~ fetchData ~ error:", error)
 
       if (error) {
         throw new Error(error.message);
