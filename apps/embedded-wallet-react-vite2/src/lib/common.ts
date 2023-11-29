@@ -22,6 +22,9 @@ console.log("🚀 ~ file: common.ts:17 ~ web5:", web5)
 
 export const initMyTestingData  = async() => {
 
+
+  
+  console.log("trigger rebuild git  go go turbo vercel netlfiy gods give us reuslts")
   console.log("HELLO WORLD, initMyTestingData()")
   const { data: { user } } = await supabaseClient.auth.getUser()
 
