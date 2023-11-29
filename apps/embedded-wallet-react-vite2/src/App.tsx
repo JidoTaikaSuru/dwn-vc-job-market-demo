@@ -5,6 +5,8 @@ import { JobListings } from "@/components/JobListings.tsx";
 import { RequireUserLoggedIn } from "@/components/RequireUserLoggedIn.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { JobListingDrilldown } from "@/components/JobListingDrilldown.tsx";
+import { DwnJobListings } from "./components/DwnJobListings";
+import { DwnJobListingDrilldown } from "./components/DwnJobListingDrilldown";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +16,14 @@ const router = createBrowserRouter([
   {
     path: "/listing/:listingId",
     element: <JobListingDrilldown />,
+  }, 
+  {
+    path: "/dwnListings",
+    element: <DwnJobListings />,
+  },
+  {
+    path: "/dwnListings/:employerDid",
+    element: <DwnJobListingDrilldown />,
   },
 ]);
 
