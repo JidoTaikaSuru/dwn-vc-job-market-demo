@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/table";
 import { supabaseClient } from "@/lib/common.ts";
 import { Link } from "react-router-dom";
-import { RenderCredentials } from "@/components/RenderCredentials.tsx";
 
 const columns: ColumnDef<{ id: string; title: string; company: string }>[] = [
   {
@@ -116,7 +115,7 @@ export const JobListings: FC = () => {
             )}
           </TableBody>
         </Table>
-        <RenderCredentials />
+        {/*<RenderCredentials />*/}
       </div>
     </>
   );

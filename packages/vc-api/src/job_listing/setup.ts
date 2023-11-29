@@ -1,14 +1,11 @@
-import { JobListingPutBody } from "./index.js";
-import { supabaseClient } from "../index.js";
-import { IPresentationDefinition } from "@sphereon/pex";
-import {
-  loadPlaceholdersIntoPresentationDefinition,
-  PresentationDefinitionPlaceholder,
-} from "../presentation/lib.js";
+import {JobListingPutBody} from "./index.js";
+import {supabaseClient} from "../index.js";
+import {IPresentationDefinition} from "@sphereon/pex";
+import {loadPlaceholdersIntoPresentationDefinition, PresentationDefinitionPlaceholder,} from "../presentation/lib.js";
 
 /* This script seeds the job_listings table in Supabase
-*  It was written so we can quickly iterate on presentation definitions and troubleshoot edge cases
-* */
+ *  It was written so we can quickly iterate on presentation definitions and troubleshoot edge cases
+ * */
 
 const issuerIdPlaceholder: PresentationDefinitionPlaceholder = {
   // issuer_id key, default did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b, validate should be a regex that matches the  pattern
@@ -23,18 +20,18 @@ const issuerIdPlaceholder: PresentationDefinitionPlaceholder = {
   },
 };
 
-const requireIssuer = {
-  path: ["$.issuer.id"],
-  purpose: "We only accept credentials issued by our issuer",
-  filter: {
-    type: "string",
-    const: "{{issuer_id}}",
-  },
-};
+// const requireIssuer = {
+//   path: ["$.issuer.id"],
+//   purpose: "We only accept credentials issued by our issuer",
+//   filter: {
+//     type: "string",
+//     const: "{{issuer_id}}",
+//   },
+// };
 
 const requireType = (typeString: string) => ({
-  path: ["$.vc.type"],
-  purpose: "Holder must possess HasAccountWithTrustAuthority VC",
+  path: ["$.type"],
+  purpose: `Holder must possess ${typeString} VC`,
   filter: {
     type: "array",
     contains: {
@@ -44,24 +41,24 @@ const requireType = (typeString: string) => ({
   },
 });
 
-const requireJti = {
-  path: ["$.jti"],
-  purpose: "We only accept credentials with a specific jti",
-  filter: {
-    type: "string",
-    const: "did:web:gotid.org:credential:has-account:{{user_supabase_id}}",
-    // pattern: "^did:web:gotid.org:credential:has-account:.*",
-  },
-};
-
-const requireCredentialSubjectId = {
-  path: ["$.vc.credentialSubject.id"],
-  purpose: "Holder must be did:eth:null",
-  filter: {
-    type: "string",
-    const: "did:eth:{{user_wallet_pubkey}}",
-  },
-};
+// const requireJti = {
+//   path: ["$.jti"],
+//   purpose: "We only accept credentials with a specific jti",
+//   filter: {
+//     type: "string",
+//     const: "did:web:gotid.org:credential:has-account:{{user_supabase_id}}",
+//     // pattern: "^did:web:gotid.org:credential:has-account:.*",
+//   },
+// };
+//
+// const requireCredentialSubjectId = {
+//   path: ["$.vc.credentialSubject.id"],
+//   purpose: "Holder must be did:eth:{{user_wallet_pubkey}}",
+//   filter: {
+//     type: "string",
+//     const: "did:eth:{{user_wallet_pubkey}}",
+//   },
+// };
 
 export const hasAccountPresentationDefinition: IPresentationDefinition = {
   id: "2aec8c4c-e071-4bda-8a76-41ab27632afa",
@@ -73,10 +70,10 @@ export const hasAccountPresentationDefinition: IPresentationDefinition = {
         "Please provide your HasAccount VC that we issued to you on account creation",
       constraints: {
         fields: [
-          requireIssuer,
+          // requireIssuer,
           requireType("HasAccountWithTrustAuthority"),
-          requireJti,
-          requireCredentialSubjectId,
+          // requireJti,
+          // requireCredentialSubjectId,
         ],
       },
     },
@@ -93,10 +90,10 @@ export const hasVerifiedEmailPresentationDefinition: IPresentationDefinition = {
         "Please provide your HasAccount VC that we issued to you on account creation",
       constraints: {
         fields: [
-          requireIssuer,
+          // requireIssuer,
           requireType("HasVerifiedEmail"),
-          requireJti,
-          requireCredentialSubjectId,
+          // requireJti,
+          // requireCredentialSubjectId,
         ],
       },
     },

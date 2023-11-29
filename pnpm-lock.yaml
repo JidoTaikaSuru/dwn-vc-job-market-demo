@@ -31,6 +31,9 @@ importers:
       '@sphereon/pex':
         specifier: workspace:*
         version: link:../../packages/PEX
+      '@sphereon/ssi-types':
+        specifier: ^0.17.5
+        version: 0.17.5
       '@supabase/supabase-js':
         specifier: ^2.38.4
         version: 2.38.4
@@ -82,6 +85,9 @@ importers:
       react-identicons:
         specifier: ^1.2.5
         version: 1.2.5(react-dom@18.2.0)(react@18.2.0)
+      react-json-pretty:
+        specifier: ^2.2.0
+        version: 2.2.0(react-dom@18.2.0)(react@18.2.0)
       react-router-dom:
         specifier: ^6.20.0
         version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
@@ -91,6 +97,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.3.5)
+      vite-plugin-commonjs:
+        specifier: ^0.10.1
+        version: 0.10.1
     devDependencies:
       '@types/jest':
         specifier: ^29.5.8
@@ -7954,6 +7963,10 @@ packages:
       unbox-primitive: 1.0.2
       which-typed-array: 1.1.13
 
+  /es-module-lexer@1.4.1:
+    resolution: {integrity: sha512-cXLGjP0c4T3flZJKQSuziYoq7MlT+rnvfZjfp7h+I7K9BNX54kP9nyWvdbwjQ4u1iWbOL4u96fgeZLToQlZC7w==}
+    dev: false
+
   /es-set-tostringtag@2.0.2:
     resolution: {integrity: sha512-BuDyupZt65P9D2D2vA/zqcI3G5xRsklm5N3xCwuiy+/vKy8i0ifdsQP1sLgO4tZDSCaQUSnmC48khknGMV3D2Q==}
     engines: {node: '>= 0.4'}
@@ -11234,6 +11247,13 @@ packages:
       react: 18.2.0
     dev: false
 
+  /magic-string@0.30.5:
+    resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.4.15
+    dev: false
+
   /make-dir@2.1.0:
     resolution: {integrity: sha512-LS9X+dc8KLxXCb8dni79fLIIUA5VyZoyjSMCwTluaXA0o27cCK0bhXkpgw+sTXVpPy/lSO57ilRixqk0vDmtRA==}
     engines: {node: '>=6'}
@@ -13272,6 +13292,17 @@ packages:
 
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
+
+  /react-json-pretty@2.2.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-3UMzlAXkJ4R8S4vmkRKtvJHTewG4/rn1Q18n0zqdu/ipZbUPLVZD+QwC7uVcD/IAY3s8iNVHlgR2dMzIUS0n1A==}
+    peerDependencies:
+      react: '>=15.0'
+      react-dom: '>=15.0'
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /react-native-securerandom@0.1.1(react-native@0.72.7):
     resolution: {integrity: sha512-CozcCx0lpBLevxiXEb86kwLRalBCHNjiGPlw3P7Fi27U6ZLdfjOCNRHD1LtBKcvPvI3TvkBXB3GOtLvqaYJLGw==}
@@ -15501,6 +15532,24 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
     optional: true
+
+  /vite-plugin-commonjs@0.10.1:
+    resolution: {integrity: sha512-taP8R9kYGlCW5OzkVR0UIWRCnG6rSxeWWuA7tnU5b9t5MniibOnDY219NhisTeDhJAeGT8cEnrhVWZ9A5yD+vg==}
+    dependencies:
+      acorn: 8.11.2
+      fast-glob: 3.3.2
+      magic-string: 0.30.5
+      vite-plugin-dynamic-import: 1.5.0
+    dev: false
+
+  /vite-plugin-dynamic-import@1.5.0:
+    resolution: {integrity: sha512-Qp85c+AVJmLa8MLni74U4BDiWpUeFNx7NJqbGZyR2XJOU7mgW0cb7nwlAMucFyM4arEd92Nfxp4j44xPi6Fu7g==}
+    dependencies:
+      acorn: 8.11.2
+      es-module-lexer: 1.4.1
+      fast-glob: 3.3.2
+      magic-string: 0.30.5
+    dev: false
 
   /vite@5.0.2(@types/node@20.10.0):
     resolution: {integrity: sha512-6CCq1CAJCNM1ya2ZZA7+jS2KgnhbzvxakmlIjN24cF/PXhRMzpM/z8QgsVJA/Dm5fWUWnVEsmtBoMhmerPxT0g==}
