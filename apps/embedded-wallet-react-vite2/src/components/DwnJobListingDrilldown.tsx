@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Web5 } from "@web5/api"
+import { Web5 } from "@web5/api/browser";
 
 export const DwnJobListingDrilldown: FC = () => {
   const { employerDid } = useParams();
@@ -8,10 +8,8 @@ export const DwnJobListingDrilldown: FC = () => {
   const [sendStatus, setSendStatus] = useState<string | undefined>();
 
   useEffect(() => {
-
     const runWeb5 = async () => {
-
-      const { web5, did: myDid } = await Web5.connect({ sync: '5s' });
+      const { web5, did: myDid } = await Web5.connect({ sync: "5s" });
 
       const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
           "protocol": "https://didcomm.org/uris/that/dont/resolve/are/funny/selfProfileProtocol",
@@ -43,19 +41,22 @@ export const DwnJobListingDrilldown: FC = () => {
         message: {
           filter: {
             protocol: applicationProtocolWithoutDirectJobLink.protocol,
-          }
-        }
+          },
+        },
       });
 
       const { record } = await web5.dwn.records.create({
-        data: 'Test Application from' + myDid,
+        data: "Test Application from" + myDid,
         message: {
           protocol: applicationProtocolWithoutDirectJobLink.protocol,
-          protocolPath: 'japplication',
-          schema: applicationProtocolWithoutDirectJobLink.types.japplication.schema,
-          dataFormat: applicationProtocolWithoutDirectJobLink.types.japplication.dataFormats[0],
-          recipient: employerDid
-        }
+          protocolPath: "japplication",
+          schema:
+            applicationProtocolWithoutDirectJobLink.types.japplication.schema,
+          dataFormat:
+            applicationProtocolWithoutDirectJobLink.types.japplication
+              .dataFormats[0],
+          recipient: employerDid,
+        },
       });
 
       if (record === undefined) {
@@ -66,14 +67,12 @@ export const DwnJobListingDrilldown: FC = () => {
       if (employerDid !== undefined) {
         const { status: sendStatus } = await record.send(employerDid);
 
-      setSendStatus(sendStatus);
+        setSendStatus(sendStatus);
       }
     };
 
     runWeb5();
-
   }, []);
-
 
   if (!sendStatus) {
     return <div>Loading...</div>;
