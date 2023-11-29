@@ -97,7 +97,7 @@ export const JobListingDrilldown: FC = () => {
       // [userCredentials[0]] as OriginalVerifiableCredential[],
       { holderDIDs: [`did:ethr:${wallet?.address}`] },
     );
-    // console.log("matchingCredentials", matchingCredentials);
+    console.log("matchingCredentials", matchingCredentials);
   }
   if (!jobListing) {
     return <div>Loading...</div>;

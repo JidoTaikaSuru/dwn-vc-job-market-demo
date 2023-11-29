@@ -30,7 +30,7 @@ const issuerIdPlaceholder: PresentationDefinitionPlaceholder = {
 // };
 
 const requireType = (typeString: string) => ({
-  path: ["$.type"],
+  path: ["$.vc.type"],
   purpose: `Holder must possess ${typeString} VC`,
   filter: {
     type: "array",
