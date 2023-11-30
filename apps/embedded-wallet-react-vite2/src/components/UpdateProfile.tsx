@@ -32,10 +32,13 @@ fetchData();
         console.log("🚀 ~ file: UpdateProfile.tsx:23 ~ updateName ~ status:", status)
     }
 
-    return <> data === undefined ? (<h2>Loading...</h2>) :
-        <h2>Hello {data.name} </h2>
-
-        <Input name="nameInput" defaultValue={data.name} onChange={(e) => setNewName(e.target.value)} />
+    return <> {data === undefined ? (<h2>Loading... </h2>) :
+        (<>
+            <h2>Hello {data.name}</h2>
+            <Input name="nameInput" defaultValue={data.name} onChange={(e) => setNewName(e.target.value)} />
+         </>
+         )} 
+        
         {newName ? (<Button onClick={() => updateName()}>Change Name</Button>) : (<> </>)}
 
     </>
