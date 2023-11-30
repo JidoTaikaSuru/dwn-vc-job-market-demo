@@ -10,6 +10,7 @@ import { DwnJobListingsRWO } from "./components/DwnJobListingsRWO";
 
 import { DwnJobListingDrilldown } from "./components/DwnJobListingDrilldown";
 import UpdateProfile from "./components/UpdateProfile";
+import { PostJob } from "./components/PostJob";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
   {
     path: "/updateProfile",
     element: <UpdateProfile />,
+  },
+  {
+    path: "/postJob",
+    element: <PostJob />,
   },
  
 ]);
