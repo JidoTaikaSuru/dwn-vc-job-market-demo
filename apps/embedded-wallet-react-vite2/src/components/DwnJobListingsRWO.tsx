@@ -28,6 +28,10 @@ const columns: ColumnDef<{ id: string; did: string; label: string }>[] = [
     accessorKey: "dwnname",
   },
   {
+    header: "Jobs",
+    accessorKey: "jobpostcount",
+  },
+  {
     header: "Apply",
     accessorKey: "id",
     cell: (value) => (
