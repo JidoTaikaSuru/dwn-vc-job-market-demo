@@ -3,7 +3,7 @@ import { Database } from "@/__generated__/supabase-types";
 import { SupabaseCredentialManager } from "@/lib/client";
 import { Web5 } from "@web5/api/browser";
 //import { Web5 } from "@web5/api";
-import { applicationProtocolWithoutDirectJobLink, configureProtocol, dwnCreateAndSendJApplication, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQueryOtherDWN, dwnQuerySelf, dwnQuerySelfForAnyRecordsWrittenByOthers, dwnQuerySelfallJSONData, dwnReadOtherDWN, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
+import { applicationProtocolWithoutDirectJobLink, configureProtocol, cvPersonalStorageProtocol, dwnCreateAndSendJApplication, dwnCreateAndSendJApplicationReplyingToJob, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQueryJApplicationsForJob, dwnQueryJApplicationsWithoutJob, dwnQueryOtherDWN, dwnQuerySelf, dwnQuerySelfForAnyRecordsWrittenByOthers, dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords, dwnQuerySelfallJSONData, dwnReadOtherDWN, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
 
 
 export const DEBUGING=false;
@@ -120,54 +120,14 @@ export const initMyTestingData  = async() => {
     if(!curnamerecord || curnamerecord.length==0)
         await dwnCreateSelfProfileName(user.email.split("@")[0])
 
-        /*
-
-    const { record:record_plain } = await web5.dwn.records.create({
-      data: "hello world text",
-      message: {
-        dataFormat: 'text/plain',
-      },
-    });
-    console.log("🚀 ~ file: common.ts:27 ~ record_plain:", record_plain)
-
-
-    const { record:plainrecords } = await web5.dwn.records.read({
-      message: {
-        filter:{
-          dataFormat:  'text/plain',
-        }
-      }
-    });
-
-
-    const { record:insertrecord  } = await web5.dwn.records.create({
-      data: {
-          content: "Hello World",
-          description: "unstable"
-      },
-      message: {
-          dataFormat: 'application/json'
-      }
-    });
-    console.log("🚀 ~ file: common.ts:29 ~ insertrecord:", insertrecord)
-
-
-
-
-    const { records:josnrecords } = await web5.dwn.records.query({
-      message: {
-        filter:{
-          dataFormat: 'application/json',
-        }
-      }
-    });
-    // assuming the record is a json payload
-    console.log("🚀 ~ file: common.ts:28 ~ records:", josnrecords)
-*/
-
+        
     await configureProtocol(selfProfileProtocol );
     await configureProtocol(applicationProtocolWithoutDirectJobLink );
     await configureProtocol(jobPostThatCanTakeApplicationsAsReplyProtocol );
+    await configureProtocol(cvPersonalStorageProtocol );
+
+
+    
 
 
 
@@ -207,13 +167,13 @@ export const spamEveryDWNwithAJobApplication  = async() => {
 
           const applicaitons_i_find_on_other_DWN = await dwnQueryOtherDWN(element.did,applicationProtocolWithoutDirectJobLink);  //TODO RWO keep memory of which 
 
-          let skip_bc_already_posted =false;
-          if(applicaitons_i_find_on_other_DWN && applicaitons_i_find_on_other_DWN.length>0 ){
-            skip_bc_already_posted=true
+          let already_posted =false;
+          if(applicaitons_i_find_on_other_DWN && applicaitons_i_find_on_other_DWN.length>2 ){
+            already_posted=true
           }
 
 
-          if(skip_bc_already_posted){
+          if( true || !already_posted  ){
             const jobpostlist = await dwnQueryOtherDWN(element.did,jobPostThatCanTakeApplicationsAsReplyProtocol)  
             console.log("🚀 ~ file: common.ts:194 ~ spamEveryDWNwithAJobApplication ~ jobpostlist:", jobpostlist)
             if( jobpostlist && jobpostlist.length && jobpostlist.length>0){
@@ -221,6 +181,9 @@ export const spamEveryDWNwithAJobApplication  = async() => {
                 console.log("🚀 ~ file: common.ts:198 ~ spamEveryDWNwithAJobApplication ~ firstjobpost:", firstjobpost)
                 console.log("🚀🚀🚀  Found a company that has a job post so i should try to apply to the job now  ")//TODO RWO bookmark 
                 //TODO RWO bookmark 
+                await dwnCreateAndSendJApplicationReplyingToJob(element.did, "Saw this job and wanted to put in my application "+Math.random() ,firstjobpost.record_id )
+
+
             }
             else{
               1==1;
@@ -281,9 +244,13 @@ console.log("🚀 ~   dids_with_names:", dids_with_names)
 
 
 if(DEBUGING){
+
+    await dwnQueryJApplicationsForJob();
+    await dwnQueryJApplicationsWithoutJob();
     await dwnQuerySelfForAnyRecordsWrittenByOthers();
+    await dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
     await initMyTestingData();
     await spamEveryDWNwithAJobApplication();
-    await getAllDWNnames();
+    //await getAllDWNnames();
 
 }
