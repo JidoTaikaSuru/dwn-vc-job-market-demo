@@ -22,6 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
+import { CredentialCard } from "@/components/CredentialCard.tsx";
 
 export const JobListingDrilldown: FC = () => {
   const { listingId } = useParams();
@@ -95,11 +96,8 @@ export const JobListingDrilldown: FC = () => {
   let presentationExchangeRender = (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>
-          <Button
-            onClick={() => alert("You applied for this job!")}
-            className={"w-24"}
-          >
+        <TooltipTrigger className={"w-24"} asChild>
+          <Button onClick={() => alert("You applied for this job!")}>
             Apply
           </Button>
         </TooltipTrigger>
@@ -163,7 +161,21 @@ export const JobListingDrilldown: FC = () => {
           <div className={"col-span-3"}>{jobListing.updated_at}</div>
         </div>
         {presentationExchangeRender}
+        <CredentialCard
+          title={"Test VC"}
+          expirationDate={new Date()}
+          description={"Test description for the VC"}
+          howToGet={"You can get it if you wish for it really hard"}
+          userHasCredential={false}
+        />
 
+        <CredentialCard
+          title={"Test VC"}
+          expirationDate={new Date()}
+          description={"Test description for the VC"}
+          howToGet={"You can get it if you wish for it really hard"}
+          userHasCredential={true}
+        />
         <Collapsible>
           <CollapsibleTrigger>Show raw credential details</CollapsibleTrigger>
           <CollapsibleContent>
