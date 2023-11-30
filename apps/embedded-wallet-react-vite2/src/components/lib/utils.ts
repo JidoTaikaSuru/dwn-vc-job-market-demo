@@ -214,6 +214,27 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
   
     }
 
+    //@ts-ignore
+    export const dwnReadOtherDWNRecord  = async(fromDWN, protocol) => {
+      let i_protocol=protocol
+  
+        if( protocol.protocol  )
+          i_protocol=protocol.protocol;
+  
+        console.log("🚀 ~  dwnReadOtherDWN()  fromDWN "+fromDWN+" for "+JSON.stringify(i_protocol))
+        // Reads the indicated record from Bob's DWNs
+        return await web5.dwn.records.read({
+            from: fromDWN,
+            message: {
+              filter:{
+                protocol: i_protocol,
+  
+              }
+            }
+          });
+  
+    }
+
   //@ts-ignore
   export const dwnReadOtherDWN  = async(fromDWN, protocol) => {
     let i_protocol=protocol
