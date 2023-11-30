@@ -28,6 +28,11 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
             "can": "read"
           },
           {
+            "who": "author",
+            "of": "japplication",
+            "can": "write"
+          },
+          {
             "who": "recipient",
             "of": "japplication",
             "can": "read"
@@ -164,7 +169,7 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
       let i_protocol=protocol;
       if( protocol.protocol  )
       i_protocol=protocol.protocol;
-    
+
         console.log("🚀 ~  dwnQueryOtherDWN()  about to query fromDWN "+fromDWN+" for "+JSON.stringify(protocol))
         // Reads the indicated record from Bob's DWNs
         try { 
@@ -172,7 +177,7 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
             from: fromDWN,
             message: {
               filter:{
-                protocol: i_protocol,
+                protocol: i_protocol
   
               }
             }
@@ -189,13 +194,14 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
 
 
         let outdata =[];
-      records.forEach(async record => {
 
-        const  d = await record.data.json()  ;
-        outdata.push( {record_id:record.id,...d } )
 
-        
-      });
+        for (let i = 0; i < records.length; i++) {
+
+          const record=  records[i];
+          const  d = await records[i].data.json()  ;
+          outdata.push( {record_id:record.id,...d } )
+        }
 
       //@ts-ignore
       return outdata; 
@@ -324,12 +330,17 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
 
           if(records){
           const outlist=[];
+          let num_outside_author=0;
           for (const record of records) {
               const data = await record.data.json();
+              if(record.author !==myDid)
+                  num_outside_author++;
               const list = {record, data, id: record.id};
               outlist.push(list);
           }
+          console.log("🚀 ~ file: utils.ts:333 ~ dwnQuerySelfallJSONData ~  num_outside_author="+num_outside_author+"  outlist:", outlist)
           return outlist;
+         
         } 
       }
       catch (e ){
@@ -340,6 +351,46 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
         }
   
     }
+
+
+
+   //@ts-ignore
+   export const dwnQuerySelfForAnyRecordsWrittenByOthers  = async() => {
+      
+
+    try { 
+      const { records } = await web5.dwn.records.query({
+        message: {
+          filter:{
+            dataFormat: 'application/json',
+          }
+        }
+      });
+
+
+
+      if(records){
+        console.log("🚀 ~ file: utils.ts:369 ~ dwnQuerySelfForAnyRecordsWrittenByOthers ~ records:", records)
+      const outlist=[];
+      for (const record of records) {
+          const data = await record.data.json();
+          const list = {record, data, id: record.id};
+              if(record.author !==myDid)
+          outlist.push(list);
+      }
+      console.log("🚀 ~ file: utils.ts:378 ~ dwnQuerySelfForAnyRecordsWrittenByOthers ~ "+outlist.length+" records from OTHERS outlist:", outlist)
+      return outlist;
+     
+    } 
+  }
+  catch (e ){
+    console.log("🚀 ~ file: utils.ts:383 ~ dwnQuerySelfForAnyRecordsWrittenByOthers ~ e:", e)
+
+
+      return undefined;
+    }
+
+}
 
 
 
@@ -382,11 +433,11 @@ export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
         const { status: sendStatus } = await record.send(recipientDWN);
 
         if (sendStatus.code !== 202) {
-            console.log("Unable to send to target ", JSON.stringify(sendStatus));
+            console.error(" dwnCreateAndSendJApplication() Unable to send to target ", JSON.stringify(sendStatus));
             return;
         }
         else {
-            console.log("japplication sent to recipient");
+            console.log(" dwnCreateAndSendJApplication() japplication sent to recipient to "+recipientDWN+"  sendStatus="+JSON.stringify(sendStatus));
         }
       }
       else{
