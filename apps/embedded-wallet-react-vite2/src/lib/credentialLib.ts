@@ -38,7 +38,7 @@ export const checkVcMatchAgainstPresentation = (
   presentation: IPresentationDefinition,
   credentials: IVerifiableCredential[],
   wallet: Wallet,
-): boolean => {
+) => {
   console.log("presentationDefinition", presentation);
   const matchingCredentials = pex.selectFrom(
     presentation,
@@ -47,5 +47,10 @@ export const checkVcMatchAgainstPresentation = (
     { holderDIDs: [`did:ethr:${wallet?.address}`] },
   );
   console.log("matchingCredentials", matchingCredentials);
-  return !(matchingCredentials.errors && matchingCredentials.errors.length > 0);
+  return {
+    pass: !(
+      matchingCredentials.errors && matchingCredentials.errors.length > 0
+    ),
+    matchingVcs: matchingCredentials,
+  };
 };

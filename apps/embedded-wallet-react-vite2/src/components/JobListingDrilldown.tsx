@@ -23,7 +23,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
 import { CredentialCard } from "@/components/CredentialCard.tsx";
+import { APP_NAME } from "@/components/Navbar.tsx";
 
+const todayPlus3Months = () => {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 3);
+  return d;
+};
 export const JobListingDrilldown: FC = () => {
   const { listingId } = useParams();
 
@@ -31,6 +37,9 @@ export const JobListingDrilldown: FC = () => {
   const [error, setError] = useState("");
   const [jobListing, setJobListing] =
     useState<Database["public"]["Tables"]["job_listings"]["Row"]>();
+  // @ts-ignore
+  const presentationDefinition =
+    jobListing?.presentation_definition as IPresentationDefinition;
 
   // Load job
   useEffect(() => {
@@ -68,15 +77,16 @@ export const JobListingDrilldown: FC = () => {
     return <div>Wallet not found</div>;
   }
 
-  const pass = checkVcMatchAgainstPresentation(
+  const { pass, matchingVcs } = checkVcMatchAgainstPresentation(
     // @ts-ignore
-    jobListing.presentation_definition as IPresentationDefinition,
+    presentationDefinition,
     credentials,
     wallet,
   );
   let tooltipContent = "";
+  let card = <div></div>;
 
-  switch (jobListing.presentation_definition?.id as string) {
+  switch (presentationDefinition.id) {
     case HAS_ACCOUNT_PRESENTATION_DEFINITION:
       tooltipContent =
         "You must have an account with us to apply and are qualified to apply for this position! Click to apply!";
@@ -107,13 +117,7 @@ export const JobListingDrilldown: FC = () => {
   );
   if (!pass) {
     console.log("You do not have the required credentials.");
-    // @ts-ignore
-    console.log(
-      "jobListing.presentation_definition.id",
-      jobListing.presentation_definition.id,
-    );
-    // @ts-ignore
-    switch (jobListing.presentation_definition?.id as string) {
+    switch (presentationDefinition.id) {
       case HAS_ACCOUNT_PRESENTATION_DEFINITION:
         presentationExchangeRender = (
           <div>
@@ -146,6 +150,38 @@ export const JobListingDrilldown: FC = () => {
         break;
     }
   }
+  const credentialCards = presentationDefinition.input_descriptors.map(
+    (credential) => {
+      //TODO implement this
+      const getMatchingVc = (id: string) => {
+        if (!pass) return undefined;
+        const m = matchingVcs.matches?.find((vc) => vc.name === id);
+      };
+      const hasAccountId = "user has a HasAccount VC issued by us";
+      if (credential.id === hasAccountId) {
+        // const matchingVc = getMatchingVc(hasAccountId);
+        return (
+          <CredentialCard
+            title={`Has an account with ${APP_NAME}`}
+            expirationDate={todayPlus3Months()}
+            description={"Test description for the VC"}
+            howToGet={"You can get it if you wish for it really hard"}
+            userHasCredential={pass}
+          />
+        );
+      }
+      return (
+        <CredentialCard
+          title={`Unknown VC ${credential.id}`}
+          expirationDate={todayPlus3Months()}
+          description={"Test description for the VC"}
+          howToGet={"You can get it if you wish for it really hard"}
+          userHasCredential={pass}
+        />
+      );
+    },
+  );
+
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h1>{jobListing.title}</h1>
@@ -161,21 +197,7 @@ export const JobListingDrilldown: FC = () => {
           <div className={"col-span-3"}>{jobListing.updated_at}</div>
         </div>
         {presentationExchangeRender}
-        <CredentialCard
-          title={"Test VC"}
-          expirationDate={new Date()}
-          description={"Test description for the VC"}
-          howToGet={"You can get it if you wish for it really hard"}
-          userHasCredential={false}
-        />
-
-        <CredentialCard
-          title={"Test VC"}
-          expirationDate={new Date()}
-          description={"Test description for the VC"}
-          howToGet={"You can get it if you wish for it really hard"}
-          userHasCredential={true}
-        />
+        <div className={"grid-cols-4 gap-3"}>{credentialCards}</div>
         <Collapsible>
           <CollapsibleTrigger>Show raw credential details</CollapsibleTrigger>
           <CollapsibleContent>

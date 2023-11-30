@@ -7,6 +7,7 @@ import { SessionContext } from "@/contexts/SessionContext";
 import { truncateAddress } from "@/lib/embeddedWalletLib";
 import { supabaseClient } from "@/lib/common.ts";
 
+export const APP_NAME = "Embedded Wallet Demo";
 const Navbar: React.FC = () => {
   // const [isModalOpen, setIsModalOpen] = useState(false);
   // const { address, isSignedIn, isConnectionModal, setIsConnectionModal } =
@@ -30,7 +31,7 @@ const Navbar: React.FC = () => {
   return (
     <nav className="sticky top-0 z-50 bg-fuchsia-200/50">
       <div className="flex w-screen items-center justify-between p-4">
-        <h5 className="tracking-tighter text-xl">Embedded Wallet Demo</h5>
+        <h5 className="tracking-tighter text-xl">{APP_NAME}</h5>
         <div className="flex items-center gap-4">
           {wallet && (
             <Button
