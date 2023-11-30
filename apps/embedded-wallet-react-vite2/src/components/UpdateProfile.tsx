@@ -17,23 +17,25 @@ const UpdateProfile: React.FC = () => {
             const data = await record.data.json();
             setdata(data);
             console.log("🚀 ~ file: UpdateProfile.tsx:16 ~ fetchData ~ myRecord:", record)
-        };
 
-        if (!myRecord || myRecord === undefined) {
-            fetchData();
+            
+        const { status } = await myRecord.update({ name: data.name + "66666" });
+        console.log("🚀 ~ file: UpdateProfile.tsx:23 ~ updateName ~ status:", status)
+        };
+fetchData();
             console.log("🚀 ~ file: UpdateProfile.tsx:21 ~ useEffect ~ fetchData:", fetchData)
-        }
-    });
+        
+    }, []);
 
     const updateName = async () => {
         const { status } = await myRecord.update({ name: newName });
         console.log("🚀 ~ file: UpdateProfile.tsx:23 ~ updateName ~ status:", status)
     }
 
-    return <>
-        <h2>Hello {data === undefined ? '' : data.name} </h2>
+    return <> data === undefined ? (<h2>Loading...</h2>) :
+        <h2>Hello {data.name} </h2>
 
-        <Input name="nameInput" defaultValue={data === undefined ? '' : data.name} onChange={(e) => setNewName(e.target.value)} />
+        <Input name="nameInput" defaultValue={data.name} onChange={(e) => setNewName(e.target.value)} />
         {newName ? (<Button onClick={() => updateName()}>Change Name</Button>) : (<> </>)}
 
     </>
