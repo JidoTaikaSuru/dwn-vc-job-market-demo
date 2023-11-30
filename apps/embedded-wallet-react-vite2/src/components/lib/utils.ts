@@ -10,12 +10,12 @@ export function cn(...inputs: ClassValue[]) {
 
 
 
-export const applicationProtocolWithoutDirectJobLink = JSON.parse(`{
-  "protocol": "https://didcomm.org/uris/that/dont/resolve/are/funny/applicationProtocolWithoutDirectJobLink",
+export const jobApplicationSimpleProtocol = JSON.parse(`{
+  "protocol": "https://didcomm.org/rwo/jobApplicationSimpleProtocol",
     "published": true,
     "types": {
       "japplication": {
-        "schema": "https://didcomm.org/uris/that/dont/resolve/are/funny/japplication.json",
+        "schema": "https://didcomm.org/rwo/japplication.json",
         "dataFormats": ["application/json"]
       }
     },
@@ -109,15 +109,15 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
 
 
     export const  jobPostThatCanTakeApplicationsAsReplyProtocol = JSON.parse(`{
-      "protocol": "https://didcomm.org/uris/that/dont/resolve/are/funny/jobPostProtocol",
+      "protocol": "https://didcomm.org/rwo/jobPostProtocol",
         "published": true,
         "types": {
           "jobPost": {
-            "schema": "https://didcomm.org/uris/that/dont/resolve/are/funny/jobPost.json",
+            "schema": "https://didcomm.org/rwo/jobPost.json",
             "dataFormats": ["application/json"]
           },
           "japplication": {
-            "schema": "https://didcomm.org/uris/that/dont/resolve/are/funny/japplication.json",
+            "schema": "https://didcomm.org/rwo/japplication.json",
             "dataFormats": ["application/json"]
           }
         },
@@ -142,6 +142,11 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
                   "can": "read"
                 },
                 {
+                  "who": "author",
+                  "of": "jobPost",
+                  "can": "read"
+                },
+                {
                   "who": "recipient",
                   "of": "japplication",
                   "can": "read"
@@ -162,6 +167,9 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
   //@ts-ignore
   export const configureProtocol = async (protocolDefinition) => {
     // query the list of existing protocols on the DWN
+
+
+    
     const { protocols, status } = await web5.dwn.protocols.query({
         message: {
             filter: {
@@ -171,16 +179,17 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
     });
   
     if(status.code !== 200) {
-        alert('Error querying protocols');
-        console.error('Error querying protocols', status);
+        alert('Error querying protocols  configureProtocol()');
+        console.error('Error querying protocols configureProtocol()', status);
         return;
     }
   
     // if the protocol already exists, we return
     if(protocols.length > 0) {
-        console.log('Protocol already exists and configured , '+protocolDefinition.protocol);
+        console.log('Protocol already exists and configured  configureProtocol() , '+protocolDefinition.protocol);
         return;
     }
+    
   
     // configure protocol on local DWN
     const { status: configureStatus, protocol } = await web5.dwn.protocols.configure({
@@ -191,7 +200,7 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
   
       
   
-    console.log('Protocol configured', configureStatus, protocol);
+    console.log('Protocol configured configureProtocol()', configureStatus, protocol);
   }
   
   
@@ -231,7 +240,7 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
 
           const record=  records[i];
           const  d = await records[i].data.json()  ;
-          outdata.push( {record_id:record.id,...d } )
+          outdata.push( {data_id:d.id,record_id:record.id,...d } )
         }
 
       //@ts-ignore
@@ -252,7 +261,7 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
     }
 
     //@ts-ignore
-    export const dwnReadOtherDWNRecord  = async(fromDWN, protocol) => {
+    export const dwnReadOtherDWNRecord  = async(fromDWN, protocol) => {  //TODO REMOVE THIS LAER redundant 
       let i_protocol=protocol
   
         if( protocol.protocol  )
@@ -345,7 +354,7 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
 
 
     //@ts-ignore
-    export const dwnQuerySelfGetAllCV  = async() => {
+    export const dwnQuerySelfGetAllVC  = async() => { //TODO adoll  get some VC here 
         const protocol = cvPersonalStorageProtocol.protocol;
       
 
@@ -380,7 +389,7 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
 
 
     //@ts-ignore
-    export const dwnAddVCToDWNIfNotExists  = async(vcdata) => {
+    export const dwnAddVCToDWNIfNotExists  = async(vcdata) => {  //TODO adoll use this to store VC 
 
       //Assumeing a format like this : 
       /*
@@ -546,7 +555,7 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
           const data = await record.data.json();
           const list = {record, data, id: record.id};
               if(data.author !==myDid)
-          outlist.push(list);
+                  outlist.push(list);
       }
       console.log("🚀 ~ file: utils.ts:378 ~ dwnQuerySelfForAnyRecordsWrittenByOthers ~ "+outlist.length+" records from OTHERS outlist:", outlist)
       return outlist;
@@ -609,7 +618,7 @@ export async function dwnQueryJApplicationsWithoutJob() {
   const{ records } = await web5.dwn.records.query({
       message: {
           filter: {
-              schema: applicationProtocolWithoutDirectJobLink.types.japplication.schema,
+              schema: jobApplicationSimpleProtocol.types.japplication.schema,
           },
           dateSort: 'createdAscending'
       }
@@ -617,14 +626,18 @@ export async function dwnQueryJApplicationsWithoutJob() {
   console.log("JApplication records", records);
 
   const japplicationList=[];
+  const japplicationList_from_others=[];
   for (const record of records) {
       const data = await record.data.json();
       const list = {record, data, id: record.id};
       const record_author = record.author; 
       console.log("🚀 ~ file: utils.ts:581 ~ dwnQueryJApplicationsWithoutJob ~ data:", JSON.stringify(data))
       japplicationList.push(list);
+      if( data.author !==myDid)
+        japplicationList_from_others.push(list)
   }
   console.log("🚀 ~ file:  ~ dwnQueryJApplicationsWithoutJob ~ japplicationList:", japplicationList)
+  console.log("🚀 ~ file:  ~ dwnQueryJApplicationsWithoutJob ~ japplicationList_from_others:", japplicationList_from_others)
 };
 
 
@@ -635,27 +648,88 @@ export async function dwnQueryJApplicationsForJob() {
   const{ records } = await web5.dwn.records.query({
       message: {
           filter: {
-              schema: applicationProtocolWithoutDirectJobLink.types.japplication.schema,
+              schema: jobPostThatCanTakeApplicationsAsReplyProtocol.types.japplication.schema,
           },
           dateSort: 'createdAscending'
       }
   });
-  console.log("JApplication records", records);
+  console.log(" dwnQueryJApplicationsForJob() JApplication records", records);
 
   const japplicationList=[];
+  const japplicationList_from_others=[];
   for (const record of records) {
       const data = await record.data.json();
       const list = {record, data, id: record.id};
       japplicationList.push(list);
+      if( data.author !==myDid)
+          japplicationList_from_others.push(list)
   }
   console.log("🚀 ~ file:  ~ dwnQueryJApplicationsForJob ~ japplicationList:", japplicationList)
+  console.log("🚀 ~ file:  ~ dwnQueryJApplicationsForJob ~ japplicationList_from_others:", japplicationList_from_others)
 };
 
 
 
 
 
-export const dwnCreateAndSendJApplicationReplyingToJob = async (recipientDWN:string , message:string, job_record_id:string) => {
+export const dwnCreateAndSendJApplicationReplyingToJob = async (recipientDWN:string , message:string, job_record_id:string) => { //bookmark 
+    
+  const mmmmessg="JApplication message: "+message;
+
+  let email=""
+  if(user && user.email){
+    email=user.email;
+
+  }
+  const appdata = {
+      "@type": "japplication",
+      "title": "JApplication "+Math.random(),
+      "description": mmmmessg,
+      "author": myDid,
+      "email":email,
+      "parent_job":job_record_id,
+      "recipient": recipientDWN,
+  }
+
+  try {
+      const { record , status } = await web5.dwn.records.create({
+          data: appdata,
+          message: {
+              protocol: jobApplicationSimpleProtocol.protocol,
+              protocolPath: 'japplication',
+              schema: jobApplicationSimpleProtocol.types.japplication.schema,
+              dataFormat: jobApplicationSimpleProtocol.types.japplication.dataFormats[0],
+              recipient: recipientDWN
+          }
+      });
+      console.log("🚀 ~ file: utils.ts:302 ~ dwnCreateAndSendJApplicationReplyingToJob ~ record & status:", record , status)
+
+
+      if(record ){
+      const { status: sendStatus } = await record.send(recipientDWN);
+
+      if (sendStatus.code !== 202) {
+          console.error(" dwnCreateAndSendJApplicationReplyingToJob() Unable to send to target ", JSON.stringify(sendStatus));
+          return;
+      }
+      else {
+          console.log(" dwnCreateAndSendJApplicationReplyingToJob() japplication sent to recipient to "+recipientDWN+"  sendStatus="+JSON.stringify(sendStatus));
+      }
+    }
+    else{
+      console.log("🚀 ~ file: utils.ts:302 ~ dwnCreateAndSendJApplicationReplyingToJob ~ record:", record)
+      console.error(" dwnCreateAndSendJApplicationReplyingToJob record should not be undefined"); 
+    }
+  } catch (e) {
+      console.error(e);
+      return;
+  }
+
+
+}
+
+
+export const dwnCreateAndSendJApplicationReplyingToJob_deprecated = async (recipientDWN:string , message:string, job_record_id:string) => {
     
 
   const mmmmessg="JApplication message: "+message+" replying to job_record_id parentid="+job_record_id;
@@ -672,7 +746,8 @@ export const dwnCreateAndSendJApplicationReplyingToJob = async (recipientDWN:str
       "author": myDid,
       "email":email,
       "recipient": recipientDWN,
-      "parentId":job_record_id
+      "parentId":job_record_id,
+      "contextId":job_record_id,
   }
 
   try {
@@ -715,6 +790,7 @@ export const dwnCreateAndSendJApplicationReplyingToJob = async (recipientDWN:str
 
 
 
+
   export const dwnCreateAndSendJApplication = async (recipientDWN:string , message:string) => {
     
 
@@ -725,7 +801,7 @@ export const dwnCreateAndSendJApplicationReplyingToJob = async (recipientDWN:str
       email=user.email;
 
     }
-    const sharedListData = {
+    const appdata = {
         "@type": "japplication",
         "title": "JApplication "+Math.random(),
         "description": mmmmessg,
@@ -736,12 +812,12 @@ export const dwnCreateAndSendJApplicationReplyingToJob = async (recipientDWN:str
 
     try {
         const { record } = await web5.dwn.records.create({
-            data: sharedListData,
+            data: appdata,
             message: {
-                protocol: applicationProtocolWithoutDirectJobLink.protocol,
+                protocol: jobApplicationSimpleProtocol.protocol,
                 protocolPath: 'japplication',
-                schema: applicationProtocolWithoutDirectJobLink.types.japplication.schema,
-                dataFormat: applicationProtocolWithoutDirectJobLink.types.japplication.dataFormats[0],
+                schema: jobApplicationSimpleProtocol.types.japplication.schema,
+                dataFormat: jobApplicationSimpleProtocol.types.japplication.dataFormats[0],
                 recipient: recipientDWN
             }
         });
@@ -772,7 +848,7 @@ export const dwnCreateAndSendJApplicationReplyingToJob = async (recipientDWN:str
 
 
   
-  export async function dwnCreateSelfProfileName(inputText:string) {
+  export async function dwnCreateSelfProfileName(inputText:string) { 
     console.log("🚀 ~ file: index.html:588 ~ dwnCreateSelfProfileName ~ inputText:", inputText)
   
       const profiledata = {

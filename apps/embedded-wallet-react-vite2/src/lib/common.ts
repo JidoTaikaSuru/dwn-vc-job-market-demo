@@ -3,7 +3,7 @@ import { Database } from "@/__generated__/supabase-types";
 import { SupabaseCredentialManager } from "@/lib/client";
 import { Web5 } from "@web5/api/browser";
 //import { Web5 } from "@web5/api";
-import { applicationProtocolWithoutDirectJobLink, configureProtocol, cvPersonalStorageProtocol, dwnCreateAndSendJApplication, dwnCreateAndSendJApplicationReplyingToJob, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQueryJApplicationsForJob, dwnQueryJApplicationsWithoutJob, dwnQueryOtherDWN, dwnQuerySelf, dwnQuerySelfForAnyRecordsWrittenByOthers, dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords, dwnQuerySelfallJSONData, dwnReadOtherDWN, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
+import { jobApplicationSimpleProtocol, configureProtocol, cvPersonalStorageProtocol, dwnCreateAndSendJApplication, dwnCreateAndSendJApplicationReplyingToJob, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQueryJApplicationsForJob, dwnQueryJApplicationsWithoutJob, dwnQueryOtherDWN, dwnQuerySelf, dwnQuerySelfForAnyRecordsWrittenByOthers, dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords, dwnQuerySelfallJSONData, dwnReadOtherDWN, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
 
 
 export const DEBUGING=false;
@@ -122,7 +122,7 @@ export const initMyTestingData  = async() => {
 
         
     await configureProtocol(selfProfileProtocol );
-    await configureProtocol(applicationProtocolWithoutDirectJobLink );
+    await configureProtocol(jobApplicationSimpleProtocol );
     await configureProtocol(jobPostThatCanTakeApplicationsAsReplyProtocol );
     await configureProtocol(cvPersonalStorageProtocol );
 
@@ -152,7 +152,7 @@ await dwnQuerySelfallJSONData();
 }
 
 
-export const spamEveryDWNwithAJobApplication  = async() => {
+export const spamEveryDWNwithAJobApplication  = async() => { //TODO adoll start reading here 
 
 
       if(public_dwn_did_list){   
@@ -160,12 +160,12 @@ export const spamEveryDWNwithAJobApplication  = async() => {
         const element=public_dwn_did_list[i]
 
 
-        if(element.did){
+        if(element.did && element.did!==myDid ){
 
 
           //Check if i can already find my record in their system 
 
-          const applicaitons_i_find_on_other_DWN = await dwnQueryOtherDWN(element.did,applicationProtocolWithoutDirectJobLink);  //TODO RWO keep memory of which 
+          const applicaitons_i_find_on_other_DWN = await dwnQueryOtherDWN(element.did,jobApplicationSimpleProtocol);  //TODO Ruben change this your filtering the wrong thing 
 
           let already_posted =false;
           if(applicaitons_i_find_on_other_DWN && applicaitons_i_find_on_other_DWN.length>2 ){
@@ -174,20 +174,20 @@ export const spamEveryDWNwithAJobApplication  = async() => {
 
 
           if( true || !already_posted  ){
-            const jobpostlist = await dwnQueryOtherDWN(element.did,jobPostThatCanTakeApplicationsAsReplyProtocol)  
+            const jobpostlist = await dwnQueryOtherDWN(element.did,jobPostThatCanTakeApplicationsAsReplyProtocol)   
             console.log("🚀 ~ file: common.ts:194 ~ spamEveryDWNwithAJobApplication ~ jobpostlist:", jobpostlist)
             if( jobpostlist && jobpostlist.length && jobpostlist.length>0){
                 const firstjobpost=jobpostlist[0];
                 console.log("🚀 ~ file: common.ts:198 ~ spamEveryDWNwithAJobApplication ~ firstjobpost:", firstjobpost)
                 console.log("🚀🚀🚀  Found a company that has a job post so i should try to apply to the job now  ")//TODO RWO bookmark 
                 //TODO RWO bookmark 
-                await dwnCreateAndSendJApplicationReplyingToJob(element.did, "Saw this job and wanted to put in my application "+Math.random() ,firstjobpost.record_id )
+                await dwnCreateAndSendJApplicationReplyingToJob(element.did, "Saw this job and wanted to put in my application "+Math.random() ,firstjobpost.record_id ) //TODO Ruben this is not 100% confirmed to be correclty working yet 
 
 
             }
             else{
               1==1;
-              await dwnCreateAndSendJApplication(element.did," Did'nt see a job post so i figured i'd try apply to the company directly " +Math.random());
+              await dwnCreateAndSendJApplication(element.did," Did'nt see a job post so i figured i'd try apply to the company directly " +Math.random()); // This is working for sure 
             }
           }
           else{
@@ -245,11 +245,12 @@ console.log("🚀 ~   dids_with_names:", dids_with_names)
 
 if(DEBUGING){
 
+  await initMyTestingData();
     await dwnQueryJApplicationsForJob();
     await dwnQueryJApplicationsWithoutJob();
     await dwnQuerySelfForAnyRecordsWrittenByOthers();
     await dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
-    await initMyTestingData();
+
     await spamEveryDWNwithAJobApplication();
     //await getAllDWNnames();
 
