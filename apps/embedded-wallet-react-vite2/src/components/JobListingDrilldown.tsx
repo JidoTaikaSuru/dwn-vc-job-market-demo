@@ -3,21 +3,34 @@ import { FC, useContext, useEffect, useState } from "react";
 import { credentialStore } from "@/lib/common";
 import { useParams } from "react-router-dom";
 import { SessionContext } from "@/contexts/SessionContext.tsx";
-import { PEX } from "@sphereon/pex";
-import { IVerifiableCredential } from "@sphereon/ssi-types";
 import JSONPretty from "react-json-pretty";
+import {
+  checkVcMatchAgainstPresentation,
+  HAS_ACCOUNT_PRESENTATION_DEFINITION,
+  HAS_VERIFIED_EMAIL_PRESENTATION_DEFINITION,
+} from "@/lib/credentialLib.ts";
+import { IPresentationDefinition } from "@sphereon/pex";
+import { Button } from "@/components/ui/button.tsx";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible.tsx";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip.tsx";
 
 export const JobListingDrilldown: FC = () => {
   const { listingId } = useParams();
-  const pex = new PEX();
 
-  const { session, wallet } = useContext(SessionContext);
+  const { session, wallet, credentials } = useContext(SessionContext);
   const [error, setError] = useState("");
   const [jobListing, setJobListing] =
     useState<Database["public"]["Tables"]["job_listings"]["Row"]>();
-  const [userCredentials, setUserCredentials] = useState<
-    IVerifiableCredential[]
-  >([]);
+
   // Load job
   useEffect(() => {
     const fetchData = async () => {
@@ -43,66 +56,98 @@ export const JobListingDrilldown: FC = () => {
     fetchData();
   }, [listingId]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const credentials = await credentialStore.getCredentials({
-        jwt: session?.access_token || "",
-      });
-      const compliantCredentials = credentials.map(
-        // (credential) => {
-        // return credential.verifiableCredential;
-        // return credential.verifiableCredential as IVerifiableCredential;
-        (credential): IVerifiableCredential => {
-          const base = {
-            ...credential,
-            verifiableCredential: {
-              ...credential.verifiableCredential,
-              type:
-                typeof credential.verifiableCredential.type === "string"
-                  ? [credential.verifiableCredential.type]
-                  : credential.verifiableCredential.type || [],
-              proof: {
-                ...credential.verifiableCredential.proof,
-                type:
-                  credential.verifiableCredential.proof.type || "JwtProof2020",
-                proofPurpose: "assertionMethod",
-                created: new Date().toLocaleString(),
-                verificationMethod: "dunno",
-              },
-            },
-          };
-          return base.verifiableCredential;
-        },
-      );
-      console.log("compliantCredentials", compliantCredentials);
-      setUserCredentials(compliantCredentials);
-    };
-
-    fetchData();
-  }, []);
-
   // Load user credentials
   console.log("listing", listingId);
-  console.log("userCredentials", userCredentials);
+  console.log("userCredentials", credentials);
   console.log("listingData", jobListing);
-  if (jobListing && userCredentials[0]) {
-    const presentationDefinition =
-      // @ts-ignore
-      jobListing.presentation_definition as IPresentationDefinition;
-    console.log("presentationDefinition", presentationDefinition);
-    console.log("[userCredentials[0]]", [userCredentials[0]]);
-    const matchingCredentials = pex.selectFrom(
-      presentationDefinition,
-      userCredentials,
-      // [userCredentials[0]] as OriginalVerifiableCredential[],
-      { holderDIDs: [`did:ethr:${wallet?.address}`] },
-    );
-    console.log("matchingCredentials", matchingCredentials);
-  }
   if (!jobListing) {
     return <div>Loading...</div>;
   }
+  if (!wallet) {
+    return <div>Wallet not found</div>;
+  }
 
+  const pass = checkVcMatchAgainstPresentation(
+    // @ts-ignore
+    jobListing.presentation_definition as IPresentationDefinition,
+    credentials,
+    wallet,
+  );
+  let tooltipContent = "";
+
+  switch (jobListing.presentation_definition?.id as string) {
+    case HAS_ACCOUNT_PRESENTATION_DEFINITION:
+      tooltipContent =
+        "You must have an account with us to apply and are qualified to apply for this position! Click to apply!";
+      break;
+    case HAS_VERIFIED_EMAIL_PRESENTATION_DEFINITION:
+      tooltipContent =
+        "You must have a verified email with us and are qualified to apply for this position! Click to apply!";
+      break;
+    default:
+      tooltipContent =
+        "You are qualified to apply for this position! Click to apply!";
+      break;
+  }
+
+  console.log("tooltipContent", tooltipContent);
+
+  let presentationExchangeRender = (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <Button
+            onClick={() => alert("You applied for this job!")}
+            className={"w-24"}
+          >
+            Apply
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{tooltipContent}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+  if (!pass) {
+    console.log("You do not have the required credentials.");
+    // @ts-ignore
+    console.log(
+      "jobListing.presentation_definition.id",
+      jobListing.presentation_definition.id,
+    );
+    // @ts-ignore
+    switch (jobListing.presentation_definition?.id as string) {
+      case HAS_ACCOUNT_PRESENTATION_DEFINITION:
+        presentationExchangeRender = (
+          <div>
+            You must have an account with us to apply for this position! You're
+            already signed in, so you should already have an account.
+            <a
+              onClick={() =>
+                credentialStore.requestIssueBasicCredentials({
+                  jwt: session?.access_token || "",
+                })
+              }
+            >
+              Click here to request a re-issue
+            </a>
+          </div>
+        );
+        break;
+      case HAS_VERIFIED_EMAIL_PRESENTATION_DEFINITION:
+        presentationExchangeRender = (
+          <div>
+            You must have an account with us to apply for this position! Please
+            sign out and then sign back in using an OTP
+          </div>
+        );
+        break;
+      default:
+        presentationExchangeRender = (
+          <div>You failed on an unknown presentation definition</div>
+        );
+        break;
+    }
+  }
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h1>{jobListing.title}</h1>
@@ -117,12 +162,18 @@ export const JobListingDrilldown: FC = () => {
           <div className={"col-span-1"}>Updated At</div>
           <div className={"col-span-3"}>{jobListing.updated_at}</div>
         </div>
-        <div>{}</div>
-        <JSONPretty
-          id="json-pretty"
-          data={jobListing.presentation_definition}
-        ></JSONPretty>
-        <JSONPretty id="json-pretty2" data={userCredentials}></JSONPretty>
+        {presentationExchangeRender}
+
+        <Collapsible>
+          <CollapsibleTrigger>Show raw credential details</CollapsibleTrigger>
+          <CollapsibleContent>
+            <JSONPretty
+              id="json-pretty"
+              data={jobListing.presentation_definition}
+            ></JSONPretty>
+            <JSONPretty id="json-pretty2" data={credentials}></JSONPretty>
+          </CollapsibleContent>
+        </Collapsible>
 
         {error && <div className={"text-red-500"}>{error}</div>}
       </div>

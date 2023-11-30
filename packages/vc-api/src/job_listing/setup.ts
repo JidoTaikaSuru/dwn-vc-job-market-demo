@@ -20,14 +20,14 @@ const issuerIdPlaceholder: PresentationDefinitionPlaceholder = {
   },
 };
 
-// const requireIssuer = {
-//   path: ["$.issuer.id"],
-//   purpose: "We only accept credentials issued by our issuer",
-//   filter: {
-//     type: "string",
-//     const: "{{issuer_id}}",
-//   },
-// };
+const requireIssuer = {
+  path: ["$.issuer.id"],
+  purpose: "We only accept credentials issued by our issuer",
+  filter: {
+    type: "string",
+    const: "{{issuer_id}}",
+  },
+};
 
 const requireType = (typeString: string) => ({
   path: ["$.vc.type"],
@@ -41,24 +41,24 @@ const requireType = (typeString: string) => ({
   },
 });
 
-// const requireJti = {
-//   path: ["$.jti"],
-//   purpose: "We only accept credentials with a specific jti",
-//   filter: {
-//     type: "string",
-//     const: "did:web:gotid.org:credential:has-account:{{user_supabase_id}}",
-//     // pattern: "^did:web:gotid.org:credential:has-account:.*",
-//   },
-// };
-//
-// const requireCredentialSubjectId = {
-//   path: ["$.vc.credentialSubject.id"],
-//   purpose: "Holder must be did:eth:{{user_wallet_pubkey}}",
-//   filter: {
-//     type: "string",
-//     const: "did:eth:{{user_wallet_pubkey}}",
-//   },
-// };
+const requireJti = {
+  path: ["$.jti"],
+  purpose: "We only accept credentials with a specific jti",
+  filter: {
+    type: "string",
+    const: "did:web:gotid.org:credential:has-account:{{user_supabase_id}}",
+    // pattern: "^did:web:gotid.org:credential:has-account:.*",
+  },
+};
+
+const requireCredentialSubjectId = {
+  path: ["$.vc.credentialSubject.id"],
+  purpose: "Holder must be did:eth:{{user_wallet_pubkey}}",
+  filter: {
+    type: "string",
+    const: "did:eth:{{user_wallet_pubkey}}",
+  },
+};
 
 export const hasAccountPresentationDefinition: IPresentationDefinition = {
   id: "2aec8c4c-e071-4bda-8a76-41ab27632afa",
@@ -70,10 +70,10 @@ export const hasAccountPresentationDefinition: IPresentationDefinition = {
         "Please provide your HasAccount VC that we issued to you on account creation",
       constraints: {
         fields: [
-          // requireIssuer,
+          requireIssuer,
           requireType("HasAccountWithTrustAuthority"),
-          // requireJti,
-          // requireCredentialSubjectId,
+          requireJti,
+          requireCredentialSubjectId,
         ],
       },
     },
@@ -90,10 +90,10 @@ export const hasVerifiedEmailPresentationDefinition: IPresentationDefinition = {
         "Please provide your HasAccount VC that we issued to you on account creation",
       constraints: {
         fields: [
-          // requireIssuer,
+          requireIssuer,
           requireType("HasVerifiedEmail"),
-          // requireJti,
-          // requireCredentialSubjectId,
+          requireJti,
+          requireCredentialSubjectId,
         ],
       },
     },
@@ -132,7 +132,7 @@ const preCreateJobListings: JobListingPutBody[] = [
     ),
   },
   {
-    id: "47d78076-4c3c-45e8-a54f-c76c3cf1472e ",
+    id: "47d78076-4c3c-45e8-a54f-c76c3cf1472e",
     title: "Senior Software Engineer",
     description: "We are looking for a Sr software engineer",
     company: "Decentralinked",
@@ -157,3 +157,5 @@ export const precreateJobListings = async () => {
     console.log("data", data);
   }
 };
+
+precreateJobListings();
