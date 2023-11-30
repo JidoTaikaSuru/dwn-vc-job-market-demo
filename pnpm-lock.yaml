@@ -79,9 +79,6 @@ importers:
       pino:
         specifier: ^8.16.2
         version: 8.16.2
-      process:
-        specifier: ^0.11.10
-        version: 0.11.10
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -143,6 +140,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.16
         version: 10.4.16(postcss@8.4.31)
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
       eslint:
         specifier: ^8.53.0
         version: 8.54.0
@@ -164,6 +164,9 @@ importers:
       postcss:
         specifier: ^8.4.31
         version: 8.4.31
+      process:
+        specifier: ^0.11.10
+        version: 0.11.10
       tailwindcss:
         specifier: ^3.3.5
         version: 3.3.5
@@ -6881,7 +6884,6 @@ packages:
 
   /base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
-    dev: false
 
   /base64url-universal@1.1.0:
     resolution: {integrity: sha512-WyftvZqye29YQ10ZnuiBeEj0lk8SN8xHU9hOznkLc85wS1cLTp6RpzlMrHxMPD9nH7S55gsBqMqgGyz93rqmkA==}
@@ -7218,7 +7220,6 @@ packages:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-    dev: false
 
   /bufferutil@4.0.8:
     resolution: {integrity: sha512-4T53u4PdgsXqKaIctwF8ifXlRTTmEPJ8iEPWFdGZvcf7sbwYo6FKFEX9eNNAnzFZ7EzJAQ3CJeOtCRA4rDp7Pw==}
@@ -13941,7 +13942,6 @@ packages:
   /process@0.11.10:
     resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
     engines: {node: '>= 0.6.0'}
-    dev: false
 
   /progress-events@1.0.0:
     resolution: {integrity: sha512-zIB6QDrSbPfRg+33FZalluFIowkbV5Xh1xSuetjG+rlC5he6u2dc6VQJ0TbMdlN3R1RHdpOqxEFMKTnQ+itUwA==}
