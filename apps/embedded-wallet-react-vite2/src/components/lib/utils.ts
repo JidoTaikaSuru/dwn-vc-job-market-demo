@@ -363,7 +363,7 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
 
       console.log("🚀 ~ file: utils.ts:200 ~ dwnReadSelf ~ protocol:", protocol)
       try { 
-        const { record } = await web5.dwn.records.read({
+        const { record , status } = await web5.dwn.records.read({
           message: {
             filter:{
               protocol: protocol,
@@ -371,18 +371,21 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
           }
         });
         console.log("🚀 ~ file: utils.ts:373 ~ dwnReadSelf ~ record:", record)
-      
+        console.log("🚀 ~ file: utils.ts:367 ~ dwnReadSelfReturnRecordAndData ~ status:", status)
 
     if(record){
       const data = await record.data.json();
       const list = {record, data, id: record.id};
 
       console.log("🚀 ~ file: utils.ts:200 ~ dwnReadSelf ~ data:", JSON.stringify(data))
-      
- 
-    return list;
-  }
+              
+        
+            return list;
+          }
+          else {
+              console.error("🚀 ~ file: utils.ts:367 ~ dwnReadSelfReturnRecordAndData ~ status:", status);
     return undefined; 
+          } 
       } catch (e ){
       console.log("🚀 ~ file: utils.ts:205 ~ dwnReadSelf ~ e:", e)
 
