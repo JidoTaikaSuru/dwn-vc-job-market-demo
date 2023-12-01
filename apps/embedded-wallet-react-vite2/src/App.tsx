@@ -11,6 +11,7 @@ import { DwnJobListingsRWO } from "./components/DwnJobListingsRWO";
 import { DwnJobListingDrilldown } from "./components/DwnJobListingDrilldown";
 import UpdateProfile from "./components/UpdateProfile";
 import { PostJob } from "./components/PostJob";
+import { DwnJobListingsRWOCompanyListings } from "@/components/DwnJobListingsRWOCompanyListings.tsx";
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
   {
     path: "/listing/:listingId",
     element: <JobListingDrilldown />,
-  }, 
+  },
   {
     path: "/dwnListings",
     element: <DwnJobListings />,
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
     element: <DwnJobListingsRWO />,
   },
   {
+    path: "/dwnListingsRWO/:companyDid",
+    element: <DwnJobListingsRWOCompanyListings />,
+  },
+  {
     path: "/updateProfile",
     element: <UpdateProfile />,
   },
@@ -41,7 +46,6 @@ const router = createBrowserRouter([
     path: "/postJob",
     element: <PostJob />,
   },
- 
 ]);
 
 function App() {

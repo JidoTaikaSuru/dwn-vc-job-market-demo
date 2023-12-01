@@ -54,12 +54,10 @@ export const SessionContextProvider: FC<PropsWithChildren> = ({ children }) => {
         );
         setWallet(fwallet);
 
-        console.log("Fetching user's credentials");
         const credentials = await credentialStore.getCredentials({
           jwt: sessionData?.access_token || "",
         });
         const compliantCredentials = convertVeramoVcToPexFormat(credentials);
-        console.log("compliantCredentials", compliantCredentials);
         setCredentials(compliantCredentials);
       } catch (error) {
         console.error("Error fetching data:", error);

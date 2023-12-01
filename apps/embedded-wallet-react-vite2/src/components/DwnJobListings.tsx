@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 const columns: ColumnDef<{ id: string; did: string; label: string }>[] = [
   {
     header: "DID",
-    accessorKey: "did"
+    accessorKey: "did",
   },
   {
     header: "Label",
@@ -30,21 +30,24 @@ const columns: ColumnDef<{ id: string; did: string; label: string }>[] = [
     header: "Apply",
     accessorKey: "id",
     cell: (value) => (
-      <Link to={`/dwnListings/${value.row.original.did}`} className="text-blue-500">
+      <Link
+        to={`/dwnListings/${value.row.original.did}`}
+        className="text-blue-500"
+      >
         Apply
       </Link>
     ),
   },
 ];
 
-//TODO Add pagination,...  Na don't worry about it 
+//TODO Add pagination,...  Na don't worry about it
 export const DwnJobListings: FC = () => {
   const [listings, setListings] = useState<
     { id: string; label: string; did: string }[]
   >([]);
 
-  //const formattedList = listings.map((x) => {return {id : x.id, label : x.label, did : x.did.substring(0, 32)}}); //trying to figure out where the infinite loop is coming from 
-  console.log("🚀 ~ file: DwnJobListings.tsx:47 ")
+  //const formattedList = listings.map((x) => {return {id : x.id, label : x.label, did : x.did.substring(0, 32)}}); //trying to figure out where the infinite loop is coming from
+  console.log("🚀 ~ file: DwnJobListings.tsx:47 ");
 
   const table = useReactTable({
     columns,
@@ -55,16 +58,18 @@ export const DwnJobListings: FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       /* const { data, error } = await supabaseClient
-        .from("job_listings")
-        .select("title,company,id"); */
+                                                                                .from("job_listings")
+                                                                                .select("title,company,id"); */
 
-        
-  const did_db_table='dwn_did_registry_2';
+      const did_db_table = "dwn_did_registry_2";
 
-const { data, error } = await supabaseClient
-.from(did_db_table)
-.select('*')
-console.log("🚀 ~ file: DwnJobListings.tsx:65 ~ fetchData ~ error:", error)
+      const { data, error } = await supabaseClient
+        .from(did_db_table)
+        .select("*");
+      console.log(
+        "🚀 ~ file: DwnJobListings.tsx:65 ~ fetchData ~ error:",
+        error,
+      );
 
       if (error) {
         throw new Error(error.message);
@@ -72,16 +77,15 @@ console.log("🚀 ~ file: DwnJobListings.tsx:65 ~ fetchData ~ error:", error)
       setListings(data);
     };
     fetchData();
-    const intervalId = setInterval(fetchData, 10000);
-
-    return () => clearInterval(intervalId);
+    // const intervalId = setInterval(fetchData, 10000);
+    // return () => clearInterval(intervalId);
   }, []);
 
   return (
     <>
       <h1>DWN Job Listings</h1>
       <div className="rounded-md border">
-        <Table>
+        <Table className={"max-w-full"}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -108,7 +112,7 @@ console.log("🚀 ~ file: DwnJobListings.tsx:65 ~ fetchData ~ error:", error)
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className={"overflow-ellipsis"}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

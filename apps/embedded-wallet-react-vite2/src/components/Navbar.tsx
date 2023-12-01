@@ -16,7 +16,6 @@ const Navbar: React.FC = () => {
   const { session, setSession, wallet } = useContext(SessionContext);
   const [startLogout, setStartLogout] = useState(false);
 
-  console.log("navBarsession", session);
   useEffect(() => {
     if (!startLogout) return;
     setStartLogout(false);
