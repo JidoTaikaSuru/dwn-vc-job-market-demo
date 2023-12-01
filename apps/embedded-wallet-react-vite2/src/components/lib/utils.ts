@@ -655,7 +655,7 @@ catch (e ){
 }
 
 
-export async function dwnQueryJApplicationsWithoutJob() {
+export async function dwnQuerySelfJApplicationsFromOthers() {
 
   const{ records } = await web5.dwn.records.query({
       message: {
@@ -680,6 +680,7 @@ export async function dwnQueryJApplicationsWithoutJob() {
   }
   console.log("🚀 ~ file:  ~ dwnQueryJApplicationsWithoutJob ~ japplicationList:", japplicationList)
   console.log("🚀 ~ file:  ~ dwnQueryJApplicationsWithoutJob ~ japplicationList_from_others:", japplicationList_from_others)
+return japplicationList_from_others
 };
 
 
