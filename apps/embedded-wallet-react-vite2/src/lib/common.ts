@@ -105,6 +105,11 @@ fetch('https://ipinfo.io/json')
 
 
 await didCreate();
+await configureProtocol(selfProfileProtocol );
+await configureProtocol(jobApplicationSimpleProtocol );
+await configureProtocol(jobPostThatCanTakeApplicationsAsReplyProtocol );
+await configureProtocol(cvPersonalStorageProtocol );
+
 
 
 export const initMyTestingData  = async() => {
@@ -121,11 +126,6 @@ export const initMyTestingData  = async() => {
         await dwnCreateSelfProfileName(user.email.split("@")[0])
 
         
-    await configureProtocol(selfProfileProtocol );
-    await configureProtocol(jobApplicationSimpleProtocol );
-    await configureProtocol(jobPostThatCanTakeApplicationsAsReplyProtocol );
-    await configureProtocol(cvPersonalStorageProtocol );
-
 
     
 
