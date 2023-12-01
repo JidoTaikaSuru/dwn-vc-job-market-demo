@@ -12,6 +12,7 @@ import { DwnJobListingDrilldown } from "./components/DwnJobListingDrilldown";
 import UpdateProfile from "./components/UpdateProfile";
 import { PostJob } from "./components/PostJob";
 import { DwnJobListingsRWOCompanyListings } from "@/components/DwnJobListingsRWOCompanyListings.tsx";
+import { DwnMyJobs } from "./components/DwnMyJobs";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
   {
     path: "/postJob",
     element: <PostJob />,
+  },
+  {
+    path: "/dwnMyJobs",
+    element: <DwnMyJobs />,
   },
 ]);
 
