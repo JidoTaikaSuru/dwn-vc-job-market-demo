@@ -354,7 +354,7 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
 
 
     //@ts-ignore
-    export const dwnReadSelf  = async(protocol) => {
+    export const dwnReadSelfReturnRecordAndData  = async(protocol) => {
       if(typeof protocol !== "string" && typeof protocol === "object"){
             if( protocol.protocol && protocol.protocol  === "string"  ){
               protocol=protocol.protocol;
