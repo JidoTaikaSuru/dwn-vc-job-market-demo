@@ -355,12 +355,12 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
 
     //@ts-ignore
     export const dwnReadSelfReturnRecordAndData  = async(protocol) => {
-      if(typeof protocol !== "string" && typeof protocol === "object"){
-            if( protocol.protocol && protocol.protocol  === "string"  ){
+
+            if( protocol.protocol ){
               protocol=protocol.protocol;
            
             }
-      }
+
       console.log("🚀 ~ file: utils.ts:200 ~ dwnReadSelf ~ protocol:", protocol)
       try { 
         const { record } = await web5.dwn.records.read({

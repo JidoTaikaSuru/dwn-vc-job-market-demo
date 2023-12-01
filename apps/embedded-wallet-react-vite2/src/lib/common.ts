@@ -3,7 +3,7 @@ import { Database } from "@/__generated__/supabase-types";
 import { SupabaseCredentialManager } from "@/lib/client";
 import { Web5 } from "@web5/api/browser";
 //import { Web5 } from "@web5/api";
-import { jobApplicationSimpleProtocol, configureProtocol, cvPersonalStorageProtocol, dwnCreateAndSendJApplication, dwnCreateAndSendJApplicationReplyingToJob, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQueryJApplicationsForJob, dwnQueryJApplicationsWithoutJob, dwnQueryOtherDWN, dwnQuerySelf, dwnQuerySelfForAnyRecordsWrittenByOthers, dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords, dwnQuerySelfallJSONData, dwnReadOtherDWN, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol } from "@/components/lib/utils";
+import { jobApplicationSimpleProtocol, configureProtocol, cvPersonalStorageProtocol, dwnCreateAndSendJApplication, dwnCreateAndSendJApplicationReplyingToJob, dwnCreateJobPost, dwnCreateSelfProfileName, dwnQueryJApplicationsForJob, dwnQueryJApplicationsWithoutJob, dwnQueryOtherDWN, dwnQuerySelf, dwnQuerySelfForAnyRecordsWrittenByOthers, dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords, dwnQuerySelfallJSONData, dwnReadOtherDWN, jobPostThatCanTakeApplicationsAsReplyProtocol, selfProfileProtocol, dwnReadSelfReturnRecordAndData } from "@/components/lib/utils";
 
 
 export const DEBUGING=false;
@@ -245,7 +245,13 @@ console.log("🚀 ~   dids_with_names:", dids_with_names)
 
 if(DEBUGING){
 
-  await initMyTestingData();
+  const {record, data, id} = await dwnReadSelfReturnRecordAndData(selfProfileProtocol);
+    console.log("🚀 ~ file: common.ts:249 ~ record:", record)
+    console.log("🚀 ~ file: common.ts:249 ~ id:", id)
+    console.log("🚀 ~ file: common.ts:249 ~ data:", data)
+    const namdata = await dwnReadSelfReturnRecordAndData(selfProfileProtocol);
+    console.log("🚀 ~ file: common.ts:249 ~ namdata:", namdata)
+    await initMyTestingData();
     await dwnQueryJApplicationsForJob();
     await dwnQueryJApplicationsWithoutJob();
     await dwnQuerySelfForAnyRecordsWrittenByOthers();
