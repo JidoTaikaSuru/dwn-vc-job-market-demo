@@ -935,7 +935,7 @@ export const dwnCreateAndSendJApplicationReplyingToJob_deprecated = async (recip
       }
   
       try {
-          const { record } = await web5.dwn.records.create({
+          const { record , status } = await web5.dwn.records.create({
               data: jobdata,
               message: {
                   protocol: jobPostThatCanTakeApplicationsAsReplyProtocol.protocol,
@@ -949,6 +949,9 @@ export const dwnCreateAndSendJApplicationReplyingToJob_deprecated = async (recip
   
           if(record)
             console.log("🚀 ~ file:  ~  dwnCreateJobPost protocol: "+jobPostThatCanTakeApplicationsAsReplyProtocol.protocol+" create SUCCESS  ", record)
+          else {
+            console.error("🚀 ~ file: utils.ts:951 ~ dwnCreateJobPost ~ status:", status)
+          }
 
       return record;
       }
