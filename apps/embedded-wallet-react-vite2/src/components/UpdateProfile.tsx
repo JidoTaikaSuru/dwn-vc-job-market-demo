@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React, { useEffect, useState } from "react";
-import { myDid } from "@/lib/common.ts";
-import { dwnReadOtherDWNRecord, selfProfileProtocol } from "./lib/utils";
+import { dwnReadSelfReturnRecordAndData, selfProfileProtocol } from "./lib/utils";
 
 const UpdateProfile: React.FC = () => {
 
@@ -12,23 +11,22 @@ const UpdateProfile: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const {record} = await dwnReadOtherDWNRecord(myDid, selfProfileProtocol);
+            
+            const {record, data, id} = await dwnReadSelfReturnRecordAndData(selfProfileProtocol);
+            if(record)            
             setmyRecord(record);
-            const data = await record.data.json();
             setdata(data);
             console.log("🚀 ~ file: UpdateProfile.tsx:16 ~ fetchData ~ myRecord:", record)
-
-            
-        const { status } = await myRecord.update({ name: data.name + "66666" });
-        console.log("🚀 ~ file: UpdateProfile.tsx:23 ~ updateName ~ status:", status)
         };
+
 fetchData();
             console.log("🚀 ~ file: UpdateProfile.tsx:21 ~ useEffect ~ fetchData:", fetchData)
         
     }, []);
 
     const updateName = async () => {
-        const { status } = await myRecord.update({ name: newName });
+        data.name = newName;
+        const { status } = await myRecord.update({data});
         console.log("🚀 ~ file: UpdateProfile.tsx:23 ~ updateName ~ status:", status)
     }
 

@@ -83,7 +83,7 @@ export const DwnJobListingsRWO: FC = () => {
                 let dwnname ="";
                 if  (i_name && i_name.name )
                     dwnname=i_name.name 
-                const i_job_list =  await dwnReadOtherDWN(row.did,jobPostThatCanTakeApplicationsAsReplyProtocol)
+                const i_job_list =  await dwnQueryOtherDWN(row.did,jobPostThatCanTakeApplicationsAsReplyProtocol)
                 let jobpostcount =0;
                 if(i_job_list && i_job_list.length && i_job_list.length>0)
                   jobpostcount=i_job_list.length;
