@@ -37,8 +37,8 @@ export const JobListingDrilldown: FC = () => {
   const [error, setError] = useState("");
   const [jobListing, setJobListing] =
     useState<Database["public"]["Tables"]["job_listings"]["Row"]>();
-  // @ts-ignore
   const presentationDefinition =
+    // @ts-ignore
     jobListing?.presentation_definition as IPresentationDefinition;
 
   // Load job

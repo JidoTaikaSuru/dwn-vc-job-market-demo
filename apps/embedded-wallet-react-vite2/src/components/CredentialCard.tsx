@@ -27,7 +27,7 @@ type CredentialCardProps = {
 export const CredentialCard: FC<CredentialCardProps> = ({
   title,
   expirationDate,
-  description,
+  // description,
   howToGet,
   userHasCredential,
 }) => {

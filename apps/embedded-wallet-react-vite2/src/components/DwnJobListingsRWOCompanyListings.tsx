@@ -1,15 +1,11 @@
 import type {ColumnDef} from "@tanstack/react-table";
 import {flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
 import type {FC} from "react";
-import {useEffect, useMemo, useState} from "react";
+import {Suspense, useMemo} from "react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
 import {Link, useParams} from "react-router-dom";
-import {
-  dwnQueryOtherDWN,
-  dwnReadOtherDWN,
-  jobPostThatCanTakeApplicationsAsReplyProtocol,
-  selfProfileProtocol,
-} from "./lib/utils";
+import {dwnGetCompanyJobs, dwnReadSelfProfile} from "./lib/utils";
+import {useRecoilValue} from "recoil";
 
 // type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
 //   jobpostcount: number;
@@ -20,11 +16,6 @@ type RowData = any;
 
 export const DwnJobListingsRWOCompanyListings: FC = () => {
   const { companyDid } = useParams();
-  //TODO Can pass this as props to route
-  const [companyName, setCompanyName] = useState("Loading");
-  console.log("companyDid", companyDid);
-  const [listings, setListings] = useState<Array<RowData>>([]);
-  const [loading, setLoading] = useState(true);
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
       // {
@@ -50,6 +41,8 @@ export const DwnJobListingsRWOCompanyListings: FC = () => {
     ],
     [],
   );
+  const company = useRecoilValue(dwnReadSelfProfile({ did: companyDid }));
+  const listings = useRecoilValue(dwnGetCompanyJobs({ did: companyDid }));
 
   const table = useReactTable({
     columns,
@@ -57,28 +50,13 @@ export const DwnJobListingsRWOCompanyListings: FC = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const company = await dwnReadOtherDWN(companyDid, selfProfileProtocol);
-      if (company.name) setCompanyName(company.name);
-
-      const iJobList = await dwnQueryOtherDWN(
-        companyDid,
-        jobPostThatCanTakeApplicationsAsReplyProtocol,
-      );
-      setListings(iJobList || []);
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
-
   if (!listings) return <></>;
-  if (loading) return <>Loading...</>;
+  if (!companyDid) return <>Accessed route without a DID</>; //TODO This might throw an error
+
   console.log("listings", listings);
   return (
-    <>
-      <h1>{companyName} Job Listings</h1>
+    <Suspense fallback={<div>Loading whale types...</div>}>
+      <h1>{company?.name} Job Listings</h1>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -129,6 +107,6 @@ export const DwnJobListingsRWOCompanyListings: FC = () => {
           </TableBody>
         </Table>
       </div>
-    </>
+    </Suspense>
   );
 };

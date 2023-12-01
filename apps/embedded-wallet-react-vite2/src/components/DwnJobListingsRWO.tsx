@@ -100,6 +100,8 @@ export const DwnJobListingsRWO: FC = () => {
           //Getting most up to date job listing from each DWN  ( one might want to cache this in the search engine so not everyone has to ask all the DWN's all the time.  )
           const row = data[i];
           const iName = await dwnReadOtherDWN(row.did, selfProfileProtocol);
+          if (!iName) return;
+          iName.name;
           let dwnName = "";
           if (iName && iName.name) dwnName = iName.name;
           const iJobList = await dwnQueryOtherDWN(

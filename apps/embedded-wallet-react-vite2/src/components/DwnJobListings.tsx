@@ -1,51 +1,44 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import type { FC } from "react";
-import { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { supabaseClient } from "@/lib/common.ts";
-import { Link } from "react-router-dom";
-
-const columns: ColumnDef<{ id: string; did: string; label: string }>[] = [
-  {
-    header: "DID",
-    accessorKey: "did",
-  },
-  {
-    header: "Label",
-    accessorKey: "label",
-  },
-  {
-    header: "Apply",
-    accessorKey: "id",
-    cell: (value) => (
-      <Link
-        to={`/dwnListings/${value.row.original.did}`}
-        className="text-blue-500"
-      >
-        Apply
-      </Link>
-    ),
-  },
-];
+import type {ColumnDef} from "@tanstack/react-table";
+import {flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
+import type {FC} from "react";
+import {useEffect, useMemo, useState} from "react";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
+import {supabaseClient} from "@/lib/common.ts";
+import {Link} from "react-router-dom";
+import {Database} from "@/__generated__/supabase-types.ts";
 
 //TODO Add pagination,...  Na don't worry about it
 export const DwnJobListings: FC = () => {
   const [listings, setListings] = useState<
-    { id: string; label: string; did: string }[]
+    Array<Database["public"]["Tables"]["dwn_did_registry_2"]["Row"]>
   >([]);
-
+  const columns: ColumnDef<
+    Database["public"]["Tables"]["dwn_did_registry_2"]["Row"]
+  >[] = useMemo(
+    () => [
+      {
+        header: "DID",
+        accessorKey: "did",
+      },
+      {
+        header: "Label",
+        accessorKey: "label",
+      },
+      {
+        header: "Apply",
+        accessorKey: "id",
+        cell: (value) => (
+          <Link
+            to={`/dwnListings/${value.row.original.did}`}
+            className="text-blue-500"
+          >
+            Apply
+          </Link>
+        ),
+      },
+    ],
+    [],
+  );
   //const formattedList = listings.map((x) => {return {id : x.id, label : x.label, did : x.did.substring(0, 32)}}); //trying to figure out where the infinite loop is coming from
   console.log("🚀 ~ file: DwnJobListings.tsx:47 ");
 
@@ -58,8 +51,8 @@ export const DwnJobListings: FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       /* const { data, error } = await supabaseClient
-                                                                                .from("job_listings")
-                                                                                .select("title,company,id"); */
+                                                                                                              .from("job_listings")
+                                                                                                              .select("title,company,id"); */
 
       const did_db_table = "dwn_did_registry_2";
 
