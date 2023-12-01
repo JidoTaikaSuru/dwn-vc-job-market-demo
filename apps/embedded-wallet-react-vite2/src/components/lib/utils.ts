@@ -108,7 +108,7 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
 
 
 
-    export const  jobPostThatCanTakeApplicationsAsReplyProtocol = JSON.parse(`{
+    export const  jobPostThatCanTakeApplicationsAsReplyProtocol = JSON.parse(`{ 
       "protocol": "https://didcomm.org/rwo/jobPostProtocol",
         "published": true,
         "types": {
@@ -351,6 +351,45 @@ export const cvPersonalStorageProtocol = JSON.parse(`{
 
   }
 
+
+
+    //@ts-ignore
+    export const dwnReadSelf  = async(protocol) => {
+      if(typeof protocol !== "string" && typeof protocol === "object"){
+            if( protocol.protocol && protocol.protocol  === "string"  ){
+              protocol=protocol.protocol;
+           
+            }
+      }
+      console.log("🚀 ~ file: utils.ts:200 ~ dwnReadSelf ~ protocol:", protocol)
+      try { 
+        const { record } = await web5.dwn.records.read({
+          message: {
+            filter:{
+              protocol: protocol,
+            }
+          }
+        });
+        console.log("🚀 ~ file: utils.ts:373 ~ dwnReadSelf ~ record:", record)
+      
+
+    if(record){
+      const data = await record.data.json();
+      const list = {record, data, id: record.id};
+
+      console.log("🚀 ~ file: utils.ts:200 ~ dwnReadSelf ~ data:", JSON.stringify(data))
+      
+ 
+    return list;
+  }
+    return undefined; 
+      } catch (e ){
+      console.log("🚀 ~ file: utils.ts:205 ~ dwnReadSelf ~ e:", e)
+
+        return undefined;
+      }
+
+  }
 
 
     //@ts-ignore
