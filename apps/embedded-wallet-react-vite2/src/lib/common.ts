@@ -263,7 +263,7 @@ export const getAllDWNnames = async () => {
 };
 
 if (DEBUGING) {
-  const namdata = await dwnReadSelfReturnRecordAndData(selfProfileProtocol);
+  const namdata = await dwnReadSelfReturnRecordAndData();
   console.log("🚀 ~ file: common.ts:249 ~ namdata:", namdata);
   await initMyTestingData();
   //await dwnQueryJApplicationsForJob();

@@ -1,24 +1,24 @@
 import type {ColumnDef} from "@tanstack/react-table";
 import {flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
 import type {FC} from "react";
-import {Suspense, useMemo, useState} from "react";
+import {useMemo, useState} from "react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
-import {Link, useParams} from "react-router-dom";
-import {dwnGetCompanyJobs, dwnReadSelfProfile, dwnCreateAndSendJApplicationReplyingToJob} from "./lib/utils";
+import {useParams} from "react-router-dom";
+import {dwnCreateAndSendJApplicationReplyingToJob, dwnGetCompanyJobs, dwnReadSelfProfile,} from "./lib/utils";
 import {useRecoilValue} from "recoil";
-import { supabaseClient, user } from "@/lib/common.ts";
+import {user} from "@/lib/common.ts";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button";
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Button} from "@/components/ui/button";
 
 // type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
 //   jobpostcount: number;
@@ -44,51 +44,55 @@ export const DwnJobListingsRWOCompanyListings: FC = () => {
         header: "Apply",
         accessorKey: "id",
         cell: (value) => (
-          <Dialog 
-            >
-          
-          <DialogTrigger asChild>
-              <Button >Apply</Button>
-          </DialogTrigger>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Apply</Button>
+            </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                        <DialogTitle>Apply for the Company</DialogTitle>
-                        <DialogDescription>
-                          You are applying for a job posted by {value.row.original.dwnname}
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="name" className="text-right">
-                            My Email
-                          </Label>
-                          <Label className="text-center">
-                            {user?.email}
-                          </Label>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="username" className="text-right">
-                            Message
-                          </Label>
-                          <Input
-                            id="text"
-                            className="col-span-3"
-                            onChange={(e) => setApplyMessage(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button onClick={() => {
-          
-                          const sendApplication = async () => {
-                            if (applyMessage)
-                            //TODO add proper params
-                              await dwnCreateAndSendJApplicationReplyingToJob(value.row.original.did, applyMessage, value.row.original.record_id);
-                          };
-          
-                          sendApplication();
-                        }}>Submit Application</Button>
-                      </DialogFooter>
+                <DialogTitle>Apply for the Company</DialogTitle>
+                <DialogDescription>
+                  You are applying for a job posted by{" "}
+                  {value.row.original.dwnname}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    My Email
+                  </Label>
+                  <Label className="text-center">{user?.email}</Label>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="username" className="text-right">
+                    Message
+                  </Label>
+                  <Input
+                    id="text"
+                    className="col-span-3"
+                    onChange={(e) => setApplyMessage(e.target.value)}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  onClick={() => {
+                    const sendApplication = async () => {
+                      if (applyMessage)
+                        //TODO add proper params
+                        await dwnCreateAndSendJApplicationReplyingToJob(
+                          value.row.original.did,
+                          applyMessage,
+                          value.row.original.record_id,
+                        );
+                    };
+
+                    sendApplication();
+                  }}
+                >
+                  Submit Application
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         ),
@@ -110,7 +114,7 @@ export const DwnJobListingsRWOCompanyListings: FC = () => {
 
   console.log("listings", listings);
   return (
-    <Suspense fallback={<div>Loading whale types...</div>}>
+    <>
       <h1>{company?.name} Job Listings</h1>
       <div className="rounded-md border">
         <Table>
@@ -162,6 +166,6 @@ export const DwnJobListingsRWOCompanyListings: FC = () => {
           </TableBody>
         </Table>
       </div>
-    </Suspense>
+    </>
   );
 };
