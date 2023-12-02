@@ -1,10 +1,9 @@
 * Feature freeze tomorrow night, code freeze Sunday at 6PM EST
 * Sign in
+    * Needs to support OTP
 * Add property to dwn "withCompany", that's a string that is the company did
     * If this property is not empty then render the applicants for a job in the drilldown
 * (ad0ll 4 hours) Job listing drilldown
-    * (1-2) Merge DWN apply logic into what I have
-    * Presentation Exchange and Apply button
     * (1h) Companies can't see who has applied to a position
     * -VC downloading- + (1h) rendering
 * (roman 2-4 hour) Company drilldown
@@ -27,11 +26,9 @@
     * (TODO 1-2 hours) Display statistic about the DWN, and we can show storage limit
 * Overall UI polish
     * (TODO 1-2 hours) Adding toasts to show interactions as they happen
+    * Content shouldn't appear under nav bar
 * Important side tasks
-    * (15m) Rename repo to something else
     * (30m) Add branding to navbar
-    * (15m) Move backend to other repo
-    * (2-4 hours) Deploy
 * (TODO 2-4 hours) Full user profile
     * Profile picture
     * Show you what credential you have
@@ -39,9 +36,13 @@
     * (TODO) Show storage limit
     * VC downloading + rendering
     * SCALE THIS DOWN
+* AFTER SUBMISSION
+    * (15m) Move backend to other repo
+    * (2-4 hours) Deploy
 
 # DONE
 
+* (15m) Rename repo to something else
 * Job listing list
     * Roman, Ruben, and I
         * (TODO 1 hour) Deprecate 2/3 of these so we only have one
