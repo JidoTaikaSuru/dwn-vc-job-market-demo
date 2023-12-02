@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/tooltip.tsx";
 import { CredentialCard } from "@/components/CredentialCard.tsx";
 import { APP_NAME } from "@/components/Navbar.tsx";
-import { dwnQueryOtherDWNArbitraryFilter } from "@/lib/utils.ts";
 
 const todayPlus3Months = () => {
   const d = new Date();
@@ -33,7 +32,6 @@ const todayPlus3Months = () => {
 };
 export const JobListingDrilldown: FC = () => {
   const { listingId } = useParams();
-  const dwnListing = dwnQueryOtherDWNArbitraryFilter();
   const { session, wallet, credentials } = useContext(SessionContext);
   const [error, setError] = useState("");
   const [jobListing, setJobListing] =

@@ -22,7 +22,7 @@ import {
   dwnReadOtherDWN,
   jobPostThatCanTakeApplicationsAsReplyProtocol,
   selfProfileProtocol,
-} from "../lib/utils.ts";
+} from "@/lib/utils.ts";
 import { Database } from "@/__generated__/supabase-types.ts";
 import {
   Dialog,
@@ -120,22 +120,19 @@ export const JobListings: FC = () => {
           </Dialog>
         ),
       },
+      {
+        header: "Jobs",
+        accessorKey: "jobpostcount",
+        cell: ({ row }) => (
+          <Link to={`/listings/company/${row.getValue("did")}`}>
+            Go to listings ({row.getValue("jobpostcount")})
+          </Link>
+        ),
+      },
     ],
     [],
   );
 
-  //If we're not looking at a specific company's listings, there's an extra column
-  if (!companyDid) {
-    columns.push({
-      header: "Jobs",
-      accessorKey: "jobpostcount",
-      cell: ({ row }) => (
-        <Link to={`/dwnListingsRwo/${row.getValue("did")}`}>
-          Go to listings ({row.getValue("jobpostcount")})
-        </Link>
-      ),
-    });
-  }
   //const formattedList = listings.map((x) => {return {...x, did : x.did.substring(0, 32)}});
 
   const table = useReactTable({
@@ -152,35 +149,27 @@ export const JobListings: FC = () => {
         .select("*");
 
       if (data) {
-        const newdata: Array<RowData> = [];
-
-        for (let i = 0; i < data.length; i++) {
-          //Getting most up to date job listing from each DWN  ( one might want to cache this in the search engine so not everyone has to ask all the DWN's all the time.  )
-          const row = data[i];
+        const promises = data.map(async (row) => {
           console.log("Reading data from, ", row.did);
           const iName = await dwnReadOtherDWN(row.did, selfProfileProtocol);
-          let dwnName = "";
-          if (iName && iName.name) {
-            dwnName = iName.name;
-          }
+          const dwnName = iName && iName.name ? iName.name : "";
+
           console.debug("Finished fetching self profile, fetching jobs");
           const iJobList = await dwnQueryOtherDWNByProtocol(
             row.did,
             jobPostThatCanTakeApplicationsAsReplyProtocol,
           );
-          console.debug("Finished fetching jobs", iJobList);
-          let jobPostCount = 0;
-          if (iJobList && iJobList.length && iJobList.length > 0) {
-            jobPostCount = iJobList.length;
-          }
-          newdata.push({
+          let jobPostCount = iJobList && iJobList.length ? iJobList.length : 0;
+
+          return {
             ...row,
             jobpostcount: jobPostCount,
             dwnname: dwnName,
             did: row.did.substring(0, 32),
-          });
-        }
+          };
+        });
 
+        const newdata = await Promise.all(promises);
         setListings(newdata);
       }
       if (error) {

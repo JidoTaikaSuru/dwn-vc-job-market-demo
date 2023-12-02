@@ -10,7 +10,7 @@ import {
   dwnCreateAndSendJApplicationReplyingToJob,
   dwnCreateJobPost,
   dwnCreateSelfProfileName,
-  dwnQueryOtherDWN,
+  dwnQueryOtherDWNByProtocol,
   dwnQuerySelf,
   dwnQuerySelfallJSONData,
   dwnQuerySelfForAnyRecordsWrittenByOthers,
@@ -173,10 +173,11 @@ export const spamEveryDWNwithAJobApplication = async () => {
       if (element.did && element.did !== myDid) {
         //Check if i can already find my record in their system
 
-        const applicaitons_i_find_on_other_DWN = await dwnQueryOtherDWN(
-          element.did,
-          jobApplicationSimpleProtocol,
-        ); //TODO Ruben change this your filtering the wrong thing
+        const applicaitons_i_find_on_other_DWN =
+          await dwnQueryOtherDWNByProtocol(
+            element.did,
+            jobApplicationSimpleProtocol,
+          ); //TODO Ruben change this your filtering the wrong thing
 
         let already_posted = false;
         if (
@@ -187,7 +188,7 @@ export const spamEveryDWNwithAJobApplication = async () => {
         }
 
         // if (true || !already_posted) {
-        const jobpostlist = await dwnQueryOtherDWN(
+        const jobpostlist = await dwnQueryOtherDWNByProtocol(
           element.did,
           jobPostThatCanTakeApplicationsAsReplyProtocol,
         );

@@ -237,15 +237,15 @@ export const dwnQueryOtherDWNSelector = selectorFamily<
   get:
     ({ fromDWN, protocol }) =>
     async () => {
-      return await dwnQueryOtherDWN(fromDWN, protocol);
+      return await dwnQueryOtherDWNByProtocol(fromDWN, protocol);
     },
 });
 
-export const dwnQueryOtherDWN = async (
+export const dwnQueryOtherDWNByProtocol = async (
   fromDWN: string,
   protocol: ProtocolDefinition,
 ) => {
-  console.groupCollapsed("dwnQueryOtherDWN");
+  console.groupCollapsed("dwnQueryOtherDWNByProtocol");
   console.debug(
     "dwnQueryOtherDWN()  about to query fromDWN " +
       fromDWN +
@@ -282,6 +282,7 @@ export const dwnQueryOtherDWN = async (
       console.groupEnd();
       return outdata;
     }
+    console.groupEnd();
     return [];
   } catch (e) {
     console.error("dwnQueryOtherDWN ~ e:", e);
@@ -346,7 +347,6 @@ export const dwnReadOtherDWNSelector = selectorFamily<
       return await dwnReadOtherDWN(fromDWN, protocol);
     },
 });
-
 export const dwnReadOtherDWN = async (
   fromDWN: string,
   protocol: ProtocolDefinition,
@@ -370,6 +370,7 @@ export const dwnReadOtherDWN = async (
 
     if (status.code !== 200) {
       console.error("dwnReadOtherDWN ~ status:", status);
+      console.groupEnd();
       return undefined;
     }
     // assuming the record is a json payload
@@ -436,7 +437,7 @@ export const dwnReadSelfProfile = selectorFamily<
     ({ did }) =>
     async () => {
       if (!did) return undefined;
-      return await dwnQueryOtherDWN(did, selfProfileProtocol);
+      return await dwnQueryOtherDWNByProtocol(did, selfProfileProtocol);
     },
 });
 
@@ -451,7 +452,7 @@ export const dwnGetCompanyJobs = selectorFamily<
     ({ did }) =>
     async () => {
       if (!did) return undefined;
-      return await dwnQueryOtherDWN(
+      return await dwnQueryOtherDWNByProtocol(
         did,
         jobPostThatCanTakeApplicationsAsReplyProtocol,
       );
@@ -1058,31 +1059,31 @@ export const dwnAddVCToDWNIfNotExists = async (vcdata: any) => {
 
   //Assumeing a format like this :
   /*
-                                                                                                              {
-                                                                                                                "issuer": {
-                                                                                                                  "id": "did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b",
-                                                                                                                  "name": "Decentralinked Issuer"
-                                                                                                                },
-                                                                                                                "credentialSubject": {
-                                                                                                                  "signinMethod": "OTP",
-                                                                                                                  "id": "did:eth:null"
-                                                                                                                },
-                                                                                                                "id": "did:web:gotid.org:credential:has-account:4b7a6302-ca53-4472-949d-cd54adf02cf8",
-                                                                                                                "type": [
-                                                                                                                  "VerifiableCredential",
-                                                                                                                  "HasAccountWithTrustAuthority"
-                                                                                                                ],
-                                                                                                                "@context": [
-                                                                                                                  "https://www.w3.org/2018/credentials/v1"
-                                                                                                                ],
-                                                                                                                "issuanceDate": "2023-11-26T01:24:28.000Z",
-                                                                                                                "expirationDate": "2024-02-26T01:24:28.000Z",
-                                                                                                                "proof": {
-                                                                                                                  "type": "JwtProof2020",
-                                                                                                                  "jwt": "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJleHAiOjE3MDg5MTA2NjgsInZjIjp7IkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIl0sInR5cGUiOlsiVmVyaWZpYWJsZUNyZWRlbnRpYWwiLCJIYXNBY2NvdW50V2l0aFRydXN0QXV0aG9yaXR5Il0sImNyZWRlbnRpYWxTdWJqZWN0Ijp7InNpZ25pbk1ldGhvZCI6Ik9UUCJ9fSwiaXNzdWVyIjp7Im5hbWUiOiJEZWNlbnRyYWxpbmtlZCBJc3N1ZXIifSwic3ViIjoiZGlkOmV0aDpudWxsIiwianRpIjoiZGlkOndlYjpnb3RpZC5vcmc6Y3JlZGVudGlhbDpoYXMtYWNjb3VudDo0YjdhNjMwMi1jYTUzLTQ0NzItOTQ5ZC1jZDU0YWRmMDJjZjgiLCJuYmYiOjE3MDA5NjE4NjgsImlzcyI6ImRpZDpldGhyOmdvZXJsaToweDAzZWU2YjIxNGM4N2ZlMjhjYjVjYmM0ODZjZmI2MDI5NWJiMDVlYmQyODAzZTk4ZmE1YTZlNjU4ZTg5OTkxYWE4YiJ9.QFYGYn8Z3xi32wD1foTwwi6Vggppw-kDggVm8iASTmN6xrQpjwkyJs_RVxZwgWlmyPQ4llETLPBvaDXCgkRgrQ"
-                                                                                                                }
-                                                                                                              }
-                                                                                                      */
+                                                                                                                      {
+                                                                                                                        "issuer": {
+                                                                                                                          "id": "did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b",
+                                                                                                                          "name": "Decentralinked Issuer"
+                                                                                                                        },
+                                                                                                                        "credentialSubject": {
+                                                                                                                          "signinMethod": "OTP",
+                                                                                                                          "id": "did:eth:null"
+                                                                                                                        },
+                                                                                                                        "id": "did:web:gotid.org:credential:has-account:4b7a6302-ca53-4472-949d-cd54adf02cf8",
+                                                                                                                        "type": [
+                                                                                                                          "VerifiableCredential",
+                                                                                                                          "HasAccountWithTrustAuthority"
+                                                                                                                        ],
+                                                                                                                        "@context": [
+                                                                                                                          "https://www.w3.org/2018/credentials/v1"
+                                                                                                                        ],
+                                                                                                                        "issuanceDate": "2023-11-26T01:24:28.000Z",
+                                                                                                                        "expirationDate": "2024-02-26T01:24:28.000Z",
+                                                                                                                        "proof": {
+                                                                                                                          "type": "JwtProof2020",
+                                                                                                                          "jwt": "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJleHAiOjE3MDg5MTA2NjgsInZjIjp7IkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIl0sInR5cGUiOlsiVmVyaWZpYWJsZUNyZWRlbnRpYWwiLCJIYXNBY2NvdW50V2l0aFRydXN0QXV0aG9yaXR5Il0sImNyZWRlbnRpYWxTdWJqZWN0Ijp7InNpZ25pbk1ldGhvZCI6Ik9UUCJ9fSwiaXNzdWVyIjp7Im5hbWUiOiJEZWNlbnRyYWxpbmtlZCBJc3N1ZXIifSwic3ViIjoiZGlkOmV0aDpudWxsIiwianRpIjoiZGlkOndlYjpnb3RpZC5vcmc6Y3JlZGVudGlhbDpoYXMtYWNjb3VudDo0YjdhNjMwMi1jYTUzLTQ0NzItOTQ5ZC1jZDU0YWRmMDJjZjgiLCJuYmYiOjE3MDA5NjE4NjgsImlzcyI6ImRpZDpldGhyOmdvZXJsaToweDAzZWU2YjIxNGM4N2ZlMjhjYjVjYmM0ODZjZmI2MDI5NWJiMDVlYmQyODAzZTk4ZmE1YTZlNjU4ZTg5OTkxYWE4YiJ9.QFYGYn8Z3xi32wD1foTwwi6Vggppw-kDggVm8iASTmN6xrQpjwkyJs_RVxZwgWlmyPQ4llETLPBvaDXCgkRgrQ"
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                              */
   const protocol = cvPersonalStorageProtocol.protocol;
 
   if (vcdata && vcdata.id && vcdata.issuer && vcdata.issuer.id) {
