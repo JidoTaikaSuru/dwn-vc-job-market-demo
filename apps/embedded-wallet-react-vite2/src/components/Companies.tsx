@@ -45,7 +45,7 @@ type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
 };
 
 //TODO Add pagination ... na   don't worry its a hackathon
-export const JobListings: FC = () => {
+export const Companies: FC = () => {
   const [listings, setListings] = useState<Array<RowData>>([]);
   const [applyMessage, setApplyMessage] = useState<string>("");
 

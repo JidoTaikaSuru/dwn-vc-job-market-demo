@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar.tsx";
 import { RequireUserLoggedIn } from "@/components/RequireUserLoggedIn.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { JobListingDrilldown } from "@/components/JobListingDrilldown.tsx";
-import { JobListings } from "./components/JobListings.tsx";
+import { Companies } from "./components/Companies.tsx";
 import UpdateProfile from "./components/UpdateProfile";
 import { PostJob } from "./components/PostJob";
 import { JobListingsByCompany } from "@/components/JobListingsByCompany.tsx";
@@ -14,11 +14,11 @@ import { SupabaseJobListings } from "@/components/experiments/SupabaseJobListing
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <JobListings />,
+    element: <Companies />,
   },
   {
     path: "/listings",
-    element: <JobListings />,
+    element: <Companies />,
   },
   {
     path: "/listings/supabase",
