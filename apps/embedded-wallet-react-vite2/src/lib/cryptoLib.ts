@@ -24,7 +24,6 @@ export const decryptData = async (
   iv: Uint8Array,
 ): Promise<string> => {
   try {
-    console.log("decryptData", encryptedData, key, iv);
     const decrypted = await crypto.subtle.decrypt(
       {
         name: "AES-GCM",
@@ -40,27 +39,16 @@ export const decryptData = async (
   }
 };
 
-
 export const convertStringToCryptoKey = async (str: string) => {
-  console.log("convertStringToCryptoKey", str);
   const encoded = new TextEncoder().encode(str);
   const hash = await crypto.subtle.digest("SHA-256", encoded);
-  console.log("encoded", encoded);
-  console.log("hash", hash);
-
-  const key = await crypto.subtle.importKey(
+  return await crypto.subtle.importKey(
     "raw", // format
     hash, // key data
     { name: "AES-GCM" }, // algorithm
     false, // not extractable
     ["encrypt", "decrypt"], // usage
   );
-  console.log("key", key);
-  return key;
-};
-
-export const messagePubKeyToParent = (message: string) => {
-  console.log("messagePubKeyToParent", message);
 };
 
 export const uint8ArrayToBase64 = (a: Uint8Array) => {
@@ -86,12 +74,18 @@ export const base64ToUint8Array = (b64: string) => {
 export const base64ToArrayBuffer = (b64: string) => {
   return base64ToUint8Array(b64).buffer;
 };
+
 export const decryptPrivateKeyGetWallet = async (
   encryptedSecret: string | ArrayBuffer,
   decryptionKey: string | CryptoKey,
   iv: string | Uint8Array,
 ): Promise<Wallet> => {
-  console.log("decryptPrivateKeyGetWallet", encryptedSecret, decryptionKey, iv);
+  console.debug(
+    "decryptPrivateKeyGetWallet",
+    encryptedSecret,
+    decryptionKey,
+    iv,
+  );
   if (!encryptedSecret) {
     throw new Error("No pinEncryptedPrivateKey provided");
   }
@@ -104,6 +98,5 @@ export const decryptPrivateKeyGetWallet = async (
       : await convertStringToCryptoKey(decryptionKey),
     iv instanceof Uint8Array ? iv : base64ToUint8Array(iv),
   );
-  console.log("pin decrypted private key from db:", privateKey);
   return new Wallet(privateKey);
 };

@@ -1,19 +1,20 @@
-import {FC,useEffect, useState} from "react";
-import {dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords} from "./lib/utils";
+import { FC, useEffect, useState } from "react";
+import { dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords } from "../lib/utils.ts";
 
 export const DwnMyJobs: FC = () => {
-    const [myresult, setMyresult] = useState();
-    useEffect(() => {
-        const fetchData =async() => {
-        const record = await dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
+  const [myresult, setMyresult] = useState();
+  useEffect(() => {
+    const fetchData = async () => {
+      const record =
+        await dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
 
-
-        console.log("🚀 ~ file: DwnMyJobs.tsx:13 ~ fetchData ~ myRecord:", record)        
+      console.log(
+        "🚀 ~ file: DwnMyJobs.tsx:13 ~ fetchData ~ myRecord:",
+        record,
+      );
     };
 
-        fetchData();
-    }, []);
-    return <>
-    record.data
-    </>
+    fetchData();
+  }, []);
+  return <>record.data</>;
 };

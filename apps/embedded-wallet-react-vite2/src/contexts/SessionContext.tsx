@@ -5,7 +5,6 @@ import { Session } from "@supabase/supabase-js";
 import { credentialStore, supabaseClient } from "@/lib/common.ts";
 import { IVerifiableCredential } from "@sphereon/ssi-types";
 import { convertVeramoVcToPexFormat } from "@/lib/credentialLib.ts";
-import { getUserEmbeddedWallet } from "@/lib/embeddedWalletLib.ts";
 
 type SessionContextProps = {
   session?: Session;
@@ -48,11 +47,11 @@ export const SessionContextProvider: FC<PropsWithChildren> = ({ children }) => {
         }
         setSession(sessionData);
         // console.log("session", session);
-        const fwallet = await getUserEmbeddedWallet(
-          localStorage.getItem("pin") || "",
-          undefined,
-        );
-        setWallet(fwallet);
+        // const fwallet = await getUserEmbeddedWallet(
+        //   localStorage.getItem("pin") || "",
+        //   undefined,
+        // );
+        // setWallet(fwallet);
 
         const credentials = await credentialStore.getCredentials({
           jwt: sessionData?.access_token || "",

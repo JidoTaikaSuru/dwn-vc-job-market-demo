@@ -5,7 +5,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import type { FC } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -14,16 +14,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { supabaseClient, user } from "@/lib/common.ts";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
-  dwnCreateAndSendJApplication,
-  dwnQueryOtherDWN,
-  dwnReadOtherDWN,
-  jobPostThatCanTakeApplicationsAsReplyProtocol,
-  selfProfileProtocol,
+  dwnCreateAndSendJApplicationReplyingToJob,
+  dwnGetCompanyJobs,
+  dwnReadSelfProfile,
 } from "../lib/utils.ts";
-import { Database } from "@/__generated__/supabase-types.ts";
+import { useRecoilValue } from "recoil";
+import { user } from "@/lib/common.ts";
 import {
   Dialog,
   DialogContent,
@@ -37,29 +35,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
-  jobpostcount: number;
-  dwnname: string;
-  did: string;
-};
-
-//TODO Add pagination ... na   don't worry its a hackathon
-export const JobListings: FC = () => {
+type RowData = any;
+export const CompanyJobListings: FC = () => {
   const { companyDid } = useParams();
-
-  const [listings, setListings] = useState<Array<RowData>>([]);
   const [applyMessage, setApplyMessage] = useState<string>("");
-
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
       {
-        header: "DID",
-        accessorKey: "did",
-        cell: ({ getValue }) => getValue<string>().substring(0, 32),
-      },
-      {
-        header: "Name",
-        accessorKey: "dwnname",
+        header: "Title",
+        accessorKey: "title",
       },
       {
         header: "Apply",
@@ -100,14 +84,12 @@ export const JobListings: FC = () => {
                   onClick={() => {
                     const sendApplication = async () => {
                       if (applyMessage)
-                        await dwnCreateAndSendJApplication(
+                        //TODO add proper params
+                        await dwnCreateAndSendJApplicationReplyingToJob(
                           value.row.original.did,
                           applyMessage,
+                          value.row.original.record_id,
                         );
-                      console.log(
-                        "🚀 ~ file: JobListings.tsx:105 ~ sendApplication ~ dwnCreateAndSendJApplication:",
-                        dwnCreateAndSendJApplication,
-                      );
                     };
 
                     sendApplication();
@@ -123,79 +105,22 @@ export const JobListings: FC = () => {
     ],
     [],
   );
-
-  //If we're not looking at a specific company's listings, there's an extra column
-  if (!companyDid) {
-    columns.push({
-      header: "Jobs",
-      accessorKey: "jobpostcount",
-      cell: ({ row }) => (
-        <Link to={`/dwnListingsRwo/${row.getValue("did")}`}>
-          Go to listings ({row.getValue("jobpostcount")})
-        </Link>
-      ),
-    });
-  }
-  //const formattedList = listings.map((x) => {return {...x, did : x.did.substring(0, 32)}});
-  console.log("🚀 ~ file: JobListings.tsx:48 ");
+  const company = useRecoilValue(dwnReadSelfProfile({ did: companyDid }));
+  const listings = useRecoilValue(dwnGetCompanyJobs({ did: companyDid }));
 
   const table = useReactTable({
     columns,
     data: listings,
     getCoreRowModel: getCoreRowModel(),
   });
-  useEffect(() => {
-    const fetchData = async () => {
-      const did_db_table = "dwn_did_registry_2";
 
-      const { data, error } = await supabaseClient
-        .from(did_db_table)
-        .select("*");
+  if (!listings) return <></>;
+  if (!companyDid) return <>Accessed route without a DID</>; //TODO This might throw an error
 
-      if (data) {
-        const newdata: Array<RowData> = [];
-
-        for (let i = 0; i < data.length; i++) {
-          //Getting most up to date job listing from each DWN  ( one might want to cache this in the search engine so not everyone has to ask all the DWN's all the time.  )
-          const row = data[i];
-          const iName = await dwnReadOtherDWN(row.did, selfProfileProtocol);
-          let dwnName = "";
-          if (iName && iName.name) {
-            dwnName = iName.name;
-          }
-          console.debug("Finished fetching self profile, fetching jobs");
-          const iJobList = await dwnQueryOtherDWN(
-            row.did,
-            jobPostThatCanTakeApplicationsAsReplyProtocol,
-          );
-          let jobPostCount = 0;
-          if (iJobList && iJobList.length && iJobList.length > 0) {
-            jobPostCount = iJobList.length;
-          }
-
-          newdata.push({
-            ...row,
-            jobpostcount: jobPostCount,
-            dwnname: dwnName,
-            did: row.did.substring(0, 32),
-          });
-        }
-
-        setListings(newdata);
-      }
-      if (error) {
-        throw new Error(error.message);
-      }
-    };
-    fetchData();
-    const intervalId = setInterval(fetchData, 10000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
+  console.log("listings", listings);
   return (
     <>
-      <h1>DWN Job Listings</h1>
+      <h1>{company?.name} Job Listings</h1>
       <div className="rounded-md border">
         <Table>
           <TableHeader>

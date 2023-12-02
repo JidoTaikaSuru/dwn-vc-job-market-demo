@@ -21,9 +21,9 @@ import {
   jobApplicationSimpleProtocol,
   jobPostThatCanTakeApplicationsAsReplyProtocol,
   selfProfileProtocol,
-} from "@/components/lib/utils";
+} from "@/lib/utils.ts";
 
-export const DEBUGING = false;
+export const DEBUGGING = false;
 const did_db_table = "dwn_did_registry_2";
 
 export const supabaseClient = createClient<Database>(
@@ -113,11 +113,11 @@ export async function didCreate() {
   return myDid;
 }
 
-await didCreate();
-await configureProtocol(selfProfileProtocol);
-await configureProtocol(jobApplicationSimpleProtocol);
-await configureProtocol(jobPostThatCanTakeApplicationsAsReplyProtocol);
-await configureProtocol(cvPersonalStorageProtocol);
+didCreate();
+configureProtocol(selfProfileProtocol);
+configureProtocol(jobApplicationSimpleProtocol);
+configureProtocol(jobPostThatCanTakeApplicationsAsReplyProtocol);
+configureProtocol(cvPersonalStorageProtocol);
 
 export const initMyTestingData = async () => {
   console.log(
@@ -262,7 +262,7 @@ export const getAllDWNnames = async () => {
   }
 };
 
-if (DEBUGING) {
+if (DEBUGGING) {
   const namdata = await dwnReadSelfReturnRecordAndData();
   console.log("🚀 ~ file: common.ts:249 ~ namdata:", namdata);
   await initMyTestingData();

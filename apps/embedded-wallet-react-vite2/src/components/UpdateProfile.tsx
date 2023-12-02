@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import {
   dwnReadSelfReturnRecordAndData,
   dwnReadSelfReturnRecordAndDataSelector,
-} from "./lib/utils";
+} from "../lib/utils.ts";
 import { useToast } from "@/components/ui/use-toast.ts";
 import { SubmitHandler, useForm } from "react-hook-form";
 import type { Record } from "@web5/api";

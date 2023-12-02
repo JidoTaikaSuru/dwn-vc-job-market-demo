@@ -1,5 +1,5 @@
 // Get a user, and decrypt their private key
-import {ethers, Wallet} from "ethers";
+import { ethers, Wallet } from "ethers";
 import {
   arrayBufferToBase64,
   convertStringToCryptoKey,
@@ -7,7 +7,7 @@ import {
   encryptData,
   uint8ArrayToBase64,
 } from "@/lib/cryptoLib";
-import {supabaseClient} from "@/lib/common";
+import { supabaseClient } from "@/lib/common";
 
 export const getUserEmbeddedWallet = async (
   pin?: string,
@@ -39,7 +39,7 @@ export const getUserEmbeddedWallet = async (
   }
 
   if (pin && password_encrypted_private_key) {
-    console.log(
+    console.debug(
       "pin set, decrypting pin encrypted private key",
       password_encrypted_private_key,
     );

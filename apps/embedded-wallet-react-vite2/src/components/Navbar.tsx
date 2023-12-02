@@ -9,10 +9,6 @@ import { supabaseClient } from "@/lib/common.ts";
 
 export const APP_NAME = "Embedded Wallet Demo";
 const Navbar: React.FC = () => {
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const { address, isSignedIn, isConnectionModal, setIsConnectionModal } =
-  //   useWallet();
-
   const { session, setSession, wallet } = useContext(SessionContext);
   const [startLogout, setStartLogout] = useState(false);
 
@@ -34,9 +30,6 @@ const Navbar: React.FC = () => {
         <div className="flex items-center gap-4">
           {wallet && (
             <Button
-              // onClick={() => {
-              //   setIsModalOpen(true);
-              // }}
               variant="outline"
               className="tracking-wider text-base font-semibold flex gap-2"
             >
@@ -44,33 +37,18 @@ const Navbar: React.FC = () => {
               {truncateAddress(wallet.address)}
             </Button>
           )}
-          {
-            session && (
-              <Button
-                onClick={() => {
-                  setStartLogout(true);
-                }}
-                variant="outline"
-                className="tracking-wider font-semibold flex gap-2"
-              >
-                Logout
-              </Button>
-            )
-            //     : (
-            //     <Button
-            //         // onClick={() => {
-            //         //   redirect("/login");
-            //         // }}
-            //         variant="outline"
-            //         className="tracking-wider font-semibold flex gap-2"
-            //     >
-            //         Login
-            //     </Button>
-            // )
-          }
+          {session && (
+            <Button
+              onClick={() => {
+                setStartLogout(true);
+              }}
+              variant="outline"
+              className="tracking-wider font-semibold flex gap-2"
+            >
+              Logout
+            </Button>
+          )}
         </div>
-        {/*{isModalOpen && <EmbeddedWalletModal setIsWalletModal={setIsModalOpen} />}*/}
-        {/*{isConnectionModal && <RequireUserLoggedIn />}*/}
       </div>
     </nav>
   );
