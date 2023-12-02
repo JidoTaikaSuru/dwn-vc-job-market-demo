@@ -1,6 +1,6 @@
 import type { Database } from "@/__generated__/supabase-types";
 import { FC, useContext, useEffect, useState } from "react";
-import { credentialStore } from "@/lib/common";
+import { credentialStore, user } from "@/lib/common";
 import { useParams } from "react-router-dom";
 import { SessionContext } from "@/contexts/SessionContext.tsx";
 import JSONPretty from "react-json-pretty";
@@ -25,6 +25,19 @@ import {
 import { CredentialCard } from "@/components/CredentialCard.tsx";
 import { APP_NAME } from "@/components/Navbar.tsx";
 import { TypographyH3 } from "@/components/Typography.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  dwnCreateAndSendJApplicationReplyingToJob,
+} from "../lib/utils.ts";
 
 const todayPlus3Months = () => {
   const d = new Date();
@@ -55,6 +68,19 @@ export const JobListingDrilldown: FC = () => {
         jwt: session?.access_token || "",
         jobListingId: listingId,
       });
+
+      /* dummy data
+      const listing = {
+        company: "Skynet Inc.", 
+        created_at: "01/10/2001", 
+        description: "Test Job #1 long description. We need a monkey coder who will sit and code all day long",
+        title: "Senior Monkey coder",
+        id: "000001",
+        presentation_definition: JSON.parse("{json}"),
+        updated_at: "01/10/2022"
+      };
+      */
+
       if (!listing) {
         console.log("no data found for id", listingId);
         setError("No data found for id " + listingId);
@@ -182,6 +208,18 @@ export const JobListingDrilldown: FC = () => {
     },
   );
 
+  const [applyMessage, setApplyMessage] = useState<string>("");
+
+    const sendApplication = async () => {
+      if (applyMessage)
+      
+        await dwnCreateAndSendJApplicationReplyingToJob(
+          jobListing.company,
+          applyMessage,
+          jobListing.id,
+        );
+    };
+
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h1>{jobListing.title}</h1>
@@ -213,6 +251,42 @@ export const JobListingDrilldown: FC = () => {
           </CollapsibleContent>
         </Collapsible>
         {error && <div className={"text-red-500"}>{error}</div>}
+
+        <Dialog>
+            <DialogTrigger asChild>
+              <Button>Apply</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Apply for the Company</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    My Email
+                  </Label>
+                  <Label className="text-center">{user?.email}</Label>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="username" className="text-right">
+                    Message
+                  </Label>
+                  <Input
+                    required
+                    id="text"
+                    className="col-span-3"
+                    onChange={(e) => setApplyMessage(e.target.value)}
+                    />
+                </div>
+              </div>
+              <DialogFooter>
+           {/* TODO need to submiot properly and close dialog after */}
+                <Button type="submit" onClick={sendApplication}>
+                  Apply
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
       </div>
     </div>
   );

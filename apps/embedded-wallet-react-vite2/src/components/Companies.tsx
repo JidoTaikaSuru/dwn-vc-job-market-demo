@@ -24,18 +24,6 @@ import {
   selfProfileProtocol,
 } from "../lib/utils.ts";
 import { Database } from "@/__generated__/supabase-types.ts";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   jobpostcount: number;
@@ -47,7 +35,6 @@ type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
 //TODO Add pagination ... na   don't worry its a hackathon
 export const Companies: FC = () => {
   const [listings, setListings] = useState<Array<RowData>>([]);
-  const [applyMessage, setApplyMessage] = useState<string>("");
 
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
@@ -61,72 +48,13 @@ export const Companies: FC = () => {
         accessorKey: "dwnname",
       },
       {
-        header: "Apply",
-        accessorKey: "id",
-        cell: (value) => (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>Apply</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Apply for the Company</DialogTitle>
-                <DialogDescription>
-                  You are applying for a job posted by{" "}
-                  {value.row.original.dwnname}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    My Email
-                  </Label>
-                  <Label className="text-center">{user?.email}</Label>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="username" className="text-right">
-                    Message
-                  </Label>
-                  <Input
-                    id="text"
-                    className="col-span-3"
-                    onChange={(e) => setApplyMessage(e.target.value)}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={() => {
-                    const sendApplication = async () => {
-                      if (applyMessage)
-                        await dwnCreateAndSendJApplication(
-                          value.row.original.did,
-                          applyMessage,
-                        );
-                      console.log(
-                        "🚀 ~ file: JobListings.tsx:105 ~ sendApplication ~ dwnCreateAndSendJApplication:",
-                        dwnCreateAndSendJApplication,
-                      );
-                    };
-
-                    sendApplication();
-                  }}
-                >
-                  Submit Application
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        ),
-      },
-      {
-        header: "Jobs",
+        header: "Positions",
         accessorKey: "jobpostcount",
         cell: ({ row }) => {
           console.log("row in cell", row);
           return (
             <Link to={`/listings/company/${row.original.fullDid}`}>
-              Go to listings ({row.original.jobpostcount})
+              View Positions ({row.original.jobpostcount})
             </Link>
           );
         },
@@ -191,7 +119,7 @@ export const Companies: FC = () => {
 
   return (
     <>
-      <h1>DWN Job Listings</h1>
+      <h1>Companies</h1>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
