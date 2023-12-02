@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
 
 
   
-    setTimeout(() => {  navigator.storage.estimate().then(u=> printStorageUsage(u.usageDetails.indexedDB)) }, 5000)
+    setTimeout(() => {  navigator.storage.estimate().then(u=> printStorageUsage(u.usageDetails.indexedDB)) }, 2000)
 
 
 
@@ -73,7 +73,8 @@ const Navbar: React.FC = () => {
       <div className="flex w-screen items-center justify-between p-4">
         <h5 className="tracking-tighter text-xl">{APP_NAME}</h5>
         <div className="flex items-center gap-4">
-          Local DWN Storage Used {strgPercent}%
+          
+         { strgPercent>0 ? `Local DWN Storage `+strgPercent+`%`: "" }
           {wallet && (
             <Button
               variant="outline"
