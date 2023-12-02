@@ -14,16 +14,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { supabaseClient, user } from "@/lib/common.ts";
+import { supabaseClient } from "@/lib/common.ts";
 import { Link } from "react-router-dom";
-import {
-  dwnCreateAndSendJApplication,
-  dwnQueryOtherDWNByProtocol,
-  dwnReadOtherDWN,
-  jobPostThatCanTakeApplicationsAsReplyProtocol,
-  selfProfileProtocol,
-} from "../lib/utils.ts";
 import { Database } from "@/__generated__/supabase-types.ts";
+import { useRecoilValue } from "recoil";
+
+import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   jobpostcount: number;
@@ -35,6 +31,7 @@ type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
 //TODO Add pagination ... na   don't worry its a hackathon
 export const Companies: FC = () => {
   const [listings, setListings] = useState<Array<RowData>>([]);
+  const { web5Client, protocols } = useRecoilValue(web5ConnectSelector);
 
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
@@ -83,15 +80,18 @@ export const Companies: FC = () => {
           //Getting most up to date job listing from each DWN  ( one might want to cache this in the search engine so not everyone has to ask all the DWN's all the time.  )
           const row = data[i];
           console.log("Reading data from, ", row.did);
-          const iName = await dwnReadOtherDWN(row.did, selfProfileProtocol);
+          const iName = await web5Client.dwnReadOtherDWN(
+            row.did,
+            protocols["selfProfileProtocol"],
+          );
           let dwnName = "";
           if (iName && iName.name) {
             dwnName = iName.name;
           }
           console.debug("Finished fetching self profile, fetching jobs");
-          const iJobList = await dwnQueryOtherDWNByProtocol(
+          const iJobList = await web5Client.dwnQueryOtherDWNByProtocol(
             row.did,
-            jobPostThatCanTakeApplicationsAsReplyProtocol,
+            protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
           );
           console.debug("Finished fetching jobs", iJobList);
           let jobPostCount = 0;

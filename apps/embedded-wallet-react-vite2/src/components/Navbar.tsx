@@ -13,49 +13,54 @@ const Navbar: React.FC = () => {
   const [startLogout, setStartLogout] = useState(false);
   const [strgPercent, setStrgPercent] = useState(0);
 
-
-
-  const storage_capacity = 10485758; //10MB is the known defualt limit for Chrome and firefox, safari mobile in some cases will give only 5MB 
-  let data_used   = 0;
-  let last_usage  = 0; 
-  let last_max_storage_usage = 0; 
-  let max_storage_usage = 0; 
-  let last_storage_add_diff = 0; 
+  const storage_capacity = 10485758; //10MB is the known defualt limit for Chrome and firefox, safari mobile in some cases will give only 5MB
+  let data_used = 0;
+  let last_usage = 0;
+  let last_max_storage_usage = 0;
+  let max_storage_usage = 0;
+  let last_storage_add_diff = 0;
   let callcounter = 0;
 
+  // Show used DWN storage in console
+  useEffect(() => {
+    const printStorageUsage = async () => {
+      const u = await navigator.storage.estimate();
+      const newused = u.usage;
+      // .then(u=> printStorageUsage(u.usageDetails.indexedDB)) }, 2000)
 
-  function printStorageUsage(newused:number) {
-      callcounter++
-      if(newused){
-          last_usage = data_used;
-          data_used =newused
+      callcounter++;
+      if (newused) {
+        last_usage = data_used;
+        data_used = newused;
 
-          const cur_diff =  last_usage-data_used;
-          const percentused = Math.round(100*data_used/storage_capacity);
-          if(callcounter%100===0)
-            console.info(`Storage usage: ${data_used} bytes, ${percentused}%  change ${cur_diff/(1024*1024)}`)
-          setStrgPercent(percentused)
-          if( data_used > max_storage_usage || max_storage_usage===0  ){
-              last_max_storage_usage= max_storage_usage; 
-              max_storage_usage=data_used;
-              last_storage_add_diff = max_storage_usage-last_max_storage_usage; 
-              if(callcounter%100===0)
-               console.info(`## Storage usage: ${data_used} bytes, ${percentused}% added ${last_storage_add_diff/(1024*1024)}`)
-          }
+        const cur_diff = last_usage - data_used;
+        const percentused = Math.round((100 * data_used) / storage_capacity);
+        if (callcounter % 100 === 0)
+          console.info(
+            `Storage usage: ${data_used} bytes, ${percentused}%  change ${
+              cur_diff / (1024 * 1024)
+            }`,
+          );
+        setStrgPercent(percentused);
+        if (data_used > max_storage_usage || max_storage_usage === 0) {
+          last_max_storage_usage = max_storage_usage;
+          max_storage_usage = data_used;
+          last_storage_add_diff = max_storage_usage - last_max_storage_usage;
+          if (callcounter % 100 === 0)
+            console.info(
+              `## Storage usage: ${data_used} bytes, ${percentused}% added ${
+                last_storage_add_diff / (1024 * 1024)
+              }`,
+            );
+        }
         // if(data_used && last_usage!==0&&callcounter%1===0)
-          //console.info(`Storage usage: ${data_used} bytes, ${percentused}% added${last_storage_add_diff/1024/1024}`)
+        //console.info(`Storage usage: ${data_used} bytes, ${percentused}% added${last_storage_add_diff/1024/1024}`)
       }
+    };
 
-    }
-
-
-
-  
-    setTimeout(() => {  navigator.storage.estimate().then(u=> printStorageUsage(u.usageDetails.indexedDB)) }, 2000)
-
-
-
-
+    const intervalId = setInterval(printStorageUsage, 5000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     if (!startLogout) return;
@@ -73,8 +78,7 @@ const Navbar: React.FC = () => {
       <div className="flex w-screen items-center justify-between p-4">
         <h5 className="tracking-tighter text-xl">{APP_NAME}</h5>
         <div className="flex items-center gap-4">
-          
-         { strgPercent>0 ? `Local DWN Storage `+strgPercent+`%`: "" }
+          {strgPercent > 0 ? `Local DWN Storage ` + strgPercent + `%` : ""}
           {wallet && (
             <Button
               variant="outline"

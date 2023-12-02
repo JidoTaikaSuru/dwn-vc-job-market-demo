@@ -1,12 +1,15 @@
 import { FC, useEffect, useState } from "react";
-import { dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords } from "../lib/utils.ts";
+import { useRecoilValue } from "recoil";
+
+import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 
 export const DwnMyJobs: FC = () => {
   const [myresult, setMyresult] = useState();
+  const { web5Client } = useRecoilValue(web5ConnectSelector);
   useEffect(() => {
     const fetchData = async () => {
       const record =
-        await dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
+        await web5Client.dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
 
       console.log(
         "🚀 ~ file: DwnMyJobs.tsx:13 ~ fetchData ~ myRecord:",

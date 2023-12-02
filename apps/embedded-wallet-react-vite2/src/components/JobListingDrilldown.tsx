@@ -1,6 +1,6 @@
 import type { Database } from "@/__generated__/supabase-types";
-import { FC, useContext, useEffect, useState } from "react";
-import { credentialStore, user } from "@/lib/common";
+import { FC, useContext, useState } from "react";
+import { credentialStore } from "@/lib/common";
 import { useParams } from "react-router-dom";
 import { SessionContext } from "@/contexts/SessionContext.tsx";
 import JSONPretty from "react-json-pretty";
@@ -12,11 +12,6 @@ import {
 import { IPresentationDefinition } from "@sphereon/pex";
 import { Button } from "@/components/ui/button.tsx";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible.tsx";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -24,7 +19,7 @@ import {
 } from "@/components/ui/tooltip.tsx";
 import { CredentialCard } from "@/components/CredentialCard.tsx";
 import { APP_NAME } from "@/components/Navbar.tsx";
-import { TypographyH3 } from "@/components/Typography.tsx";
+import { TypographyH3, TypographyH4 } from "@/components/Typography.tsx";
 import {
   Dialog,
   DialogContent,
@@ -35,9 +30,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  dwnCreateAndSendJApplicationReplyingToJob,
-} from "../lib/utils.ts";
+import { selectorFamily, useRecoilValue } from "recoil";
+
+import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 import { useToast } from "@/components/ui/use-toast.ts";
 
 const todayPlus3Months = () => {
@@ -45,53 +40,64 @@ const todayPlus3Months = () => {
   d.setMonth(d.getMonth() + 3);
   return d;
 };
+
+const getJobListingFromSupabase = selectorFamily<
+  Database["public"]["Tables"]["job_listings"]["Row"] | undefined,
+  {
+    jwt: string;
+    jobListingId: string;
+  }
+>({
+  key: "getJobListingFromSupabase",
+  get:
+    ({ jwt, jobListingId }) =>
+    async () => {
+      console.groupCollapsed("getJobListingFromSupabase");
+      console.log("getJobListingFromSupabase", jwt, jobListingId);
+      const listing = await credentialStore.getJobListing({
+        jwt,
+        jobListingId,
+      });
+      console.log("Fetched listing from supabase", listing);
+      if (!listing) {
+        console.log("no data found for id", jobListingId);
+        // setError("No data found for id " + jobListingId);
+        console.groupEnd();
+        return undefined;
+      }
+      console.groupEnd();
+      return listing;
+    },
+});
+
 export const JobListingDrilldown: FC = () => {
   const { listingId } = useParams();
   const { session, wallet, credentials } = useContext(SessionContext);
+  const { web5Client } = useRecoilValue(web5ConnectSelector);
   const [error, setError] = useState("");
-  const [jobListing, setJobListing] =
-    useState<Database["public"]["Tables"]["job_listings"]["Row"]>();
+  const [showRawCredentialDetails, setShowRawCredentialDetails] =
+    useState(false);
+  const { toast } = useToast();
+
+  const [open, setOpen] = useState<boolean>(false);
+
+  const [applyMessage, setApplyMessage] = useState<string>("");
+  const jobListing = useRecoilValue(
+    getJobListingFromSupabase({
+      jwt: session?.access_token || "",
+      jobListingId: listingId || "",
+    }),
+  );
+
   const presentationDefinition =
     // @ts-ignore
     jobListing?.presentation_definition as IPresentationDefinition;
 
-  // Load job
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!listingId) {
-        console.log("no listing found for id", listingId);
-        setError("listing id missing from path " + listingId);
-        return;
-      }
-      console.log("fetching job listing for id", listingId);
-
-      const listing = await credentialStore.getJobListing({
-        jwt: session?.access_token || "",
-        jobListingId: listingId,
-      });
-
-      /* dummy data
-      const listing = {
-        company: "Skynet Inc.", 
-        created_at: "01/10/2001", 
-        description: "Test Job #1 long description. We need a monkey coder who will sit and code all day long",
-        title: "Senior Monkey coder",
-        id: "000001",
-        presentation_definition: JSON.parse("{json}"),
-        updated_at: "01/10/2022"
-      };
-      */
-
-      if (!listing) {
-        console.log("no data found for id", listingId);
-        setError("No data found for id " + listingId);
-        return;
-      }
-      setJobListing(listing);
-    };
-
-    fetchData();
-  }, [listingId]);
+  if (!listingId) {
+    console.log("no listing found for id", listingId);
+    setError("listing id missing from path " + listingId);
+    return <>Page accessed without providing a job listing id in params</>;
+  }
 
   // Load user credentials
   console.log("listing", listingId);
@@ -105,13 +111,11 @@ export const JobListingDrilldown: FC = () => {
   }
 
   const { pass, matchingVcs } = checkVcMatchAgainstPresentation(
-    // @ts-ignore
     presentationDefinition,
     credentials,
     wallet,
   );
   let tooltipContent = "";
-  let card = <div></div>;
 
   switch (presentationDefinition.id) {
     case HAS_ACCOUNT_PRESENTATION_DEFINITION:
@@ -133,9 +137,9 @@ export const JobListingDrilldown: FC = () => {
   let presentationExchangeRender = (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger className={"w-24"} asChild>
+        <TooltipTrigger className={"w-48 flex"} asChild>
           <Button onClick={() => alert("You applied for this job!")}>
-            Apply
+            APPLY FOR THIS JOB
           </Button>
         </TooltipTrigger>
         <TooltipContent>{tooltipContent}</TooltipContent>
@@ -209,15 +213,19 @@ export const JobListingDrilldown: FC = () => {
     },
   );
 
-  const { toast } = useToast();
-
-  const [applyMessage, setApplyMessage] = useState<string>("");
-  const [open, setOpen] = useState<boolean>(false);
+  const sendApplication = async () => {
+    if (applyMessage)
+      await web5Client.dwnCreateAndSendJApplicationReplyingToJob(
+        jobListing.company,
+        applyMessage,
+        jobListing.id,
+      );
+  };
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>{jobListing.title}</h1>
-      <div className={"flex flex-col gap-4"}>
+    <div>
+      <div className={"flex-col space-y-2"}>
+        <h1>{jobListing.title}</h1>
         <div className="grid grid-cols-4 gap-2">
           <div className={"col-span-1"}>Company</div>
           <div className={"col-span-3"}>{jobListing.company}</div>
@@ -232,89 +240,95 @@ export const JobListingDrilldown: FC = () => {
         <TypographyH3>Required Credentials</TypographyH3>
         <div className={"grid-cols-4 gap-3"}>{credentialCards}</div>
         {presentationExchangeRender}
-        <Collapsible>
-          <CollapsibleTrigger>
-            <Button variant={"secondary"}>Show raw credential details</Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <JSONPretty
-              id="json-pretty"
-              data={jobListing.presentation_definition}
-            ></JSONPretty>
-            <JSONPretty id="json-pretty2" data={credentials}></JSONPretty>
-          </CollapsibleContent>
-        </Collapsible>
+        <Button
+          variant={"secondary"}
+          onClick={() => setShowRawCredentialDetails(!showRawCredentialDetails)}
+        >
+          {showRawCredentialDetails ? "HIDE" : "SHOW"} RAW CREDENTIAL DETAILS
+        </Button>
+
+        {showRawCredentialDetails && (
+          <>
+            <TypographyH4>Credentials</TypographyH4>
+            <div className={"bg-slate-200"}>
+              <JSONPretty id="json-pretty2" data={credentials}></JSONPretty>
+            </div>
+            <TypographyH4>Presenation definition</TypographyH4>
+            <div className={"bg-slate-100"}>
+              <JSONPretty
+                id="json-pretty"
+                data={jobListing.presentation_definition}
+              ></JSONPretty>
+            </div>
+          </>
+        )}
         {error && <div className={"text-red-500"}>{error}</div>}
 
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>Apply</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Apply for the Company</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    My Email
-                  </Label>
-                  <Label className="text-center">{user?.email}</Label>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="username" className="text-right">
-                    Message
-                  </Label>
-                  <Input
-                    required
-                    id="text"
-                    className="col-span-3"
-                    onChange={(e) => setApplyMessage(e.target.value)}
-                    />
-                </div>
+          <DialogTrigger asChild>
+            <Button>Apply</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Apply for the Company</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  My Email
+                </Label>
+                <Label className="text-center">{session?.user?.email}</Label>
               </div>
-              <DialogFooter>
-          <Button
-            onClick={() => {
-              const sendApplication = async () => {
-                if (!applyMessage) {
-                  toast({
-                    title: "Error",
-                    description: "Please enter a message",
-                  });
-                  return;
-                }
-                try {
-                  await dwnCreateAndSendJApplicationReplyingToJob(
-                    jobListing.company,
-                    applyMessage,
-                    jobListing.id,
-                  );
-                  toast({
-                    title: `Success`,
-                    description: `Successfully applied to ${jobListing.company}!`,
-                  });
-                  setOpen(false);
-                } catch (e) {
-                  toast({
-                    title: "Error",
-                    description: `Error sending application: ${e}`,
-                  });
-                  return;
-                }
-                console.log(
-                  "🚀 ~ file: JobListings.tsx:105 ~ sendApplication ~ dwnCreateAndSendJApplication:",
-                  dwnCreateAndSendJApplicationReplyingToJob,
-                );
-              };
-              sendApplication();
-            }}
-          >
-            Submit Application
-          </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="username" className="text-right">
+                  Message
+                </Label>
+                <Input
+                  required
+                  id="text"
+                  className="col-span-3"
+                  onChange={(e) => setApplyMessage(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                onClick={() => {
+                  const sendApplication = async () => {
+                    if (!applyMessage) {
+                      toast({
+                        title: "Error",
+                        description: "Please enter a message",
+                      });
+                      return;
+                    }
+                    try {
+                      await web5Client.dwnCreateAndSendJApplicationReplyingToJob(
+                        jobListing.company,
+                        applyMessage,
+                        jobListing.id,
+                      );
+                      toast({
+                        title: `Success`,
+                        description: `Successfully applied to ${jobListing.company}!`,
+                      });
+                      setOpen(false);
+                    } catch (e) {
+                      toast({
+                        title: "Error",
+                        description: `Error sending application: ${e}`,
+                      });
+                      return;
+                    }
+                  };
+                  sendApplication();
+                }}
+              >
+                Submit Application
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

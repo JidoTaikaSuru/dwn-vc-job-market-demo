@@ -1,14 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React, { useEffect, useState } from "react";
-import {
-  dwnReadSelfReturnRecordAndData,
-  dwnReadSelfReturnRecordAndDataSelector,
-} from "../lib/utils.ts";
 import { useToast } from "@/components/ui/use-toast.ts";
 import { SubmitHandler, useForm } from "react-hook-form";
 import type { Record } from "@web5/api";
 import { useRecoilValue } from "recoil";
+
+import {
+  dwnReadSelfReturnRecordAndDataSelector,
+  web5ConnectSelector,
+} from "@/lib/web5Recoil.ts";
 
 type UpdateForm = {
   name: string;
@@ -17,7 +18,7 @@ const UpdateProfile: React.FC = () => {
   const [myRecord, setMyRecord] = useState<Record>();
   const [data, setData] = useState<any>();
   const { toast } = useToast();
-
+  const { web5Client } = useRecoilValue(web5ConnectSelector);
   const res = useRecoilValue(dwnReadSelfReturnRecordAndDataSelector);
   const {
     register,
@@ -27,7 +28,7 @@ const UpdateProfile: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const rec = await dwnReadSelfReturnRecordAndData();
+      const rec = await web5Client.dwnReadSelfReturnRecordAndData();
       if (rec) {
         setMyRecord(rec.record);
         setData(rec.data);

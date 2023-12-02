@@ -20,8 +20,6 @@ import {
   dwnCreateAndSendJApplication,
   dwnQueryOtherDWNByProtocol,
   dwnReadOtherDWN,
-  jobPostThatCanTakeApplicationsAsReplyProtocol,
-  selfProfileProtocol,
 } from "@/lib/utils.ts";
 import { Database } from "@/__generated__/supabase-types.ts";
 import {
@@ -36,6 +34,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  jobPostThatCanTakeApplicationsAsReplyProtocol,
+  selfProfileProtocol,
+} from "@/lib/protocols.ts";
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   jobpostcount: number;

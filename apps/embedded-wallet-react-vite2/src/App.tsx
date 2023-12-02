@@ -10,6 +10,8 @@ import { PostJob } from "./components/PostJob";
 import { JobListingsByCompany } from "@/components/JobListingsByCompany.tsx";
 import { DwnMyJobs } from "./components/DwnMyJobs";
 import { SupabaseJobListings } from "@/components/experiments/SupabaseJobListings.tsx";
+import { Suspense } from "react";
+import { UserProfile } from "@/components/UserProfile.tsx";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +46,10 @@ const router = createBrowserRouter([
     path: "/dwnMyJobs",
     element: <DwnMyJobs />,
   },
+  {
+    path: "/profile",
+    element: <UserProfile />,
+  },
 ]);
 
 function App() {
@@ -52,7 +58,9 @@ function App() {
       <Navbar />
       <div className={"container mx-auto"}>
         <RequireUserLoggedIn>
-          <RouterProvider router={router} />
+          <Suspense fallback={<div>Loading...</div>}>
+            <RouterProvider router={router} />
+          </Suspense>
         </RequireUserLoggedIn>
       </div>
     </SessionContextProvider>

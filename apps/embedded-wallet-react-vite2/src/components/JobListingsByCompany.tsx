@@ -15,13 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useParams, Link } from "react-router-dom";
-import {
-  dwnCreateAndSendJApplicationReplyingToJob,
-  dwnGetCompanyJobs,
-  dwnReadSelfProfile,
-  dwnCreateJobPost,
-} from "../lib/utils.ts";
+import { Link, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import {
   Dialog,
@@ -30,15 +24,20 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast.ts";
+import {
+  dwnGetCompanyJobsSelector,
+  dwnReadSelfProfile,
+  web5ConnectSelector,
+} from "@/lib/web5Recoil.ts";
 
 type RowData = any;
 export const JobListingsByCompany: FC = () => {
   const { companyDid } = useParams();
+  const { web5Client } = useRecoilValue(web5ConnectSelector);
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
       {
@@ -59,21 +58,25 @@ export const JobListingsByCompany: FC = () => {
           >
             Apply
           </Link>
-
         ),
       },
     ],
     [],
   );
   const company = useRecoilValue(dwnReadSelfProfile({ did: companyDid }));
-  const listings = useRecoilValue(dwnGetCompanyJobs({ did: companyDid }));
-
+  const listings = useRecoilValue(
+    dwnGetCompanyJobsSelector({ did: companyDid }),
+  );
+  const [jobTitle, setJobTitle] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const { toast } = useToast();
+  const [open, setOpen] = useState<boolean>(false);
   /* dummy data
- const company = {did : {companyDid}, name: "dummy company"};
- const listings = [{title: "Job #1", description: "Job #1 detailed description", id: "00000001"},
- {title: "Job #2", description: "Job #1 detailed description", id: "00000002"},
- ]
- */
+                           const company = {did : {companyDid}, name: "dummy company"};
+                           const listings = [{title: "Job #1", description: "Job #1 detailed description", id: "00000001"},
+                           {title: "Job #2", description: "Job #1 detailed description", id: "00000002"},
+                           ]
+                           */
 
   const table = useReactTable({
     columns,
@@ -86,15 +89,10 @@ export const JobListingsByCompany: FC = () => {
 
   console.debug(`job listings for company ${companyDid}`, listings);
 
-  const [jobTitle, setJobTitle] = useState("");
-  const [jobDescription, setJobDescription] = useState("");
-  const [open, setOpen] = useState<boolean>(false);
-  const { toast } = useToast();
-
   const postJob = async () => {
-    console.log("🚀 ~ file: JobListingsByCompany.tsx:95 ~ postJob ~ dwnCreateJobPost:", postJob)
+    console.log(" postJob ~ dwnCreateJobPost:", postJob);
 
-    if(!jobTitle || !jobDescription) return;
+    if (!jobTitle || !jobDescription) return;
 
     const jobdata = {
       title: jobTitle,
@@ -103,15 +101,13 @@ export const JobListingsByCompany: FC = () => {
     };
 
     //TODO add status return to see if request succes
-    await dwnCreateJobPost(jobdata);
-    console.log("🚀 ~ file: JobListingsByCompany.tsx:104 ~ postJob ~ dwnCreateJobPost:", dwnCreateJobPost)
+    await web5Client.dwnCreateJobPost(jobdata);
 
     toast({
       title: "Job Listing was created!",
-      //description: `Couldn't find your dwn record`,
     });
   };
-  console.log("🚀 ~ file: JobListingsByCompany.tsx:113 ~ postJob ~ postJob:", postJob)
+  console.log("postJob ~ postJob:", postJob);
 
   return (
     <>
@@ -127,9 +123,9 @@ export const JobListingsByCompany: FC = () => {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   );
                 })}
@@ -197,55 +193,51 @@ export const JobListingsByCompany: FC = () => {
             </div>
           </div>
           <DialogFooter>
-          <Button
-            onClick={() => {
-              const sendApplication = async () => {
-                if (!jobTitle) {
-                  toast({
-                    title: "Error",
-                    description: "Please enter a Job Title",
-                  });
-                  return;
-                }
-                
-                if (!jobDescription) {
-                  toast({
-                    title: "Error",
-                    description: "Please enter a Job Description",
-                  });
-                  return;
-                }
-                try {
-                  const jobdata = {
-                  title: jobTitle,
-                  description: jobDescription,
-                  presentation_definition: `{"id":"bd980aee-10ba-462c-8088-4afdda24ed97","input_descriptors":[{"id":"user has a HasAccount VC issued by us","name":"user has a HasAccount VC issued by us","purpose":"Please provide your HasAccount VC that we issued to you on account creation","constraints":{"fields":[{"path":["$.vc.type"],"filter":{"type":"array","contains":{"type":"string","const":"HasVerifiedEmail"}},"purpose":"Holder must possess HasVerifiedEmail VC"}]}}]}`,
+            <Button
+              onClick={() => {
+                const sendApplication = async () => {
+                  if (!jobTitle) {
+                    toast({
+                      title: "Error",
+                      description: "Please enter a Job Title",
+                    });
+                    return;
+                  }
+
+                  if (!jobDescription) {
+                    toast({
+                      title: "Error",
+                      description: "Please enter a Job Description",
+                    });
+                    return;
+                  }
+                  try {
+                    const jobdata = {
+                      title: jobTitle,
+                      description: jobDescription,
+                      presentation_definition: `{"id":"bd980aee-10ba-462c-8088-4afdda24ed97","input_descriptors":[{"id":"user has a HasAccount VC issued by us","name":"user has a HasAccount VC issued by us","purpose":"Please provide your HasAccount VC that we issued to you on account creation","constraints":{"fields":[{"path":["$.vc.type"],"filter":{"type":"array","contains":{"type":"string","const":"HasVerifiedEmail"}},"purpose":"Holder must possess HasVerifiedEmail VC"}]}}]}`,
+                    };
+
+                    //TODO add status return to see if request succes
+                    await web5Client.dwnCreateJobPost(jobdata);
+                    toast({
+                      title: `Success`,
+                      description: `Successfully created new Job Listing : ${jobTitle}!`,
+                    });
+                    setOpen(false);
+                  } catch (e) {
+                    toast({
+                      title: "Error",
+                      description: `Error creating Job Listing: ${e}`,
+                    });
+                    return;
+                  }
                 };
-            
-                //TODO add status return to see if request succes
-                await dwnCreateJobPost(jobdata);
-                  toast({
-                    title: `Success`,
-                    description: `Successfully created new Job Listing : ${jobTitle}!`,
-                  });
-                  setOpen(false);
-                } catch (e) {
-                  toast({
-                    title: "Error",
-                    description: `Error creating Job Listing: ${e}`,
-                  });
-                  return;
-                }
-                console.log(
-                  "🚀 ~ file: JobListings.tsx:105 ~ sendApplication ~ dwnCreateAndSendJApplication:",
-                  dwnCreateJobPost,
-                );
-              };
-              sendApplication();
-            }}
-          >
-            Create New Listing
-          </Button>
+                sendApplication();
+              }}
+            >
+              Create New Listing
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
