@@ -5,15 +5,15 @@ export const DwnMyJobs: FC = () => {
     const [myresult, setMyresult] = useState();
     useEffect(() => {
         const fetchData =async() => {
-        const result = await dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
+        const record = await dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
 
 
-        console.log("🚀 ~ file: DwnMyJobs.tsx:13 ~ fetchData ~ myRecord:", result)        
+        console.log("🚀 ~ file: DwnMyJobs.tsx:13 ~ fetchData ~ myRecord:", record)        
     };
 
         fetchData();
     }, []);
     return <>
-    
+    record.data
     </>
 };
