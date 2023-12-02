@@ -38,6 +38,7 @@ import { Label } from "@/components/ui/label";
 import {
   dwnCreateAndSendJApplicationReplyingToJob,
 } from "../lib/utils.ts";
+import { useToast } from "@/components/ui/use-toast.ts";
 
 const todayPlus3Months = () => {
   const d = new Date();
@@ -208,17 +209,10 @@ export const JobListingDrilldown: FC = () => {
     },
   );
 
-  const [applyMessage, setApplyMessage] = useState<string>("");
+  const { toast } = useToast();
 
-    const sendApplication = async () => {
-      if (applyMessage)
-      
-        await dwnCreateAndSendJApplicationReplyingToJob(
-          jobListing.company,
-          applyMessage,
-          jobListing.id,
-        );
-    };
+  const [applyMessage, setApplyMessage] = useState<string>("");
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
@@ -252,7 +246,7 @@ export const JobListingDrilldown: FC = () => {
         </Collapsible>
         {error && <div className={"text-red-500"}>{error}</div>}
 
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button>Apply</Button>
             </DialogTrigger>
@@ -280,10 +274,44 @@ export const JobListingDrilldown: FC = () => {
                 </div>
               </div>
               <DialogFooter>
-           {/* TODO need to submiot properly and close dialog after */}
-                <Button type="submit" onClick={sendApplication}>
-                  Apply
-                </Button>
+          <Button
+            onClick={() => {
+              const sendApplication = async () => {
+                if (!applyMessage) {
+                  toast({
+                    title: "Error",
+                    description: "Please enter a message",
+                  });
+                  return;
+                }
+                try {
+                  await dwnCreateAndSendJApplicationReplyingToJob(
+                    jobListing.company,
+                    applyMessage,
+                    jobListing.id,
+                  );
+                  toast({
+                    title: `Success`,
+                    description: `Successfully applied to ${jobListing.company}!`,
+                  });
+                  setOpen(false);
+                } catch (e) {
+                  toast({
+                    title: "Error",
+                    description: `Error sending application: ${e}`,
+                  });
+                  return;
+                }
+                console.log(
+                  "🚀 ~ file: JobListings.tsx:105 ~ sendApplication ~ dwnCreateAndSendJApplication:",
+                  dwnCreateAndSendJApplicationReplyingToJob,
+                );
+              };
+              sendApplication();
+            }}
+          >
+            Submit Application
+          </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

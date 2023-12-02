@@ -88,7 +88,7 @@ export const JobListingsByCompany: FC = () => {
 
   const [jobTitle, setJobTitle] = useState("");
   const [jobDescription, setJobDescription] = useState("");
-
+  const [open, setOpen] = useState<boolean>(false);
   const { toast } = useToast();
 
   const postJob = async () => {
@@ -166,7 +166,7 @@ export const JobListingsByCompany: FC = () => {
           </TableBody>
         </Table>
       </div>
-      <Dialog >
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button className={"mt-5"}>Create New Listing</Button>
         </DialogTrigger>
@@ -197,13 +197,55 @@ export const JobListingsByCompany: FC = () => {
             </div>
           </div>
           <DialogFooter>
-           {/* <DialogClose asChild> */}
-           {/* TODO need to submiot properly and close dialog after */}
-              <Button type="submit" onClick={postJob}>
-                Create New Listing
-              </Button>
-
-            {/* </DialogClose>*/}
+          <Button
+            onClick={() => {
+              const sendApplication = async () => {
+                if (!jobTitle) {
+                  toast({
+                    title: "Error",
+                    description: "Please enter a Job Title",
+                  });
+                  return;
+                }
+                
+                if (!jobDescription) {
+                  toast({
+                    title: "Error",
+                    description: "Please enter a Job Description",
+                  });
+                  return;
+                }
+                try {
+                  const jobdata = {
+                  title: jobTitle,
+                  description: jobDescription,
+                  presentation_definition: `{"id":"bd980aee-10ba-462c-8088-4afdda24ed97","input_descriptors":[{"id":"user has a HasAccount VC issued by us","name":"user has a HasAccount VC issued by us","purpose":"Please provide your HasAccount VC that we issued to you on account creation","constraints":{"fields":[{"path":["$.vc.type"],"filter":{"type":"array","contains":{"type":"string","const":"HasVerifiedEmail"}},"purpose":"Holder must possess HasVerifiedEmail VC"}]}}]}`,
+                };
+            
+                //TODO add status return to see if request succes
+                await dwnCreateJobPost(jobdata);
+                  toast({
+                    title: `Success`,
+                    description: `Successfully created new Job Listing : ${jobTitle}!`,
+                  });
+                  setOpen(false);
+                } catch (e) {
+                  toast({
+                    title: "Error",
+                    description: `Error creating Job Listing: ${e}`,
+                  });
+                  return;
+                }
+                console.log(
+                  "🚀 ~ file: JobListings.tsx:105 ~ sendApplication ~ dwnCreateAndSendJApplication:",
+                  dwnCreateJobPost,
+                );
+              };
+              sendApplication();
+            }}
+          >
+            Create New Listing
+          </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
