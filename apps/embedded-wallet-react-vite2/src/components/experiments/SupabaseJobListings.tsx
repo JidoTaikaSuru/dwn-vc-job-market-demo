@@ -30,7 +30,10 @@ const columns: ColumnDef<{ id: string; title: string; company: string }>[] = [
     header: "Apply",
     accessorKey: "id",
     cell: (value) => (
-      <Link to={`/listing/${value.row.original.id}`} className="text-blue-500">
+      <Link
+        to={`/listings/view/${value.row.original.id}`}
+        className="text-blue-500"
+      >
         Apply
       </Link>
     ),

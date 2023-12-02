@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabaseClient, user } from "@/lib/common.ts";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   dwnCreateAndSendJApplication,
   dwnQueryOtherDWNByProtocol,
@@ -41,12 +41,11 @@ type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   jobpostcount: number;
   dwnname: string;
   did: string;
+  fullDid: string;
 };
 
 //TODO Add pagination ... na   don't worry its a hackathon
 export const JobListings: FC = () => {
-  const { companyDid } = useParams();
-
   const [listings, setListings] = useState<Array<RowData>>([]);
   const [applyMessage, setApplyMessage] = useState<string>("");
 
@@ -120,23 +119,21 @@ export const JobListings: FC = () => {
           </Dialog>
         ),
       },
+      {
+        header: "Jobs",
+        accessorKey: "jobpostcount",
+        cell: ({ row }) => {
+          console.log("row in cell", row);
+          return (
+            <Link to={`/listings/company/${row.original.fullDid}`}>
+              Go to listings ({row.original.jobpostcount})
+            </Link>
+          );
+        },
+      },
     ],
     [],
   );
-
-  //If we're not looking at a specific company's listings, there's an extra column
-  if (!companyDid) {
-    columns.push({
-      header: "Jobs",
-      accessorKey: "jobpostcount",
-      cell: ({ row }) => (
-        <Link to={`/dwnListingsRwo/${row.getValue("did")}`}>
-          Go to listings ({row.getValue("jobpostcount")})
-        </Link>
-      ),
-    });
-  }
-  //const formattedList = listings.map((x) => {return {...x, did : x.did.substring(0, 32)}});
 
   const table = useReactTable({
     columns,
@@ -173,11 +170,13 @@ export const JobListings: FC = () => {
           if (iJobList && iJobList.length && iJobList.length > 0) {
             jobPostCount = iJobList.length;
           }
+          console.log("rowDid", row.did);
           newdata.push({
             ...row,
             jobpostcount: jobPostCount,
             dwnname: dwnName,
             did: row.did.substring(0, 32),
+            fullDid: row.did,
           });
         }
 

@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/tooltip.tsx";
 import { CredentialCard } from "@/components/CredentialCard.tsx";
 import { APP_NAME } from "@/components/Navbar.tsx";
-import { TypographyH3 } from "@/components/Typography.tsx";
 
 const todayPlus3Months = () => {
   const d = new Date();
@@ -185,7 +184,7 @@ export const JobListingDrilldown: FC = () => {
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h1>{jobListing.title}</h1>
-      <div className={"flex flex-col gap-4"}>
+      <div className={"flex flex-col"}>
         <div className="grid grid-cols-4 gap-2">
           <div className={"col-span-1"}>Company</div>
           <div className={"col-span-3"}>{jobListing.company}</div>
@@ -196,14 +195,10 @@ export const JobListingDrilldown: FC = () => {
           <div className={"col-span-1"}>Updated At</div>
           <div className={"col-span-3"}>{jobListing.updated_at}</div>
         </div>
-
-        <TypographyH3>Required Credentials</TypographyH3>
-        <div className={"grid-cols-4 gap-3"}>{credentialCards}</div>
         {presentationExchangeRender}
+        <div className={"grid-cols-4 gap-3"}>{credentialCards}</div>
         <Collapsible>
-          <CollapsibleTrigger>
-            <Button variant={"secondary"}>Show raw credential details</Button>
-          </CollapsibleTrigger>
+          <CollapsibleTrigger>Show raw credential details</CollapsibleTrigger>
           <CollapsibleContent>
             <JSONPretty
               id="json-pretty"
@@ -212,6 +207,7 @@ export const JobListingDrilldown: FC = () => {
             <JSONPretty id="json-pretty2" data={credentials}></JSONPretty>
           </CollapsibleContent>
         </Collapsible>
+
         {error && <div className={"text-red-500"}>{error}</div>}
       </div>
     </div>

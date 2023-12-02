@@ -7,8 +7,9 @@ import { JobListingDrilldown } from "@/components/JobListingDrilldown.tsx";
 import { JobListings } from "./components/JobListings.tsx";
 import UpdateProfile from "./components/UpdateProfile";
 import { PostJob } from "./components/PostJob";
-import { CompanyJobListings } from "@/components/CompanyJobListings.tsx";
+import { JobListingsByCompany } from "@/components/JobListingsByCompany.tsx";
 import { DwnMyJobs } from "./components/DwnMyJobs";
+import { SupabaseJobListings } from "@/components/experiments/SupabaseJobListings.tsx";
 
 const router = createBrowserRouter([
   {
@@ -20,12 +21,16 @@ const router = createBrowserRouter([
     element: <JobListings />,
   },
   {
+    path: "/listings/supabase",
+    element: <SupabaseJobListings />,
+  },
+  {
     path: "/listings/view/:listingId",
     element: <JobListingDrilldown />,
   },
   {
     path: "/listings/company/:companyDid",
-    element: <CompanyJobListings />,
+    element: <JobListingsByCompany />,
   },
   {
     path: "/updateProfile",

@@ -14,7 +14,12 @@ export const DwnMyJobs: FC = () => {
       );
     };
 
+    // TODO fetch all applications made against the COMPANY
+
+    // TODO For each job listed by the company, list all applications for that job
     fetchData();
   }, []);
   return <>record.data</>;
+
+  //Put the
 };

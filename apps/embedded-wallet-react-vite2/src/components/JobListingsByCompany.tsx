@@ -36,7 +36,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 type RowData = any;
-export const CompanyJobListings: FC = () => {
+export const JobListingsByCompany: FC = () => {
   const { companyDid } = useParams();
   const [applyMessage, setApplyMessage] = useState<string>("");
   const columns: ColumnDef<RowData>[] = useMemo(
@@ -117,7 +117,8 @@ export const CompanyJobListings: FC = () => {
   if (!listings) return <></>;
   if (!companyDid) return <>Accessed route without a DID</>; //TODO This might throw an error
 
-  console.log("listings", listings);
+  console.debug(`job listings for company ${companyDid}`, listings);
+
   return (
     <>
       <h1>{company?.name} Job Listings</h1>

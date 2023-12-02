@@ -37,7 +37,7 @@ export const CredentialCard: FC<CredentialCardProps> = ({
 
   return (
     <Card
-      className={"max-w-md text-center border-2"}
+      className={"max-w-sm text-center border-2"}
       style={{
         borderColor: userHasCredential ? "green" : "red",
       }}
