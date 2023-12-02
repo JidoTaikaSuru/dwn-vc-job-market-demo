@@ -5,7 +5,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import type { FC } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -14,13 +14,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { supabaseClient, user } from "@/lib/common.ts";
+import { supabaseClient } from "@/lib/common.ts";
 import { Link, useParams } from "react-router-dom";
-import {
-  dwnCreateAndSendJApplication,
-  dwnQueryOtherDWNByProtocol,
-  dwnReadOtherDWN,
-} from "@/lib/utils.ts";
+
 import { Database } from "@/__generated__/supabase-types.ts";
 import {
   Dialog,
@@ -34,10 +30,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  jobPostThatCanTakeApplicationsAsReplyProtocol,
-  selfProfileProtocol,
-} from "@/lib/protocols.ts";
+import { useRecoilValue } from "recoil";
+import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
+import { protocols } from "@/lib/protocols.ts";
+import { SessionContext } from "@/contexts/SessionContext.tsx";
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   jobpostcount: number;
@@ -48,7 +44,8 @@ type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
 //TODO Add pagination ... na   don't worry its a hackathon
 export const JobListings: FC = () => {
   const { companyDid } = useParams();
-
+  const { session } = useContext(SessionContext);
+  const { web5Client } = useRecoilValue(web5ConnectSelector);
   const [listings, setListings] = useState<Array<RowData>>([]);
   const [applyMessage, setApplyMessage] = useState<string>("");
 
@@ -84,7 +81,7 @@ export const JobListings: FC = () => {
                   <Label htmlFor="name" className="text-right">
                     My Email
                   </Label>
-                  <Label className="text-center">{user?.email}</Label>
+                  <Label className="text-center">{session?.user?.email}</Label>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="username" className="text-right">
@@ -102,14 +99,10 @@ export const JobListings: FC = () => {
                   onClick={() => {
                     const sendApplication = async () => {
                       if (applyMessage)
-                        await dwnCreateAndSendJApplication(
+                        await web5Client.dwnCreateAndSendJApplication(
                           value.row.original.did,
                           applyMessage,
                         );
-                      console.log(
-                        "🚀 ~ file: JobListings.tsx:105 ~ sendApplication ~ dwnCreateAndSendJApplication:",
-                        dwnCreateAndSendJApplication,
-                      );
                     };
 
                     sendApplication();
@@ -153,15 +146,19 @@ export const JobListings: FC = () => {
       if (data) {
         const promises = data.map(async (row) => {
           console.log("Reading data from, ", row.did);
-          const iName = await dwnReadOtherDWN(row.did, selfProfileProtocol);
+          const iName = await web5Client.dwnReadOtherDWN(
+            row.did,
+            protocols["selfProfileProtocol"],
+          );
           const dwnName = iName && iName.name ? iName.name : "";
 
           console.debug("Finished fetching self profile, fetching jobs");
-          const iJobList = await dwnQueryOtherDWNByProtocol(
+          const iJobList = await web5Client.dwnQueryOtherDWNByProtocol(
             row.did,
-            jobPostThatCanTakeApplicationsAsReplyProtocol,
+            protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
           );
-          let jobPostCount = iJobList && iJobList.length ? iJobList.length : 0;
+          const jobPostCount =
+            iJobList && iJobList.length ? iJobList.length : 0;
 
           return {
             ...row,

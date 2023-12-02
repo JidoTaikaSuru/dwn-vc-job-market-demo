@@ -12,6 +12,7 @@ import { DwnMyJobs } from "./components/DwnMyJobs";
 import { SupabaseJobListings } from "@/components/experiments/SupabaseJobListings.tsx";
 import { Suspense } from "react";
 import { UserProfile } from "@/components/UserProfile.tsx";
+import { SetupDwn } from "@/components/SetupDwn.tsx";
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
   {
     path: "/profile",
     element: <UserProfile />,
+  },
+  {
+    path: "/playground",
+    element: <SetupDwn />,
   },
 ]);
 

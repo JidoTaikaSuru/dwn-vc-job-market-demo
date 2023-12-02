@@ -18,7 +18,6 @@ import { supabaseClient } from "@/lib/common.ts";
 import { Link } from "react-router-dom";
 import { Database } from "@/__generated__/supabase-types.ts";
 import { useRecoilValue } from "recoil";
-
 import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
@@ -88,20 +87,20 @@ export const Companies: FC = () => {
           if (iName && iName.name) {
             dwnName = iName.name;
           }
-          console.debug("Finished fetching self profile, fetching jobs");
-          const iJobList = await web5Client.dwnQueryOtherDWNByProtocol(
-            row.did,
-            protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
-          );
-          console.debug("Finished fetching jobs", iJobList);
-          let jobPostCount = 0;
-          if (iJobList && iJobList.length && iJobList.length > 0) {
-            jobPostCount = iJobList.length;
-          }
-          console.log("rowDid", row.did);
+          // console.debug("Finished fetching self profile, fetching jobs");
+          // const iJobList = await web5Client.dwnQueryOtherDWNByProtocol(
+          //   row.did,
+          //   protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
+          // );
+          // console.debug("Finished fetching jobs", iJobList);
+          // let jobPostCount = 0;
+          // if (iJobList && iJobList.length && iJobList.length > 0) {
+          //   jobPostCount = iJobList.length;
+          // }
+          // console.log("rowDid", row.did);
           newdata.push({
             ...row,
-            jobpostcount: jobPostCount,
+            jobpostcount: 0,
             dwnname: dwnName,
             did: row.did.substring(0, 32),
             fullDid: row.did,

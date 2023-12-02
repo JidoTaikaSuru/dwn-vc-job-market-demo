@@ -7,6 +7,7 @@
     "dev": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/index.js\"",
     "dev-dummy": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/presentation/testing.js\"",
     "update-listings": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/job_listing/setup.js\"",
+    "update-dwn": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/dwn/setupDwn.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,6 +18,7 @@
     "@sphereon/pex": "workspace:*",
     "@sphereon/ssi-types": "^0.17.5",
     "@supabase/supabase-js": "^2.38.4",
+    "@tbd54566975/dwn-sdk-js": "^0.2.8",
     "@veramo/core": "^5.5.3",
     "@veramo/credential-w3c": "^5.5.3",
     "@veramo/data-store": "^5.5.3",
@@ -26,6 +28,7 @@
     "@veramo/did-resolver": "^5.5.3",
     "@veramo/key-manager": "^5.5.3",
     "@veramo/kms-local": "^5.5.3",
+    "@web5/api": "^0.8.2",
     "did-resolver": "^4.1.0",
     "dotenv": "^16.3.1",
     "ethr-did-resolver": "^10.0.0",

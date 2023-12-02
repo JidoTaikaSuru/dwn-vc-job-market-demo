@@ -1,12 +1,74 @@
 import { Record, Web5 } from "@web5/api";
-import { User } from "@supabase/supabase-js";
 import { DateSort, ProtocolDefinition } from "@tbd54566975/dwn-sdk-js";
-import { protocols } from "@/lib/protocols.ts";
-import {
-  logIfDebug,
-  transformMultipleRecordsToListType,
-  transformRecordToListType,
-} from "@/lib/utils.ts";
+import { protocols } from "./protocols.js";
+
+export const configureProtocol = async (
+  web5: Web5,
+  protocolDefinition: ProtocolDefinition,
+) => {
+  // query the list of existing protocols on the DWN
+  const { protocols, status } = await web5.dwn.protocols.query({
+    message: {
+      filter: {
+        protocol: protocolDefinition.protocol,
+      },
+    },
+  });
+
+  if (status.code !== 200) {
+    console.error("Error querying protocols configureProtocol()", status);
+    return;
+  }
+
+  // if the protocol already exists, we return
+  if (protocols.length > 0) {
+    console.log(
+      "Protocol already exists and configured  configureProtocol() , " +
+        protocolDefinition.protocol,
+    );
+    return;
+  }
+
+  // configure protocol on local DWN
+  const { status: configureStatus, protocol } =
+    await web5.dwn.protocols.configure({
+      message: {
+        definition: protocolDefinition,
+      },
+    });
+
+  console.debug(
+    "Protocol configured configureProtocol()",
+    configureStatus,
+    protocol,
+  );
+};
+
+export type DwnListType = {
+  record: Record;
+  data: any;
+  id: string;
+};
+
+export const transformRecordToListType = async (
+  record: Record,
+): Promise<DwnListType> => {
+  return {
+    record,
+    data: await record.data.json(),
+    id: record.id,
+  };
+};
+
+export const transformMultipleRecordsToListType = async (
+  records: Array<Record>,
+) => {
+  const dwnList: DwnListType[] = [];
+  for (const record of records) {
+    dwnList.push(await transformRecordToListType(record));
+  }
+  return dwnList;
+};
 
 interface DwnClientFunctions {
   dwnCreateAndSendJApplicationReplyingToJob: (
@@ -24,12 +86,12 @@ interface DwnClientFunctions {
 
 export class DwnClient implements DwnClientFunctions {
   web5: Web5;
-  user: User;
+  // user: User;
   myDid: string;
 
-  constructor(props: { web5: Web5; user: User; myDid: string }) {
+  constructor(props: { web5: Web5; myDid: string }) {
     this.web5 = props.web5;
-    this.user = props.user;
+    // this.user = props.user;
     this.myDid = props.myDid;
   }
 
@@ -108,7 +170,7 @@ export class DwnClient implements DwnClientFunctions {
           },
         },
       });
-      logIfDebug(`dwnReadOtherDWN ~ record: ${record}`);
+      console.log(`dwnReadOtherDWN ~ record: ${record}`);
       if (status.code !== 200) {
         console.error("dwnReadOtherDWN ~ status:", status);
         console.groupEnd();
@@ -116,7 +178,7 @@ export class DwnClient implements DwnClientFunctions {
       }
       // assuming the record is a json payload
       const data = await record.data.json();
-      logIfDebug(`dwnReadOtherDWN ~ data: ${data}`);
+      console.log(`dwnReadOtherDWN ~ data: ${data}`);
       return data;
     } catch (e) {
       console.error("dwnReadOtherDWN ~ e:", e);
@@ -126,6 +188,7 @@ export class DwnClient implements DwnClientFunctions {
 
   async dwnQuerySelfallJSONData() {
     try {
+      console.log("my did", this.myDid);
       const { records } = await this.web5.dwn.records.query({
         from: this.myDid,
         message: {
@@ -137,28 +200,7 @@ export class DwnClient implements DwnClientFunctions {
 
       console.log("dwnQuerySelfallJSONData ~ records:", records);
 
-      if (records) {
-        const outlist: Array<{
-          record: Record;
-          data: any;
-          id: string;
-        }> = [];
-        let num_outside_author = 0;
-
-        for (const record of records) {
-          const data = await record.data.json();
-          if (record.author !== this.myDid) num_outside_author++;
-          const list = { record, data, id: record.id };
-          outlist.push(list);
-        }
-        console.log(
-          "dwnQuerySelfallJSONData ~  num_outside_author=" +
-            num_outside_author +
-            "  outlist:",
-          outlist,
-        );
-        return outlist;
-      }
+      return await transformMultipleRecordsToListType(records || []);
     } catch (e) {
       console.log("dwnQuerySelfallJSONData ~ e:", e);
 
@@ -357,7 +399,7 @@ export class DwnClient implements DwnClientFunctions {
       title: "JApplication " + Math.random(),
       description: mmmmessg,
       author: this.myDid,
-      email: this.user.email,
+      email: "dummyEmail@email.com", //TODO swap to real email later?
       parent_job: job_record_id,
       recipient: recipientDWN,
     };
@@ -422,7 +464,7 @@ export class DwnClient implements DwnClientFunctions {
       title: "JApplication " + Math.random(),
       description: mmmmessg,
       author: this.myDid,
-      email: this.user.email,
+      email: "dummyEmail@email.com",
       recipient: recipientDWN,
     };
 

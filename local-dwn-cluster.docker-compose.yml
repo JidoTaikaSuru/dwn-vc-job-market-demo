@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  dwn-server-1:
+    build:
+      context: ./packages/dwn-server
+      args:
+        DS_PORT: 3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - dwn-server-data-1:/dwn-server/data
+
+  dwn-server-2:
+    build:
+      context: ./packages/dwn-server
+      args:
+        DS_PORT: 3002
+    ports:
+      - "3002:3002"
+    volumes:
+      - dwn-server-data-2:/dwn-server/data
+
+  dwn-server-3:
+    build:
+      context: ./packages/dwn-server
+      args:
+        DS_PORT: 3003
+    ports:
+      - "3003:3003"
+    volumes:
+      - dwn-server-data-3:/dwn-server/data
+
+volumes:
+  dwn-server-data-1:
+  dwn-server-data-2:
+  dwn-server-data-3:

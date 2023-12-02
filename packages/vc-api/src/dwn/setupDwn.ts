@@ -1,17 +1,100 @@
-import { protocols } from "@/lib/protocols.ts";
-import { did_db_table, supabaseClient } from "@/lib/common.ts";
-import { DwnClient } from "@/lib/web5Client.ts";
+import { createClient } from "@supabase/supabase-js";
+import { protocols } from "./protocols.js";
+import { Web5, Web5ConnectOptions } from "@web5/api";
+import { ProtocolDefinition } from "@tbd54566975/dwn-sdk-js";
+import { DwnClient } from "./web5Client.js";
+import { Database } from "../__generated__/supabase-types.js";
 
-export const didCreate = async (dwnClient: DwnClient) => {
+export const did_db_table = "dwn_did_registry_2";
+export const DEBUGGING = false;
+export const LOCAL_DWN = true;
+export const supabaseClient = createClient<Database>(
+  "https://api.gotid.org",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0",
+);
+
+export const configureProtocol = async (
+  web5: Web5,
+  protocolDefinition: ProtocolDefinition,
+) => {
+  // query the list of existing protocols on the DWN
+  const { protocols, status } = await web5.dwn.protocols.query({
+    message: {
+      filter: {
+        protocol: protocolDefinition.protocol,
+      },
+    },
+  });
+
+  if (status.code !== 200) {
+    console.error("Error querying protocols configureProtocol()", status);
+    return;
+  }
+
+  // if the protocol already exists, we return
+  if (protocols.length > 0) {
+    console.log(
+      "Protocol already exists and configured  configureProtocol() , " +
+        protocolDefinition.protocol,
+    );
+    return;
+  }
+
+  // configure protocol on local DWN
+  const { status: configureStatus, protocol } =
+    await web5.dwn.protocols.configure({
+      message: {
+        definition: protocolDefinition,
+      },
+    });
+
+  // console.debug(
+  //   "Protocol configured configureProtocol()",
+  //   configureStatus,
+  //   protocol,
+  // );
+};
+
+export const getWeb5Connection = async () => {
+  const options: Web5ConnectOptions = {
+    // sync: "10s",
+  };
+  if (LOCAL_DWN) {
+    options.techPreview = {
+      // See README.md for setup instructions
+      dwnEndpoints: [
+        "http://localhost:3000/",
+        // "http://localhost:3001/",
+        // "http://localhost:3002/",
+        // "http://localhost:3003/",
+      ],
+    };
+  }
+  console.log("Starting web5 connection with options: ", options);
+  const web5Connection = await Web5.connect(options);
+  for (const protocol of Object.values(protocols)) {
+    await configureProtocol(web5Connection.web5, protocol);
+  }
+  return web5Connection;
+};
+
+export const getWeb5Client = async () => {
+  const { web5, did: myDid } = await getWeb5Connection();
+
+  return new DwnClient({ web5, myDid });
+};
+const dwnClient = await getWeb5Client();
+
+const didCreate = async () => {
   let label = "";
 
-  const { user, myDid, web5 } = dwnClient;
-  if (user && user.email && myDid && web5) {
+  const { myDid, web5 } = dwnClient;
+  if (myDid && web5) {
     console.log(
       "🚀 ~ file: common.ts:34 ~ initMyTestingData ~ user:",
-      user.email,
+      "dummyEmail@email.com",
     );
-    label = user.email;
+    label = "dummyEmail@email.com";
     const curnamerecord = await dwnClient.dwnQuerySelf(
       protocols["selfProfileProtocol"],
     );
@@ -20,7 +103,9 @@ export const didCreate = async (dwnClient: DwnClient) => {
       curnamerecord,
     );
     if (!curnamerecord || curnamerecord.length == 0)
-      await dwnClient.dwnCreateSelfProfileName(user.email.split("@")[0]);
+      await dwnClient.dwnCreateSelfProfileName(
+        "dummyEmail@email.com".split("@")[0],
+      );
   }
 
   const send_date: any = {
@@ -45,17 +130,17 @@ export const didCreate = async (dwnClient: DwnClient) => {
   return myDid;
 };
 
-export const initMyTestingData = async (dwnClient: DwnClient) => {
-  const { user, myDid, web5 } = dwnClient;
+const initMyTestingData = async () => {
+  const { myDid, web5 } = dwnClient;
   console.log(
     "trigger rebuild git  go go turbo vercel netlfiy gods give us reuslts",
   );
   console.log("HELLO WORLD, initMyTestingData()");
 
-  if (user && user.email && myDid && web5) {
+  if (myDid && web5) {
     console.log(
       "🚀 ~ file: common.ts:34 ~ initMyTestingData ~ user:",
-      user.email,
+      "dummyEmail@email.com",
     );
     const curnamerecord = await dwnClient.dwnQuerySelf(
       protocols["selfProfileProtocol"],
@@ -65,7 +150,9 @@ export const initMyTestingData = async (dwnClient: DwnClient) => {
       curnamerecord,
     );
     if (!curnamerecord || curnamerecord.length == 0)
-      await dwnClient.dwnCreateSelfProfileName(user.email.split("@")[0]);
+      await dwnClient.dwnCreateSelfProfileName(
+        "dummyEmail@email.com".split("@")[0],
+      );
 
     const jobdata = {
       title: "Senior Software Engineer",
@@ -84,11 +171,10 @@ export const initMyTestingData = async (dwnClient: DwnClient) => {
     } else {
       await dwnClient.dwnCreateJobPost(jobdata);
     }
-    await dwnClient.dwnQuerySelfallJSONData();
   }
 };
 
-export const spamEveryDWNwithAJobApplication = async (dwnClient: DwnClient) => {
+const spamEveryDWNwithAJobApplication = async () => {
   const { myDid } = dwnClient;
   //TODO adoll start reading here
 
@@ -160,7 +246,7 @@ export const spamEveryDWNwithAJobApplication = async (dwnClient: DwnClient) => {
 
 export let dids_with_names: Array<{ did: string; name: string }> = [];
 
-export const getAllDWNnames = async (dwnClient: DwnClient) => {
+export const getAllDWNnames = async () => {
   // TODO change this
   const { data: public_dwn_did_list } = await supabaseClient
     .from(did_db_table)
@@ -197,44 +283,24 @@ export const getAllDWNnames = async (dwnClient: DwnClient) => {
     console.log("🚀 ~   dids_with_names:", dids_with_names);
   }
 };
-// if (DEBUGGING) {
-//   const dwnClient = await getWeb5Client();
-//   const namdata = await dwnClient.dwnReadSelfReturnRecordAndData();
-//   console.log("🚀 ~ file: common.ts:249 ~ namdata:", namdata);
-//   await initMyTestingData();
-//   //await dwnQueryJApplicationsForJob();
-//   const ll = await dwnClient.dwnQuerySelfJApplicationsFromOthers();
-//   console.log("🚀 ~ file: common.ts:257 ~ ll:", ll);
-//
-//   await dwnClient.dwnQuerySelfForAnyRecordsWrittenByOthers();
-//   await dwnClient.dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
-//
-//   await spamEveryDWNwithAJobApplication();
-//   //await getAllDWNnames();
-// }
-// const loadIpInfo = async () => {
-//   let ip_info: any = " ";
-//   let ip_info_j: any = {};
-//   fetch("https://ipinfo.io/json")
-//     .then((res) => res.json())
-//     .then((data) => {
-//       console.log("Response", data);
-//       if (data) ip_info = data;
-//       ip_info_j = {};
-//       try {
-//         ip_info_j = JSON.parse(data);
-//         if (ip_info_j && ip_info_j.city) location = ip_info.city;
-//         if (ip_info_j.error) {
-//           console.error(
-//             "🚀 ~ file: common.ts:46 ~ error :",
-//             JSON.stringify(ip_info_j),
-//           );
-//         }
-//       } catch (e) {
-//         console.log("🚀 ~ file: common.ts:46 ~ e:", e);
-//       }
-//     });
-// };
 
 // export let user_agent = "";
 // if (window.navigator.userAgent) user_agent = window.navigator.userAgent;
+
+const namdata = await dwnClient.dwnReadSelfReturnRecordAndData();
+console.log(" namdata:", namdata);
+await initMyTestingData();
+console.log("finished initMyTestingData");
+await dwnClient.dwnQueryJApplicationsForJob();
+const ll = await dwnClient.dwnQuerySelfJApplicationsFromOthers();
+console.log("ll:", ll);
+
+const something = await dwnClient.dwnQuerySelfForAnyRecordsWrittenByOthers();
+console.log("something:", something);
+// console.log("finished dwnQuerySelfForAnyRecordsWrittenByOthers");
+// await dwnClient.dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
+// console.log(
+//   "finished dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords",
+// );
+// await spamEveryDWNwithAJobApplication();
+//await getAllDWNnames();
