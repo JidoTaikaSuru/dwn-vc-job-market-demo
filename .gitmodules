@@ -1,3 +1,0 @@
-[submodule "packages/dwn-server"]
-	path = packages/dwn-server
-	url = git@github.com:JidoTaikaSuru/dwn-server.git
