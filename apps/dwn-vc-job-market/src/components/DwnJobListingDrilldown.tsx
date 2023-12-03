@@ -27,7 +27,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TextArea } from "@/components/ui/text-area";
 import { Label } from "@/components/ui/label";
 import { useRecoilValue } from "recoil";
 import { useToast } from "@/components/ui/use-toast.ts";
@@ -249,156 +250,174 @@ export const DwnJobListingDrilldown: FC = () => {
           <div className={"col-span-3"}>{jobListing.created_at}</div>
         </div>
 
-        <TypographyH3>Required Credentials</TypographyH3>
-        {/*<div className={"grid-cols-4 gap-3"}>{credentialCards}</div>*/}
-        {/*{presentationExchangeRender}*/}
-        <Button
-          variant={"secondary"}
-          onClick={() => setShowRawCredentialDetails(!showRawCredentialDetails)}
-        >
-          {showRawCredentialDetails ? "HIDE" : "SHOW"} RAW CREDENTIAL DETAILS
-        </Button>
+        <Tabs defaultValue="candidate" className="h-full w-full">
+          <TabsList>
+            <TabsTrigger value="candidate">
+              <h2>View as CANDIDATE</h2>
+            </TabsTrigger>
+            <TabsTrigger value="company">
+              <h2>View as COMPANY</h2>
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="candidate">
 
-        {showRawCredentialDetails && (
-          <>
-            <TypographyH4>Credentials</TypographyH4>
-            <div className={"bg-slate-200"}>
-              <JSONPretty id="json-pretty2" data={credentials}></JSONPretty>
-            </div>
-            <TypographyH4>Presenation definition</TypographyH4>
-            <div className={"bg-slate-100"}>
-              <JSONPretty
-                id="json-pretty"
-                data={jobListing.presentation_definition}
-              ></JSONPretty>
-            </div>
-          </>
-        )}
-        {error && <div className={"text-red-500"}>{error}</div>}
+            <div className={"flex-col space-y-2"}>
+              <TypographyH3>Required Credentials</TypographyH3>
+              {/*<div className={"grid-cols-4 gap-3"}>{credentialCards}</div>*/}
+              {/*{presentationExchangeRender}*/}
+              <Button
+                variant={"secondary"}
+                onClick={() => setShowRawCredentialDetails(!showRawCredentialDetails)}
+              >
+                {showRawCredentialDetails ? "HIDE" : "SHOW"} RAW CREDENTIAL DETAILS
+              </Button>
 
-        <div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>Apply</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Apply for the Company</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    My Email
-                  </Label>
-                  <Label className="text-center">{session?.user?.email}</Label>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="username" className="text-right">
-                    Message
-                  </Label>
-                  <Input
-                    required
-                    id="text"
-                    className="col-span-3"
-                    onChange={(e) => setApplyMessage(e.target.value)}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={() => {
-                    const sendApplication = async () => {
-                      if (!applyMessage) {
-                        toast({
-                          title: "Error",
-                          description: "Please enter a message",
-                        });
-                        return;
-                      }
-                      try {
-                        await web5Client.dwnCreateAndSendJApplicationReplyingToJob(
-                          jobListing.company,
-                          applyMessage,
-                          jobListing.id,
-                          {
-                            name: selfProfile.name,
-                          },
-                        );
-                        toast({
-                          title: `Success`,
-                          description: `Successfully applied to ${jobListing.company}!`,
-                        });
-                        setOpen(false);
-                      } catch (e) {
-                        toast({
-                          title: "Error",
-                          description: `Error sending application: ${e}`,
-                        });
-                        return;
-                      }
-                    };
-                    sendApplication();
-                  }}
-                >
-                  Submit Application
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        <h2> Candidates applied to the job</h2>
-
-        <div className="rounded-md border mb-5">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody className="mb-5">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
+              {showRawCredentialDetails && (
+                <>
+                  <TypographyH4>Credentials</TypographyH4>
+                  <div className={"bg-slate-200"}>
+                    <JSONPretty id="json-pretty2" data={credentials}></JSONPretty>
+                  </div>
+                  <TypographyH4>Presenation definition</TypographyH4>
+                  <div className={"bg-slate-100"}>
+                    <JSONPretty
+                      id="json-pretty"
+                      data={jobListing.presentation_definition}
+                    ></JSONPretty>
+                  </div>
+                </>
               )}
-            </TableBody>
-          </Table>
-        </div>
+              {error && <div className={"text-red-500"}>{error}</div>}
+
+              <div>
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    <Button>Apply</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Apply for the Company</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                          My Email
+                        </Label>
+                        <Label className="text-center">{session?.user?.email}</Label>
+                      </div>
+                      <div className="grid grid-cols-4 items-top gap-4">
+                        <Label htmlFor="username" className="text-right">
+                          Message
+                        </Label>
+                        <TextArea
+                          required
+                          className="col-span-3"
+                          onChange={(e: any) => setApplyMessage(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        onClick={() => {
+                          const sendApplication = async () => {
+                            if (!applyMessage) {
+                              toast({
+                                title: "Error",
+                                description: "Please enter a message",
+                              });
+                              return;
+                            }
+                            try {
+                              await web5Client.dwnCreateAndSendJApplicationReplyingToJob(
+                                jobListing.company,
+                                applyMessage,
+                                jobListing.id,
+                                {
+                                  name: selfProfile.name,
+                                },
+                              );
+                              toast({
+                                title: `Success`,
+                                description: `Successfully applied to ${jobListing.company}!`,
+                              });
+                              setOpen(false);
+                            } catch (e) {
+                              toast({
+                                title: "Error",
+                                description: `Error sending application: ${e}`,
+                              });
+                              return;
+                            }
+                          };
+                          sendApplication();
+                        }}
+                      >
+                        Submit Application
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="company">
+
+            <div className={"flex-col space-y-2"}>
+              <TypographyH3>Received applications</TypographyH3>
+
+              <div className="rounded-md border mb-5">
+                <Table>
+                  <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => {
+                          return (
+                            <TableHead key={header.id}>
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
+                            </TableHead>
+                          );
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+                  <TableBody className="mb-5">
+                    {table.getRowModel().rows?.length ? (
+                      table.getRowModel().rows.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          data-state={row.getIsSelected() && "selected"}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id}>
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={columns.length}
+                          className="h-24 text-center"
+                        >
+                          No results.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
