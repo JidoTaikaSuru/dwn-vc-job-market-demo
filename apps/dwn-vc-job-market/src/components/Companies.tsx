@@ -177,7 +177,7 @@ export const Companies: FC = () => {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="bg-blue-200/30">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
