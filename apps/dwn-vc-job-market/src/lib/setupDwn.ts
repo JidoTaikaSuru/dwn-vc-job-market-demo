@@ -2,17 +2,38 @@ import { protocols } from "@/lib/protocols.ts";
 import { did_db_table, supabaseClient } from "@/lib/common.ts";
 import { DwnClient } from "@/lib/web5Client.ts";
 
+const getIpInfo = async () => {
+  return undefined;
+  let ip_info: any = "";
+  let ip_info_j: any = {};
+  return await fetch("https://ipinfo.io/json")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Response", data);
+      if (data) ip_info = data;
+      ip_info_j = {};
+      ip_info_j = JSON.parse(data);
+      if (ip_info_j && ip_info_j.city) location = ip_info.city;
+      if (ip_info_j.error) {
+        console.error(
+          "🚀 ~ file: common.ts:46 ~ error :",
+          JSON.stringify(ip_info_j),
+        );
+      }
+      return ip_info_j;
+    })
+    .catch((e) => {
+      console.log("🚀 ~ file: common.ts:46 ~ e:", e);
+      return undefined;
+    });
+};
 export const didCreate = async (dwnClient: DwnClient) => {
   let label = "";
-
   const { user, myDid, web5 } = dwnClient;
   if (user && user.email && myDid && web5) {
-    console.log(
-      "🚀 ~ file: common.ts:34 ~ initMyTestingData ~ user:",
-      user.email,
-    );
+    console.log("Setting up :", user.email);
     label = user.email;
-    const curnamerecord = await dwnClient.dwnQuerySelf(
+    const curnamerecord = await dwnClient.dwnQuerySelfByProtocol(
       protocols["selfProfileProtocol"],
     );
     console.log(
@@ -27,13 +48,14 @@ export const didCreate = async (dwnClient: DwnClient) => {
     did: myDid,
     protocol_list: { lol: ["lol"] },
     label: label,
-    // user_agent: user_agent,
+    user_agent: window.navigator.userAgent || "",
     updated_client_side_time: new Date().toISOString(),
   };
 
-  // if (ip_info_j && ip_info_j.city) {
-  //   send_date["ip_info_jsonb"] = ip_info;
-  // }
+  const ipInfo = await getIpInfo();
+  if (ipInfo && ipInfo.city) {
+    send_date.ip_info_jsonb = JSON.stringify(ipInfo);
+  }
 
   const { data: data_after_insert, error } = await supabaseClient
     .from(did_db_table)
@@ -58,7 +80,7 @@ export const initMyTestingData = async (dwnClient: DwnClient) => {
       "🚀 ~ file: common.ts:34 ~ initMyTestingData ~ user:",
       user.email,
     );
-    const curnamerecord = await dwnClient.dwnQuerySelf(
+    const curnamerecord = await dwnClient.dwnQuerySelfByProtocol(
       protocols["selfProfileProtocol"],
     );
     console.log(
@@ -74,24 +96,23 @@ export const initMyTestingData = async (dwnClient: DwnClient) => {
       presentation_definition: `{"id":"bd980aee-10ba-462c-8088-4afdda24ed97","input_descriptors":[{"id":"user has a HasAccount VC issued by us","name":"user has a HasAccount VC issued by us","purpose":"Please provide your HasAccount VC that we issued to you on account creation","constraints":{"fields":[{"path":["$.vc.type"],"filter":{"type":"array","contains":{"type":"string","const":"HasVerifiedEmail"}},"purpose":"Holder must possess HasVerifiedEmail VC"}]}}]}`,
     };
 
-    const gotJobsSelf = await dwnClient.dwnQuerySelf(
+    const gotJobsSelf = await dwnClient.dwnQuerySelfByProtocol(
       protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
     );
     if (gotJobsSelf) {
       if (gotJobsSelf?.length < 2) {
         jobdata.title = jobdata.title + " " + gotJobsSelf?.length;
-        await dwnClient.dwnCreateJobPost(jobdata);
+        await dwnClient.dwnCreateJobPostAgainstCompany(jobdata);
       }
     } else {
-      await dwnClient.dwnCreateJobPost(jobdata);
+      await dwnClient.dwnCreateJobPostAgainstCompany(jobdata);
     }
-    await dwnClient.dwnQuerySelfallJSONData();
+    await dwnClient.dwnQueryOtherDwnAllJSONData({ did: myDid });
   }
 };
 
 export const spamEveryDWNwithAJobApplication = async (dwnClient: DwnClient) => {
   const { myDid } = dwnClient;
-  //TODO adoll start reading here
 
   const { data: public_dwn_did_list } = await supabaseClient
     .from(did_db_table)
@@ -159,17 +180,14 @@ export const spamEveryDWNwithAJobApplication = async (dwnClient: DwnClient) => {
   }
 };
 
-export let dids_with_names: Array<{ did: string; name: string }> = [];
-
 export const getAllDWNnames = async (dwnClient: DwnClient) => {
-  // TODO change this
   const { data: public_dwn_did_list } = await supabaseClient
     .from(did_db_table)
     .select("*");
 
+  const dids_with_names = [];
   if (public_dwn_did_list) {
     let count_dwn_with_a_name = 0;
-    dids_with_names = [];
     for (let i = 0; i < public_dwn_did_list.length; i++) {
       //TODO change this to
       const element = public_dwn_did_list[i];
@@ -197,6 +215,7 @@ export const getAllDWNnames = async (dwnClient: DwnClient) => {
 
     console.log("🚀 ~   dids_with_names:", dids_with_names);
   }
+  return dids_with_names;
 };
 // if (DEBUGGING) {
 //   const dwnClient = await getWeb5Client();

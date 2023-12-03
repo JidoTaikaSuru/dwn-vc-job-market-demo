@@ -20,7 +20,7 @@ export const PostJob: FC = () => {
       presentation_definition: `{"id":"bd980aee-10ba-462c-8088-4afdda24ed97","input_descriptors":[{"id":"user has a HasAccount VC issued by us","name":"user has a HasAccount VC issued by us","purpose":"Please provide your HasAccount VC that we issued to you on account creation","constraints":{"fields":[{"path":["$.vc.type"],"filter":{"type":"array","contains":{"type":"string","const":"HasVerifiedEmail"}},"purpose":"Holder must possess HasVerifiedEmail VC"}]}}]}`,
     };
 
-    await web5Client.dwnCreateJobPost(jobdata);
+    await web5Client.dwnCreateJobPostAgainstCompany(jobdata);
   };
 
   return (

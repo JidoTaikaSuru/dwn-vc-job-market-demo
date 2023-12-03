@@ -21,7 +21,8 @@ import {
   createNewEmbeddedWalletForUser,
   getUserEmbeddedWallet,
 } from "@/lib/embeddedWalletLib";
-import { credentialStore, supabaseClient } from "@/lib/common";
+import { credentialStore, getWeb5Client, supabaseClient } from "@/lib/common";
+import { didCreate } from "@/lib/setupDwn.ts";
 
 type VerifyEmailPasswordFormProps = {
   email: string;
@@ -75,6 +76,9 @@ export const RequireUserLoggedIn: React.FC<PropsWithChildren> = ({
       const localWallet = await getUserEmbeddedWallet(pin, deviceKey || "");
       console.debug("fetched user wallet", localWallet);
       window.localStorage.setItem("pin", pin);
+
+      console.log("upserting DID for user");
+      await didCreate(await getWeb5Client());
       setWallet(localWallet);
       setSession(sessionData);
     } catch (error: any) {

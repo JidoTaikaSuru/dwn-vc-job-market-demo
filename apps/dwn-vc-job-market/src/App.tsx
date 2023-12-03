@@ -2,20 +2,58 @@ import "./App.css";
 import { SessionContextProvider } from "@/contexts/SessionContext.tsx";
 import Navbar from "@/components/Navbar.tsx";
 import { RequireUserLoggedIn } from "@/components/RequireUserLoggedIn.tsx";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Link, RouterProvider } from "react-router-dom";
 import { JobListingDrilldown } from "@/components/JobListingDrilldown.tsx";
 import { Companies } from "./components/Companies.tsx";
 import UpdateProfile from "./components/UpdateProfile";
-import { JobListingsByCompany } from "@/components/JobListingsByCompany.tsx";
+import { CompanyJobListings } from "@/components/CompanyJobListings.tsx";
 import { SupabaseJobListings } from "@/components/experiments/SupabaseJobListings.tsx";
 import { Suspense } from "react";
 import { UserProfile } from "@/components/UserProfile.tsx";
 import { SetupDwn } from "@/components/SetupDwn.tsx";
+import { TypographyH2 } from "@/components/Typography.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Companies />,
+    element: (
+      <div className={"flex-col"}>
+        <TypographyH2>Directory listing</TypographyH2>
+        <ul>
+          <li>
+            <Link to="/listings">/listings</Link>
+          </li>
+          <li>
+            <Link to="/listings/supabase">/listings/supabase</Link>
+          </li>
+          <li>
+            <Link to="/listings/view/:supabaseListingId">
+              /listings/view/:supabase_listing_id
+            </Link>
+          </li>
+          <li>
+            <Link to="/listings/company/:companyDid">
+              /listings/company/:companyDid
+            </Link>
+          </li>
+          <li>
+            <Link to="/updateProfile">/updateProfile</Link>
+          </li>
+          <li>
+            <Link to="/dwnMyJobs">/dwnMyJobs</Link>
+          </li>
+          <li>
+            <Link to="/profile">/profile</Link>
+          </li>
+          <li>
+            <Link to="/profile/:userDid">/profile/:userDid</Link>
+          </li>
+          <li>
+            <Link to="/playground">/playground</Link>
+          </li>
+        </ul>
+      </div>
+    ),
   },
   {
     path: "/listings",
@@ -31,7 +69,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/listings/company/:companyDid",
-    element: <JobListingsByCompany />,
+    element: <CompanyJobListings />,
   },
   {
     path: "/updateProfile",
@@ -39,6 +77,10 @@ const router = createBrowserRouter([
   },
   {
     path: "/profile",
+    element: <UserProfile />,
+  },
+  {
+    path: "/profile/:userDid",
     element: <UserProfile />,
   },
   {

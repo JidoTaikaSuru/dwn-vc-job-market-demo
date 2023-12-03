@@ -43,5 +43,6 @@ Ask anyone for access to the following:
 ### Local DWN cluster
 
 ```shell
+    git submodule update --ini
     docker-compose -f local-dwn-cluster.docker-compose.yml up
 ```

@@ -46,7 +46,7 @@ export const Companies: FC = () => {
       {
         header: "Positions",
         accessorKey: "jobpostcount",
-        cell: ({ row }) => {
+        cell: async ({ row }) => {
           console.log("row in cell", row);
           return (
             <Link to={`/listings/company/${row.original.fullDid}`}>
@@ -87,20 +87,20 @@ export const Companies: FC = () => {
           if (iName && iName.name) {
             dwnName = iName.name;
           }
-          // console.debug("Finished fetching self profile, fetching jobs");
-          // const iJobList = await web5Client.dwnQueryOtherDWNByProtocol(
-          //   row.did,
-          //   protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
-          // );
-          // console.debug("Finished fetching jobs", iJobList);
-          // let jobPostCount = 0;
-          // if (iJobList && iJobList.length && iJobList.length > 0) {
-          //   jobPostCount = iJobList.length;
-          // }
-          // console.log("rowDid", row.did);
+          console.debug("Finished fetching self profile, fetching jobs");
+          const iJobList = await web5Client.dwnQueryOtherDWNByProtocol(
+            row.did,
+            protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
+          );
+          console.debug("Finished fetching jobs", iJobList);
+          let jobPostCount = 0;
+          if (iJobList && iJobList.length && iJobList.length > 0) {
+            jobPostCount = iJobList.length;
+          }
+          console.log("rowDid", row.did);
           newdata.push({
             ...row,
-            jobpostcount: 0,
+            jobpostcount: jobPostCount,
             dwnname: dwnName,
             did: row.did.substring(0, 32),
             fullDid: row.did,

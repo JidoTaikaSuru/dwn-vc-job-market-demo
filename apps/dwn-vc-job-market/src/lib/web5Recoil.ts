@@ -44,6 +44,7 @@ export const getPublicDwnDidListSelector = selector({
     return public_dwn_did_list;
   },
 });
+
 export const dwnQueryOtherDWNSelector = selectorFamily({
   key: "dwnQueryOtherDWN",
   get:
@@ -99,19 +100,17 @@ export const dwnQueryOtherDWNArbitraryFilterSelector = selectorFamily<
       }
     },
 });
-export const dwnReadOtherDWNSelector = selectorFamily<
-  any | undefined,
-  {
-    fromDWN: string;
-    protocol: ProtocolDefinition;
-  }
->({
+
+export const dwnReadOtherDWNSelector = selectorFamily({
   key: "dwnReadOtherDWN",
   get:
-    ({ fromDWN, protocol }) =>
+    (props: { did: string; protocol: ProtocolDefinition }) =>
     async ({ get }) => {
+      console.groupCollapsed("dwnReadOtherDWNSelector");
       const { web5Client } = get(web5ConnectSelector);
-      return await web5Client.dwnReadOtherDWN(fromDWN, protocol);
+      const res = await web5Client.dwnReadOtherDWN(props.did, props.protocol);
+      console.groupEnd();
+      return res;
     },
 });
 export const dwnReadSelfReturnRecordAndDataSelector = selector<
@@ -124,49 +123,65 @@ export const dwnReadSelfReturnRecordAndDataSelector = selector<
   },
 });
 
-export const dwnReadSelfProfile = selectorFamily<
-  any,
-  {
-    did?: string;
-  }
->({
+export const dwnQueryOtherDWNByProtocolSelector = selectorFamily({
   key: "dwnReadSelfProfile",
   get:
-    ({ did }) =>
+    (props: { did: string; protocol: ProtocolDefinition }) =>
     async ({ get }) => {
       const { web5Client } = get(web5ConnectSelector);
-      if (!did) return undefined;
+      if (!props.did) return undefined;
       return await web5Client.dwnQueryOtherDWNByProtocol(
-        did,
-        protocols["selfProfileProtocol"],
+        props.did,
+        props.protocol,
       );
     },
 });
 
-export const dwnGetCompanyJobsSelector = selectorFamily<
-  any,
-  {
-    did?: string;
-  }
->({
-  key: "dwnGetCompanyJobs",
+export const dwnQuerySelfProfileOtherDwn = selectorFamily({
+  key: "dwnReadSelfProfile",
   get:
-    ({ did }) =>
+    (props: { did: string }) =>
+    async ({ get }) => {
+      return get(
+        dwnQueryOtherDWNByProtocolSelector({
+          ...props,
+          protocol: protocols["selfProfileProtocol"],
+        }),
+      );
+    },
+});
+
+export const dwnQueryJobPostThatCanTakeApplicationsAsReplyProtocolSelector =
+  selectorFamily({
+    key: "dwnGetCompanyJobs",
+    get:
+      (props: { did: string }) =>
+      async ({ get }) => {
+        return get(
+          dwnQueryOtherDWNByProtocolSelector({
+            ...props,
+            protocol:
+              protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
+          }),
+        );
+      },
+  });
+
+export const dwnQueryOtherDwnForJsonDataSelector = selectorFamily({
+  key: "dwnQueryOtherDwnForJsonDataSelector",
+  get:
+    (props: { did: string }) =>
     async ({ get }) => {
       const { web5Client } = get(web5ConnectSelector);
-      if (!did) return undefined;
-      return await web5Client.dwnQueryOtherDWNByProtocol(
-        did,
-        protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
-      );
+      return await web5Client.dwnQueryOtherDwnAllJSONData(props);
     },
 });
 
 export const dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector = selector
 ({
-  key: "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords",  
+  key: "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords",
   get: async ({ get }) => {
-    
+
       const { web5Client } = get(web5ConnectSelector);
       return await web5Client.dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
     }

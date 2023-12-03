@@ -77,7 +77,9 @@ const Navbar: React.FC = () => {
   return (
     <nav className="sticky top-0 z-50 bg-fuchsia-200/50">
       <div className="flex w-screen items-center justify-between p-4">
-        <h5 className="tracking-tighter text-xl">{APP_NAME}</h5>
+        <a href={"/"}>
+          <h5 className="tracking-tighter text-xl text-black">{APP_NAME}</h5>
+        </a>
         <div className="flex items-center gap-4">
           {strgPercent > 0 ? `Local DWN Storage ` + strgPercent + `%` : ""}
           {wallet && (

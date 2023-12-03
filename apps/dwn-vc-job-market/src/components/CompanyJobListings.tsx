@@ -29,22 +29,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast.ts";
 import {
-  dwnGetCompanyJobsSelector,
-  dwnReadSelfProfile,
+  dwnQueryJobPostThatCanTakeApplicationsAsReplyProtocolSelector,
+  dwnReadOtherDWNSelector,
   web5ConnectSelector,
 } from "@/lib/web5Recoil.ts";
 
 type RowData = any;
 
-const demoData = [
-  {
-    id: "demo",
-    title: "Demo Job",
-  },
-];
-export const JobListingsByCompany: FC = () => {
+export const CompanyJobListings: FC = () => {
   const { companyDid } = useParams();
-  const { web5Client } = useRecoilValue(web5ConnectSelector);
+  const { web5Client, protocols } = useRecoilValue(web5ConnectSelector);
+  const company = useRecoilValue(
+    dwnReadOtherDWNSelector({
+      did: companyDid || "",
+      protocol: protocols["selfProfileProtocol"],
+    }),
+  );
+  const listings = useRecoilValue(
+    dwnQueryJobPostThatCanTakeApplicationsAsReplyProtocolSelector({
+      did: companyDid || "",
+    }),
+  );
+  const [jobTitle, setJobTitle] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const { toast } = useToast();
+  const [open, setOpen] = useState<boolean>(false);
+
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
       {
@@ -70,25 +80,9 @@ export const JobListingsByCompany: FC = () => {
     ],
     [],
   );
-  const company = useRecoilValue(dwnReadSelfProfile({ did: companyDid }));
-  const listings = useRecoilValue(
-    dwnGetCompanyJobsSelector({ did: companyDid }),
-  );
-  const [jobTitle, setJobTitle] = useState("");
-  const [jobDescription, setJobDescription] = useState("");
-  const { toast } = useToast();
-  const [open, setOpen] = useState<boolean>(false);
-  /* dummy data
-                             const company = {did : {companyDid}, name: "dummy company"};
-                             const listings = [{title: "Job #1", description: "Job #1 detailed description", id: "00000001"},
-                             {title: "Job #2", description: "Job #1 detailed description", id: "00000002"},
-                             ]
-                             */
-
   const table = useReactTable({
     columns,
-    // data: listings,
-    data: demoData,
+    data: listings || [],
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -96,26 +90,6 @@ export const JobListingsByCompany: FC = () => {
   if (!companyDid) return <>Accessed route without a DID</>; //TODO This might throw an error
 
   console.debug(`job listings for company ${companyDid}`, listings);
-
-  const postJob = async () => {
-    console.log(" postJob ~ dwnCreateJobPost:", postJob);
-
-    if (!jobTitle || !jobDescription) return;
-
-    const jobdata = {
-      title: jobTitle,
-      description: jobDescription,
-      presentation_definition: `{"id":"bd980aee-10ba-462c-8088-4afdda24ed97","input_descriptors":[{"id":"user has a HasAccount VC issued by us","name":"user has a HasAccount VC issued by us","purpose":"Please provide your HasAccount VC that we issued to you on account creation","constraints":{"fields":[{"path":["$.vc.type"],"filter":{"type":"array","contains":{"type":"string","const":"HasVerifiedEmail"}},"purpose":"Holder must possess HasVerifiedEmail VC"}]}}]}`,
-    };
-
-    //TODO add status return to see if request succes
-    await web5Client.dwnCreateJobPost(jobdata);
-
-    toast({
-      title: "Job Listing was created!",
-    });
-  };
-  console.log("postJob ~ postJob:", postJob);
 
   return (
     <>
@@ -227,7 +201,7 @@ export const JobListingsByCompany: FC = () => {
                     };
 
                     //TODO add status return to see if request succes
-                    await web5Client.dwnCreateJobPost(jobdata);
+                    await web5Client.dwnCreateJobPostAgainstCompany(jobdata);
                     toast({
                       title: `Success`,
                       description: `Successfully created new Job Listing : ${jobTitle}!`,

@@ -18,7 +18,7 @@ interface DwnClientFunctions {
     recipientDWN: string,
     message: string,
   ) => Promise<void>;
-  dwnCreateJobPost: (data: any) => Promise<Record | undefined>;
+  dwnCreateJobPostAgainstCompany: (data: any) => Promise<Record | undefined>;
   dwnCreateSelfProfileName: (name: string) => Promise<Record | undefined>;
 }
 
@@ -33,7 +33,7 @@ export class DwnClient implements DwnClientFunctions {
     this.myDid = props.myDid;
   }
 
-  async dwnQuerySelf(protocol: ProtocolDefinition) {
+  async dwnQuerySelfByProtocol(protocol: ProtocolDefinition) {
     console.debug("dwnQuerySelf ~ protocol:", protocol);
     try {
       const { records } = await this.web5.dwn.records.query({
@@ -60,14 +60,14 @@ export class DwnClient implements DwnClientFunctions {
     fromDWN: string,
     protocol: ProtocolDefinition,
   ) {
-    console.debug(
-      "dwnQueryOtherDWN()  about to query fromDWN " +
-        fromDWN +
-        " for " +
-        protocol.protocol,
-    );
-    // Reads the indicated record from Bob's DWNs
     try {
+      console.debug(
+        "dwnQueryOtherDWN()  about to query fromDWN " +
+          fromDWN +
+          " for " +
+          protocol.protocol,
+      );
+      // Reads the indicated record from Bob's DWNs
       const { records, status } = await this.web5.dwn.records.query({
         from: fromDWN,
         message: {
@@ -94,14 +94,13 @@ export class DwnClient implements DwnClientFunctions {
     fromDWN: string,
     protocol: ProtocolDefinition,
   ): Promise<any | undefined> {
-    console.debug(
-      "dwnReadOtherDWN()  fromDWN " + fromDWN + " for " + protocol.protocol,
-    );
-    // Reads the indicated record from Bob's DWNs
     try {
+      console.debug(
+        "dwnReadOtherDWN()  fromDWN " + fromDWN + " for " + protocol.protocol,
+      );
+      // Reads the indicated record from Bob's DWNs
       console.log("protocol", protocol.protocol);
       const { record, status } = await this.web5.dwn.records.read({
-        from: fromDWN,
         message: {
           filter: {
             protocol: protocol.protocol,
@@ -124,10 +123,10 @@ export class DwnClient implements DwnClientFunctions {
     }
   }
 
-  async dwnQuerySelfallJSONData() {
+  async dwnQueryOtherDwnAllJSONData(props: { did: string }) {
     try {
       const { records } = await this.web5.dwn.records.query({
-        from: this.myDid,
+        from: props.did,
         message: {
           filter: {
             dataFormat: "application/json",
@@ -515,7 +514,7 @@ export class DwnClient implements DwnClientFunctions {
     }
   }
 
-  async dwnCreateJobPost(data: any) {
+  async dwnCreateJobPostAgainstCompany(data: any) {
     console.log("dwnCreateJobPost ~ data:", JSON.stringify(data));
 
     const jobdata = {
@@ -524,6 +523,8 @@ export class DwnClient implements DwnClientFunctions {
       author: this.myDid,
       ...data,
     };
+
+    console.log("dwnCreateJobPost ~ jobdata:", jobdata);
 
     try {
       const { record, status } = await this.web5.dwn.records.create({
@@ -544,17 +545,12 @@ export class DwnClient implements DwnClientFunctions {
       if (status.code !== 202) {
         throw new Error("failed to create job post: " + status.detail);
       }
-      if (record)
-        console.log(
-          "dwnCreateJobPost protocol: " +
-            protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"]
-              .protocol +
-            " create SUCCESS  ",
-          record,
-        );
-      else {
-        console.error("dwnCreateJobPost ~ status:", status);
-      }
+      console.log(
+        "dwnCreateJobPost protocol: " +
+          protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"].protocol +
+          " create SUCCESS  ",
+        record,
+      );
 
       return record;
     } catch (e) {
