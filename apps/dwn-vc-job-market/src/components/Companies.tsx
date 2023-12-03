@@ -46,7 +46,7 @@ export const Companies: FC = () => {
       {
         header: "Positions",
         accessorKey: "jobpostcount",
-        cell: async ({ row }) => {
+        cell: ({ row }) => {
           console.log("row in cell", row);
           return (
             <Link to={`/listings/company/${row.original.fullDid}`}>
