@@ -28,6 +28,7 @@ import {
   CredentialToCredentialCard,
   PresentationExchangeStatus,
 } from "@/components/CredentialCard.tsx";
+import { Bold } from "lucide-react";
 
 function truncateString(str: string, num: number): string {
   if (str.length <= num) {
@@ -136,12 +137,13 @@ export const UserProfile: FC = () => {
 
   // TODO Find a less blinding theme for react-json-pretty
   return (
-    <div className={"space-y-2 flex flex-col items-center"}>
+    <div className={"space-y-2 flex flex-col items-center p-5"}>
       <TypographyH1>{profile?.name}'s Profile</TypographyH1>
       <Identicon string={targetDid} size={80} />
       {targetDid === myDid && (
-        <div className={"flex items-center"}>
-          <p>{wallet?.address}</p>
+        <div className={"flex items-center gap-2"}>
+          <p style={{ fontWeight: "Bold" }}>wallet address :</p>
+          <p>{truncateString(wallet?.address ?? "", 32)}</p>
           <CopyToClipboard
             text={wallet?.address || ""}
             onCopy={() => {
@@ -153,7 +155,8 @@ export const UserProfile: FC = () => {
           </CopyToClipboard>
         </div>
       )}
-      <div className={"flex items-center break-all"}>
+      <div className={"flex items-center break-all gap-2"}>
+        <p style={{ fontWeight: "Bold" }}>did :</p>
         <p>{truncateString(targetDid, 32)}</p>
         <CopyToClipboard
           text={targetDid || ""}
@@ -167,7 +170,8 @@ export const UserProfile: FC = () => {
       </div>
 
       <TypographyH3>Credentials</TypographyH3>
-      <div className={"space-y-2"}>
+      <div className={"space-y-2 p-5"}
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
         {credentials?.map((credential) => (
           <CredentialToCredentialCard
             credential={credential}
@@ -181,7 +185,7 @@ export const UserProfile: FC = () => {
         {showRaw ? "HIDE" : "SHOW"} RAW DATA
       </Button>
       {showRaw && (
-        <>
+        <div className="gap-5 p-5" style={{width: '1000px'}}>
           <TypographyH3>Query others results</TypographyH3>
           <TypographyH4>Job Application Simple Protocol</TypographyH4>
           <JSONPretty data={profileJobApplicationSimpleProtocol} />
@@ -229,7 +233,7 @@ export const UserProfile: FC = () => {
           <JSONPretty
             data={profileQuerySelfJobPostThatCanTakeApplicationsAsReplyProtocol}
           />
-        </>
+        </div>
       )}
     </div>
   );
