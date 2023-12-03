@@ -1217,6 +1217,7 @@ export interface Database {
       users: {
         Row: {
           created_at: string
+          did: string | null
           id: string
           iv: string | null
           password_encrypted_private_key: string | null
@@ -1224,6 +1225,7 @@ export interface Database {
         }
         Insert: {
           created_at?: string
+          did?: string | null
           id: string
           iv?: string | null
           password_encrypted_private_key?: string | null
@@ -1231,6 +1233,7 @@ export interface Database {
         }
         Update: {
           created_at?: string
+          did?: string | null
           id?: string
           iv?: string | null
           password_encrypted_private_key?: string | null

@@ -1,11 +1,11 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { agent, DEFAULT_IDENTIFIER_SCHEMA } from "../../setup.js";
 
-import {isDateInPastWeek, storeCredential} from "../lib.js";
+import { isDateInPastWeek, storeCredential, stripDidPrefix } from "../lib.js";
 
 export const issueHasVerifiedEmailCredentialHandler = async (
   request: FastifyRequest,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) => {
   // User has authenticated, they exist, issue the credential
   const { user, authData } = request;
@@ -14,10 +14,18 @@ export const issueHasVerifiedEmailCredentialHandler = async (
     alias: DEFAULT_IDENTIFIER_SCHEMA,
   });
 
-  if(!authData.email_confirmed_at) {
+  if (!authData.email_confirmed_at) {
     return reply.status(400).send("Email not confirmed at all");
   } else if (!isDateInPastWeek(authData.email_confirmed_at)) {
     return reply.status(400).send("Email not confirmed in the last week");
+  }
+
+  if (!user.did) {
+    return reply
+      .status(400)
+      .send(
+        "User has no DID. Go to /playground and click didCreate to update your record",
+      );
   }
 
   const domain = authData.email?.split("@")[1];
@@ -26,13 +34,13 @@ export const issueHasVerifiedEmailCredentialHandler = async (
     domain === "anonaddy.com" ||
     domain === "mozmail.com";
 
-
-
   const date = new Date();
   date.setMonth(date.getMonth() + 3);
   const verifiableCredential = await agent.createVerifiableCredential({
     credential: {
-      id: `did:web:gotid.org:credential:has-verified-email:${user.id}`,
+      id: `did:web:gotid.org:credential:has-account:${stripDidPrefix(
+        user.did,
+      )}`,
       issuer: {
         id: identifier.did,
         name: "Decentralinked Issuer",

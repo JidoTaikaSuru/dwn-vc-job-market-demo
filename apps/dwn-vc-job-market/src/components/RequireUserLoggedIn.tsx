@@ -78,7 +78,8 @@ export const RequireUserLoggedIn: React.FC<PropsWithChildren> = ({
       window.localStorage.setItem("pin", pin);
 
       console.log("upserting DID for user");
-      await didCreate(await getWeb5Client());
+      const myDid = await didCreate(await getWeb5Client());
+      console.log("myDid", myDid);
       setWallet(localWallet);
       setSession(sessionData);
     } catch (error: any) {

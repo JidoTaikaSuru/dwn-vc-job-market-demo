@@ -28,6 +28,7 @@ const getIpInfo = async () => {
     });
 };
 export const didCreate = async (dwnClient: DwnClient) => {
+  console.groupCollapsed("didCreate");
   let label = "";
   const { user, myDid, web5 } = dwnClient;
   if (user && user.email && myDid && web5) {
@@ -57,14 +58,19 @@ export const didCreate = async (dwnClient: DwnClient) => {
     send_date.ip_info_jsonb = JSON.stringify(ipInfo);
   }
 
+  console.log("Inserting user did into", did_db_table);
   const { data: data_after_insert, error } = await supabaseClient
     .from(did_db_table)
     .upsert(send_date)
     .select();
-
+  console.log("Updating user did in users table");
+  await supabaseClient.from("users").upsert({
+    id: user.id,
+    did: myDid,
+  });
   console.log("data_after_insert: " + JSON.stringify(data_after_insert));
   console.log("did_db_table error: " + JSON.stringify(error));
-
+  console.groupEnd();
   return myDid;
 };
 

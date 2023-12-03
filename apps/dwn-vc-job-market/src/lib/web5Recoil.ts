@@ -23,6 +23,14 @@ export const web5ConnectSelector = selector({
     for (const protocol of Object.values(protocols)) {
       await configureProtocol(web5, protocol);
     }
+
+    //TODO remove me
+    console.log("DOING UPSERT OF DID TO USERS TABLE, REMOVE ME BEFORE SUBMIT");
+    await supabaseClient.from("users").upsert({
+      id: user.id,
+      did: myDid,
+    });
+
     return { web5, myDid, protocols: protocols, web5Client: client };
   },
 });

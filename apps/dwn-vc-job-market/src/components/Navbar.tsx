@@ -6,10 +6,13 @@ import Identicon from "react-identicons";
 import { SessionContext } from "@/contexts/SessionContext";
 import { truncateAddress } from "@/lib/embeddedWalletLib";
 import { supabaseClient } from "@/lib/common.ts";
+import { useRecoilValue } from "recoil";
+import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 
 export const APP_NAME = "DWN + VC Job Market";
 
 const Navbar: React.FC = () => {
+  const { myDid } = useRecoilValue(web5ConnectSelector);
   const { session, setSession, wallet } = useContext(SessionContext);
   const [startLogout, setStartLogout] = useState(false);
   const [strgPercent, setStrgPercent] = useState(0);
@@ -84,7 +87,7 @@ const Navbar: React.FC = () => {
           {strgPercent > 0 ? `Local DWN Storage ` + strgPercent + `%` : ""}
           {wallet && (
             // <a href={"/profile"} className={"text-black"}>
-            <a href={"/profile"} style={{ color: "#213547" }}>
+            <a href={`/profile/${myDid}`} style={{ color: "#213547" }}>
               <Button
                 variant="outline"
                 className="tracking-wider text-base font-semibold flex gap-2"

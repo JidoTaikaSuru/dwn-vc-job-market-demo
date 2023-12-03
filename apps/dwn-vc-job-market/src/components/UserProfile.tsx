@@ -5,7 +5,6 @@ import {
   dwnQueryOtherDwnForJsonDataSelector,
   dwnQuerySelfByProtocolSelector,
   dwnReadOtherDWNSelector,
-  dwnReadSelfProfileSelector,
   web5ConnectSelector,
 } from "@/lib/web5Recoil.ts";
 import {
@@ -36,13 +35,18 @@ function truncateString(str: string, num: number): string {
 export const UserProfile: FC = () => {
   const { userDid } = useParams();
   const { myDid } = useRecoilValue(web5ConnectSelector);
+  const profile = useRecoilValue(
+    dwnReadOtherDWNSelector({
+      did: userDid || "",
+      protocol: protocols["selfProfileProtocol"],
+    }),
+  );
+  console.log("profile", profile);
   const [showRaw, setShowRaw] = useState(false);
   const { wallet, credentials } = useContext(SessionContext);
   const { toast } = useToast();
 
   const targetDid = userDid || myDid;
-
-  const profile = useRecoilValue(dwnReadSelfProfileSelector);
 
   const profileJobApplicationSimpleProtocol = useRecoilValue(
     dwnQueryOtherDWNByProtocolSelector({
@@ -128,9 +132,8 @@ export const UserProfile: FC = () => {
 
   // TODO Find a less blinding theme for react-json-pretty
   return (
-    <div className={"space-y-2"}>
-      <TypographyH1>Profile</TypographyH1>
-      <TypographyH4>TARGET: {targetDid}</TypographyH4>
+    <div className={"space-y-2 flex flex-col items-center"}>
+      <TypographyH1>{profile?.name}'s Profile</TypographyH1>
       <Identicon string={targetDid} size={80} />
       {targetDid === myDid && (
         <div className={"flex items-center"}>
@@ -160,6 +163,15 @@ export const UserProfile: FC = () => {
       </div>
 
       <TypographyH3>Credentials</TypographyH3>
+      <div className={"space-y-2"}>
+        {credentials?.map((credential) => (
+          <div className={"flex items-center"}>
+            <JSONPretty data={credential} />
+            <Identicon string={credential.issuer} size={24} />
+          </div>
+        ))}
+      </div>
+      <TypographyH3>Debug</TypographyH3>
 
       <Button variant={"secondary"} onClick={() => setShowRaw(!showRaw)}>
         {showRaw ? "HIDE" : "SHOW"} RAW DATA

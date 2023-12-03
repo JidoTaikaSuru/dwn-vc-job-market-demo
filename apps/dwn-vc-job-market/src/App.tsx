@@ -10,7 +10,7 @@ import { CompanyJobListings } from "@/components/CompanyJobListings.tsx";
 import { SupabaseJobListings } from "@/components/experiments/SupabaseJobListings.tsx";
 import { Suspense } from "react";
 import { UserProfile } from "@/components/UserProfile.tsx";
-import { SetupDwn } from "@/components/SetupDwn.tsx";
+import { AdminPlayground } from "@/components/AdminPlayground.tsx";
 import { TypographyH2 } from "@/components/Typography.tsx";
 import { DwnJobListingDrilldown } from "@/components/DwnJobListingDrilldown.tsx";
 
@@ -89,7 +89,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/playground",
-    element: <SetupDwn />,
+    element: <AdminPlayground />,
   },
 ]);
 

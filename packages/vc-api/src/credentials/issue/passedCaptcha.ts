@@ -1,10 +1,10 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { agent, DEFAULT_IDENTIFIER_SCHEMA } from "../../setup.js";
-import { storeCredential } from "../lib.js";
+import { storeCredential, stripDidPrefix } from "../lib.js";
 
 export const issuePassedCaptchaCredential = async (
   request: FastifyRequest,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) => {
   // ID for the key store, no need to change this
   const identifier = await agent.didManagerGetByAlias({
@@ -17,18 +17,27 @@ export const issuePassedCaptchaCredential = async (
 
   console.log("Issuing passed captcha credential to", user);
   console.log("authData", authData);
+  if (!user.did) {
+    return reply
+      .status(400)
+      .send(
+        "User has no DID. Go to /playground and click didCreate to update your record",
+      );
+  }
 
   /*
-    TODO Do validation to make sure the user has passed the captcha right here.
-
-    If they fail validation, return reply.status(400 or 401).send("message about why user faileValidation");
-     */
+      TODO Do validation to make sure the user has passed the captcha right here.
+  
+      If they fail validation, return reply.status(400 or 401).send("message about why user faileValidation");
+       */
 
   const date = new Date();
   date.setMonth(date.getMonth() + 3);
   const verifiableCredential = await agent.createVerifiableCredential({
     credential: {
-      id: `did:web:gotid.org:credential:has-verified-email:${user.id}`,
+      id: `did:web:gotid.org:credential:has-account:${stripDidPrefix(
+        user.did,
+      )}`,
       issuer: {
         id: identifier.did,
         name: "Decentralinked Issuer",

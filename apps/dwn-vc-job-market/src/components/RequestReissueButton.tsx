@@ -35,7 +35,9 @@ export const RequestReissueButton: FC = () => {
 
   return (
     <>
-      <Button onClick={() => setStartReissue(true)}>Attempt Reissue</Button>
+      <Button onClick={() => setStartReissue(true)}>
+        Request Basic Credentials
+      </Button>
       {error && <p>{error}</p>}
     </>
   );

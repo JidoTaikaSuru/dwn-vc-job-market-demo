@@ -7,11 +7,12 @@ import {
   initMyTestingData,
   spamEveryDWNwithAJobApplication,
 } from "@/lib/setupDwn.ts";
-import { TypographyH2 } from "@/components/Typography.tsx";
+import { TypographyH1, TypographyH2 } from "@/components/Typography.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import JSONPretty from "react-json-pretty";
+import { RequestReissueButton } from "@/components/RequestReissueButton.tsx";
 
-export const SetupDwn: FC = () => {
+export const AdminPlayground: FC = () => {
   const web5Connection = useRecoilValue(web5ConnectSelector);
   const { web5Client } = web5Connection;
   const [lastOutput, setLastOutput] = useState<any>();
@@ -20,9 +21,8 @@ export const SetupDwn: FC = () => {
 
   return (
     <div className={"flex flex-col space-y-2"}>
-      <h1>Lookup</h1>
-
-      <h1>Setup Dwn</h1>
+      <TypographyH1>Admin Playground</TypographyH1>
+      <TypographyH2>DID</TypographyH2>
       <Button
         onClick={async () => {
           await didCreate(web5Client);
@@ -30,6 +30,7 @@ export const SetupDwn: FC = () => {
       >
         didCreate (for self)
       </Button>
+      <TypographyH2>DWN</TypographyH2>
       <Button
         onClick={async () => {
           await web5Client.dwnCreateJobPostAgainstCompany({
@@ -76,6 +77,8 @@ export const SetupDwn: FC = () => {
         getAllDWNnames
       </Button>
 
+      <TypographyH2>Credentials</TypographyH2>
+      <RequestReissueButton />
       <TypographyH2>Danger Zone</TypographyH2>
       <Button
         onClick={async () => {
