@@ -2,10 +2,17 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
   flexRender,
   getCoreRowModel,
-  useReactTable,
+  useReactTable, 
+  FilterFn,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
+import {
+  RankingInfo,
+  rankItem,
+  compareItems,
+} from '@tanstack/match-sorter-utils'
 import type { FC } from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -19,6 +26,7 @@ import { Link } from "react-router-dom";
 import { Database } from "@/__generated__/supabase-types.ts";
 import { selector, useRecoilValue } from "recoil";
 import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
+import { Input } from "@/components/ui/input.tsx";
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   jobpostcount: number;
@@ -26,6 +34,19 @@ type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   did: string;
   fullDid: string;
 };
+
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  // Rank the item
+  const itemRank = rankItem(row.getValue(columnId), value)
+
+  // Store the itemRank info
+  addMeta({
+    itemRank,
+  })
+
+  // Return if the item should be filtered in/out
+  return itemRank.passed
+}
 
 const fetchCompanies = selector({
   key: "fetchCompanies",
@@ -64,7 +85,7 @@ const fetchCompanies = selector({
           ...row,
           jobpostcount: jobPostCount,
           dwnname: dwnName,
-          did: row.did.substring(0, 32),
+          did: row.did.substring(0, 32) + '...',
           fullDid: row.did,
         };
       });
@@ -99,6 +120,14 @@ export const Companies: FC = () => {
         accessorKey: "dwnname",
       },
       {
+        header: "Location",
+        accessorKey: "location",
+      },
+      {
+        header: "Industry",
+        accessorKey: "industry",
+      },
+      {
         header: "Positions",
         accessorKey: "jobpostcount",
         cell: ({ row }) => {
@@ -114,14 +143,33 @@ export const Companies: FC = () => {
     [],
   );
 
+  const [globalFilter, setGlobalFilter] = useState<string>("");
+
   const table = useReactTable({
     columns,
     data: listings || [],
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      globalFilter,
+    }, 
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: fuzzyFilter,
+    getFilteredRowModel: getFilteredRowModel(),
   });
+
   return (
-    <>
-      <h1>Companies</h1>
+    <div className="p-5 space-y-5">
+      <div className={"flex gap-20 items-center justify-bottom"}>
+        <h1>Companies</h1>
+        
+          <Input 
+            type="text"
+            value={globalFilter || ''}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Search..."
+            className="ml-auto"
+          />
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -133,9 +181,9 @@ export const Companies: FC = () => {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
@@ -172,6 +220,6 @@ export const Companies: FC = () => {
           </TableBody>
         </Table>
       </div>
-    </>
+    </div>
   );
 };
