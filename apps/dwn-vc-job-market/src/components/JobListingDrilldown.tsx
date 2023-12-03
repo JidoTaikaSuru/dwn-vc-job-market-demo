@@ -213,15 +213,6 @@ export const JobListingDrilldown: FC = () => {
     },
   );
 
-  const sendApplication = async () => {
-    if (applyMessage)
-      await web5Client.dwnCreateAndSendJApplicationReplyingToJob(
-        jobListing.company,
-        applyMessage,
-        jobListing.id,
-      );
-  };
-
   return (
     <div>
       <div className={"flex-col space-y-2"}>
