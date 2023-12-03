@@ -5,10 +5,15 @@
     * (ad0ll WIP) Presentation exchange render
 * Navbar
     * (roman) Add link to "Companies" page
+* (1h) Jobs listing page
 * Overall UI polish
-    * (TODO 1-2 hours) Adding toasts to show interactions as they happen
-    * Content shouldn't appear under nav bar when scrolling
-    * Fix layout of User Profile
+   
+   * Home page should be "Company listing" or better, "Jobs Listing"
+   * Move site directory to footer instead of appearing on a page
+   * Fill site directory with working links instead of placeholders
+   * (TODO 1-2 hours) Adding toasts to show interactions as they happen
+   * Content shouldn't appear under nav bar when scrolling
+   * Fix layout of User Profile
 * Important side tasks
     * (30m) Add branding to navbar
 * (4h) Video
