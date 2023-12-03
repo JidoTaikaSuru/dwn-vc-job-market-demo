@@ -16,47 +16,45 @@ import { DwnJobListingDrilldown } from "@/components/DwnJobListingDrilldown.tsx"
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/site-map",
     element: (
       <div className={"flex-col"}>
         <TypographyH2>Directory listing</TypographyH2>
         <ul>
           <li>
-            <Link to="/listings">/listings</Link>
+            <Link to="Companies (DWN)">/listings</Link>
           </li>
           <li>
-            <Link to="/listings/view?companyDid=&applicationRecordId=">
+            <Link to="Job Listing Drilldown (demo)">
               /listings/view?companyDid=&applicationRecordId=
             </Link>
           </li>
           <li>
-            <Link to="/listings/supabase">/listings/supabase</Link>
+            <Link to="Companies (Supabase)">/listings/supabase</Link>
           </li>
           <li>
-            <Link to="/listings/supabase/view/:supabaseListingId">
+            <Link to="Job Listing Drilldown (Supabase, demo)">
               /listings/supabase/view/:supabase_listing_id
             </Link>
           </li>
           <li>
-            <Link to="/listings/company/:companyDid">
+            <Link to="Company Drilldown (demo)">
               /listings/company/:companyDid
             </Link>
           </li>
           <li>
-            <Link to="/updateProfile">/updateProfile</Link>
+            <Link to="User Profile">/profile/:userDid</Link>
           </li>
           <li>
-            <Link to="/dwnMyJobs">/dwnMyJobs</Link>
-          </li>
-          <li>
-            <Link to="/profile/:userDid">/profile/:userDid</Link>
-          </li>
-          <li>
-            <Link to="/playground">/playground</Link>
+            <Link to="Troubleshooting/Admin">/playground</Link>
           </li>
         </ul>
       </div>
     ),
+  },
+  {
+    path: "/",
+    element: <Companies />,
   },
   {
     path: "/listings",
