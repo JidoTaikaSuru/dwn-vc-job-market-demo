@@ -26,6 +26,7 @@ export const web5ConnectSelector = selector({
     return { web5, myDid, protocols: protocols, web5Client: client };
   },
 });
+
 const getSupabaseUserSelector = selector({
   key: "getSupabaseUserSelector",
   get: async () => {

@@ -30,6 +30,7 @@ export const didCreate = async (dwnClient: DwnClient) => {
     // user_agent: user_agent,
     updated_client_side_time: new Date().toISOString(),
   };
+
   // if (ip_info_j && ip_info_j.city) {
   //   send_date["ip_info_jsonb"] = ip_info;
   // }

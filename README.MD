@@ -43,5 +43,5 @@ Ask anyone for access to the following:
 ### Local DWN cluster
 
 ```shell
-    docker-compose up -f local-dwn-cluster.docker-compose.yml
+    docker-compose -f local-dwn-cluster.docker-compose.yml up
 ```

@@ -541,10 +541,12 @@ export class DwnClient implements DwnClientFunctions {
           published: true,
         },
       });
-
+      if (status.code !== 202) {
+        throw new Error("failed to create job post: " + status.detail);
+      }
       if (record)
         console.log(
-          "🚀 ~ file:  ~  dwnCreateJobPost protocol: " +
+          "dwnCreateJobPost protocol: " +
             protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"]
               .protocol +
             " create SUCCESS  ",

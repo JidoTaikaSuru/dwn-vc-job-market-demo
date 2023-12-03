@@ -3,11 +3,9 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import React, { useEffect, useRef, useState } from "react";
 
-
-
 const initialCode = Array.from({ length: 6 }, () => "");
 
-const OTPCard: React.FC = () => {
+export const OTPCard: React.FC = () => {
   const [code, setCode] = useState(initialCode);
   console.log("code", code);
 
@@ -91,4 +89,3 @@ const OTPCard: React.FC = () => {
     </Card>
   );
 };
-export default OTPCard;

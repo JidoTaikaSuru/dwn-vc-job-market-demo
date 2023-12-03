@@ -23,10 +23,10 @@ export const getWeb5Connection = async () => {
     options.techPreview = {
       // See README.md for setup instructions
       dwnEndpoints: [
-        "http://localhost:3000/",
-        // "http://localhost:3001/",
-        // "http://localhost:3002/",
-        // "http://localhost:3003/",
+        // "http://localhost:3000/",
+        "http://localhost:3001/",
+        "http://localhost:3002/",
+        "http://localhost:3003/",
       ],
     };
   }
@@ -35,6 +35,7 @@ export const getWeb5Connection = async () => {
   for (const protocol of Object.values(protocols)) {
     await configureProtocol(web5Connection.web5, protocol);
   }
+  console.log("web5 connection established", web5Connection);
   return web5Connection;
 };
 
@@ -42,6 +43,5 @@ export const getWeb5Client = async () => {
   const { web5, did: myDid } = await getWeb5Connection();
   const { data } = await supabaseClient.auth.getUser();
   if (!data.user) throw new Error("No user");
-
   return new DwnClient({ web5, user: data.user, myDid });
 };

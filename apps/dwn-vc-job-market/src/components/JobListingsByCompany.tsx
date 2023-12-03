@@ -35,6 +35,13 @@ import {
 } from "@/lib/web5Recoil.ts";
 
 type RowData = any;
+
+const demoData = [
+  {
+    id: "demo",
+    title: "Demo Job",
+  },
+];
 export const JobListingsByCompany: FC = () => {
   const { companyDid } = useParams();
   const { web5Client } = useRecoilValue(web5ConnectSelector);
@@ -72,15 +79,16 @@ export const JobListingsByCompany: FC = () => {
   const { toast } = useToast();
   const [open, setOpen] = useState<boolean>(false);
   /* dummy data
-                           const company = {did : {companyDid}, name: "dummy company"};
-                           const listings = [{title: "Job #1", description: "Job #1 detailed description", id: "00000001"},
-                           {title: "Job #2", description: "Job #1 detailed description", id: "00000002"},
-                           ]
-                           */
+                             const company = {did : {companyDid}, name: "dummy company"};
+                             const listings = [{title: "Job #1", description: "Job #1 detailed description", id: "00000001"},
+                             {title: "Job #2", description: "Job #1 detailed description", id: "00000002"},
+                             ]
+                             */
 
   const table = useReactTable({
     columns,
-    data: listings,
+    // data: listings,
+    data: demoData,
     getCoreRowModel: getCoreRowModel(),
   });
 

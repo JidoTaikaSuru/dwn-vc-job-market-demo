@@ -6,7 +6,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { JobListingDrilldown } from "@/components/JobListingDrilldown.tsx";
 import { Companies } from "./components/Companies.tsx";
 import UpdateProfile from "./components/UpdateProfile";
-import { PostJob } from "./components/PostJob";
 import { JobListingsByCompany } from "@/components/JobListingsByCompany.tsx";
 import { DwnMyJobs } from "./components/DwnMyJobs";
 import { SupabaseJobListings } from "@/components/experiments/SupabaseJobListings.tsx";
@@ -38,10 +37,6 @@ const router = createBrowserRouter([
   {
     path: "/updateProfile",
     element: <UpdateProfile />,
-  },
-  {
-    path: "/postJob",
-    element: <PostJob />,
   },
   {
     path: "/dwnMyJobs",

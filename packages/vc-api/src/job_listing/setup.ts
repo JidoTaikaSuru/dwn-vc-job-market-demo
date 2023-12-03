@@ -147,7 +147,7 @@ const preCreateJobListings: JobListingPutBody[] = [
 // This is necessary because PEX doesn't do everything we want it to do yet
 export const precreateJobListings = async () => {
   for (const jobListing of preCreateJobListings) {
-    console.log("Upserting jobListing", jobListing);
+    console.log("Upserting jobListing", JSON.stringify(jobListing, null, 2));
     const { data, error } = await supabaseClient
       .from("job_listings")
       .upsert(jobListing);

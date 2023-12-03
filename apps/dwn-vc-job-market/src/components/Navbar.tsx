@@ -7,7 +7,8 @@ import { SessionContext } from "@/contexts/SessionContext";
 import { truncateAddress } from "@/lib/embeddedWalletLib";
 import { supabaseClient } from "@/lib/common.ts";
 
-export const APP_NAME = "Embedded Wallet Demo";
+export const APP_NAME = "DWN + VC Job Market";
+
 const Navbar: React.FC = () => {
   const { session, setSession, wallet } = useContext(SessionContext);
   const [startLogout, setStartLogout] = useState(false);
@@ -80,13 +81,16 @@ const Navbar: React.FC = () => {
         <div className="flex items-center gap-4">
           {strgPercent > 0 ? `Local DWN Storage ` + strgPercent + `%` : ""}
           {wallet && (
-            <Button
-              variant="outline"
-              className="tracking-wider text-base font-semibold flex gap-2"
-            >
-              {<Identicon string={wallet.address} size={24} />}
-              {truncateAddress(wallet.address)}
-            </Button>
+            // <a href={"/profile"} className={"text-black"}>
+            <a href={"/profile"} style={{ color: "#213547" }}>
+              <Button
+                variant="outline"
+                className="tracking-wider text-base font-semibold flex gap-2"
+              >
+                {<Identicon string={wallet.address} size={24} />}
+                {truncateAddress(wallet.address)}
+              </Button>
+            </a>
           )}
           {session && (
             <Button
