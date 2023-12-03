@@ -37,7 +37,13 @@ export const Companies: FC = () => {
       {
         header: "DID",
         accessorKey: "did",
-        cell: ({ getValue }) => getValue<string>().substring(0, 32),
+        cell: ({ row }) => {
+          return (
+            <Link to={`/profile/${row.original.fullDid}`}>
+              {row.original.did}
+            </Link>
+          );
+        },
       },
       {
         header: "Name",

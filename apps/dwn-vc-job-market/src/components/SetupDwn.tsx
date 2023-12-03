@@ -16,8 +16,12 @@ export const SetupDwn: FC = () => {
   const { web5Client } = web5Connection;
   const [lastOutput, setLastOutput] = useState<any>();
 
+  const [recordId, setRecordId] = useState<string>("");
+
   return (
     <div className={"flex flex-col space-y-2"}>
+      <h1>Lookup</h1>
+
       <h1>Setup Dwn</h1>
       <Button
         onClick={async () => {

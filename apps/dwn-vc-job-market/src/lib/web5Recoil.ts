@@ -177,12 +177,21 @@ export const dwnQueryOtherDwnForJsonDataSelector = selectorFamily({
     },
 });
 
-export const dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector = selector
-({
-  key: "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords",
-  get: async ({ get }) => {
-
+export const dwnQuerySelfByProtocolSelector = selectorFamily({
+  key: "dwnQuerySelfByProtocol",
+  get:
+    (props: { protocol: ProtocolDefinition }) =>
+    async ({ get }) => {
       const { web5Client } = get(web5ConnectSelector);
-      return await web5Client.dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
-    }
+      return await web5Client.dwnQuerySelfByProtocol(props.protocol);
+    },
 });
+
+// export const dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector =
+//     selector({
+//         key: "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords",
+//         get: async ({ get }) => {
+//             const { web5Client } = get(web5ConnectSelector);
+//             return await web5Client.dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
+//         },
+//     });

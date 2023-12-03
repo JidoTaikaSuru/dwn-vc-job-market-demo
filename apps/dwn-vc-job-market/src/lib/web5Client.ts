@@ -202,56 +202,6 @@ export class DwnClient implements DwnClientFunctions {
     }
   }
 
-  async dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords() {
-    try {
-      const { records } = await this.web5.dwn.records.query({
-        message: {
-          filter: {
-            dataFormat: "application/json",
-          },
-        },
-      });
-
-      if (records) {
-        //console.log("dwnQuerySelfForAnyRecordsWrittenByOthers ~ records:", records)
-        const outlist: Array<{
-          record: Record;
-          data: any;
-          id: string;
-        }> = [];
-        for (const record of records) {
-          const data = await record.data.json();
-          const list = { record, data, id: record.id };
-          if (data.author !== this.myDid) {
-            outlist.push(list);
-            console.log(
-              "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords() data.parentId=" +
-                data.parentId +
-                "  of data=" +
-                JSON.stringify(data) +
-                " also record:",
-              record,
-            );
-          }
-        }
-        console.log(
-          "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords ~ " +
-            outlist.length +
-            " records from OTHERS outlist:",
-          outlist,
-        );
-        return outlist;
-      }
-    } catch (e) {
-      console.log(
-        "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords ~ e:",
-        e,
-      );
-
-      return undefined;
-    }
-  }
-
   async dwnReadSelfReturnRecordAndData() {
     console.log(
       "dwnReadSelf ~ protocol:",
@@ -558,3 +508,53 @@ export class DwnClient implements DwnClientFunctions {
     }
   }
 }
+
+// async dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords() {
+//   try {
+//     const { records } = await this.web5.dwn.records.query({
+//       message: {
+//         filter: {
+//           dataFormat: "application/json",
+//         },
+//       },
+//     });
+//
+//     if (records) {
+//       //console.log("dwnQuerySelfForAnyRecordsWrittenByOthers ~ records:", records)
+//       const outlist: Array<{
+//         record: Record;
+//         data: any;
+//         id: string;
+//       }> = [];
+//       for (const record of records) {
+//         const data = await record.data.json();
+//         const list = { record, data, id: record.id };
+//         if (data.author !== this.myDid) {
+//           outlist.push(list);
+//           console.log(
+//               "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords() data.parentId=" +
+//               data.parentId +
+//               "  of data=" +
+//               JSON.stringify(data) +
+//               " also record:",
+//               record,
+//           );
+//         }
+//       }
+//       console.log(
+//           "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords ~ " +
+//           outlist.length +
+//           " records from OTHERS outlist:",
+//           outlist,
+//       );
+//       return outlist;
+//     }
+//   } catch (e) {
+//     console.log(
+//         "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords ~ e:",
+//         e,
+//     );
+//
+//     return undefined;
+//   }
+// }

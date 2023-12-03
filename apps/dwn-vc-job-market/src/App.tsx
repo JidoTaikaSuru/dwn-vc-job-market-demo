@@ -43,9 +43,6 @@ const router = createBrowserRouter([
             <Link to="/dwnMyJobs">/dwnMyJobs</Link>
           </li>
           <li>
-            <Link to="/profile">/profile</Link>
-          </li>
-          <li>
             <Link to="/profile/:userDid">/profile/:userDid</Link>
           </li>
           <li>
@@ -74,10 +71,6 @@ const router = createBrowserRouter([
   {
     path: "/updateProfile",
     element: <UpdateProfile />,
-  },
-  {
-    path: "/profile",
-    element: <UserProfile />,
   },
   {
     path: "/profile/:userDid",

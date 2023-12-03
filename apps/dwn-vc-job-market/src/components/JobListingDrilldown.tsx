@@ -1,5 +1,5 @@
 import type { Database } from "@/__generated__/supabase-types";
-import { FC, useContext, useState, useMemo } from "react";
+import { FC, useContext, useMemo, useState } from "react";
 import { credentialStore } from "@/lib/common";
 import {
   Table,
@@ -9,15 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   flexRender,
   getCoreRowModel,
-  useReactTable
+  useReactTable,
 } from "@tanstack/react-table";
-import type {
-  ColumnDef
-} from "@tanstack/react-table";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { SessionContext } from "@/contexts/SessionContext.tsx";
 import JSONPretty from "react-json-pretty";
 import {
@@ -47,11 +45,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { selectorFamily, useRecoilValue } from "recoil";
-
-import { web5ConnectSelector, dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector } from "@/lib/web5Recoil.ts";
 import { useToast } from "@/components/ui/use-toast.ts";
-import { Record } from "@web5/api";
-import { DwnListType } from "@/lib/utils";
+import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 
 type RowData = any;
 
@@ -71,23 +66,23 @@ const getJobListingFromSupabase = selectorFamily<
   key: "getJobListingFromSupabase",
   get:
     ({ jwt, jobListingId }) =>
-      async () => {
-        console.groupCollapsed("getJobListingFromSupabase");
-        console.log("getJobListingFromSupabase", jwt, jobListingId);
-        const listing = await credentialStore.getJobListing({
-          jwt,
-          jobListingId,
-        });
-        console.log("Fetched listing from supabase", listing);
-        if (!listing) {
-          console.log("no data found for id", jobListingId);
-          // setError("No data found for id " + jobListingId);
-          console.groupEnd();
-          return undefined;
-        }
+    async () => {
+      console.groupCollapsed("getJobListingFromSupabase");
+      console.log("getJobListingFromSupabase", jwt, jobListingId);
+      const listing = await credentialStore.getJobListing({
+        jwt,
+        jobListingId,
+      });
+      console.log("Fetched listing from supabase", listing);
+      if (!listing) {
+        console.log("no data found for id", jobListingId);
+        // setError("No data found for id " + jobListingId);
         console.groupEnd();
-        return listing;
-      },
+        return undefined;
+      }
+      console.groupEnd();
+      return listing;
+    },
 });
 
 export const JobListingDrilldown: FC = () => {
@@ -114,9 +109,12 @@ export const JobListingDrilldown: FC = () => {
     jobListing?.presentation_definition as IPresentationDefinition;
 
   const jobReplies = useRecoilValue<any>(
-    dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector
+    dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector,
   );
-  console.log("🚀 ~ file: JobListingDrilldown.tsx:118 ~ jobReplies:", jobReplies)
+  console.log(
+    "🚀 ~ file: JobListingDrilldown.tsx:118 ~ jobReplies:",
+    jobReplies,
+  );
 
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
@@ -234,6 +232,7 @@ export const JobListingDrilldown: FC = () => {
         break;
     }
   }
+
   const credentialCards = presentationDefinition.input_descriptors.map(
     (credential) => {
       //TODO implement this
@@ -308,7 +307,7 @@ export const JobListingDrilldown: FC = () => {
         )}
         {error && <div className={"text-red-500"}>{error}</div>}
 
-        <div >
+        <div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button>Apply</Button>
@@ -378,7 +377,7 @@ export const JobListingDrilldown: FC = () => {
 
         <h2> Candidates applied to the job</h2>
 
-        <div className="rounded-md border mb-5" >
+        <div className="rounded-md border mb-5">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -389,9 +388,9 @@ export const JobListingDrilldown: FC = () => {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                       </TableHead>
                     );
                   })}
