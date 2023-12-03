@@ -46,7 +46,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { selectorFamily, useRecoilValue } from "recoil";
 import { useToast } from "@/components/ui/use-toast.ts";
-import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
+import {
+  dwnQuerySelfByProtocolSelector,
+  web5ConnectSelector,
+} from "@/lib/web5Recoil.ts";
+import { protocols } from "@/lib/protocols.ts";
 
 type RowData = any;
 
@@ -108,14 +112,15 @@ export const JobListingDrilldown: FC = () => {
     // @ts-ignore
     jobListing?.presentation_definition as IPresentationDefinition;
 
-  const jobReplies = useRecoilValue<any>(
-    dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector,
+  const jobReplies = useRecoilValue(
+    dwnQuerySelfByProtocolSelector({
+      protocol: protocols["jobApplicationSimpleProtocol"],
+    }),
   );
   console.log(
     "🚀 ~ file: JobListingDrilldown.tsx:118 ~ jobReplies:",
     jobReplies,
   );
-
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
       {
@@ -140,7 +145,7 @@ export const JobListingDrilldown: FC = () => {
 
   const table = useReactTable({
     columns,
-    data: jobReplies,
+    data: jobReplies || [],
     getCoreRowModel: getCoreRowModel(),
   });
 
