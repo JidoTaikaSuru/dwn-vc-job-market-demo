@@ -42,7 +42,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TextArea } from "@/components/ui/text-area";
 import { Label } from "@/components/ui/label";
 import { selectorFamily, useRecoilValue } from "recoil";
@@ -71,23 +71,23 @@ const getJobListingFromSupabase = selectorFamily<
   key: "getJobListingFromSupabase",
   get:
     ({ jwt, jobListingId }) =>
-      async () => {
-        console.groupCollapsed("getJobListingFromSupabase");
-        console.log("getJobListingFromSupabase", jwt, jobListingId);
-        const listing = await credentialStore.getJobListing({
-          jwt,
-          jobListingId,
-        });
-        console.log("Fetched listing from supabase", listing);
-        if (!listing) {
-          console.log("no data found for id", jobListingId);
-          // setError("No data found for id " + jobListingId);
-          console.groupEnd();
-          return undefined;
-        }
+    async () => {
+      console.groupCollapsed("getJobListingFromSupabase");
+      console.log("getJobListingFromSupabase", jwt, jobListingId);
+      const listing = await credentialStore.getJobListing({
+        jwt,
+        jobListingId,
+      });
+      console.log("Fetched listing from supabase", listing);
+      if (!listing) {
+        console.log("no data found for id", jobListingId);
+        // setError("No data found for id " + jobListingId);
         console.groupEnd();
-        return listing;
-      },
+        return undefined;
+      }
+      console.groupEnd();
+      return listing;
+    },
 });
 
 export const JobListingDrilldown: FC = () => {
@@ -197,9 +197,7 @@ export const JobListingDrilldown: FC = () => {
         <TooltipTrigger className={"w-48 flex"} asChild>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button>
-                APPLY FOR THIS JOB
-              </Button>                
+              <Button>APPLY FOR THIS JOB</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
@@ -219,7 +217,7 @@ export const JobListingDrilldown: FC = () => {
                   <TextArea
                     required
                     className="col-span-3"
-                    onChange={(e : any) => setApplyMessage(e.target.value)}
+                    onChange={(e: any) => setApplyMessage(e.target.value)}
                   />
                 </div>
               </div>
@@ -336,7 +334,7 @@ export const JobListingDrilldown: FC = () => {
 
   return (
     <div>
-      <div className={"flex-col space-y-2"}>
+      <div className={"flex flex-col space-y-2"}>
         <h1>{jobListing.title}</h1>
         <div className="grid grid-cols-4 gap-2">
           <div className={"col-span-1"}>Company</div>
@@ -350,7 +348,7 @@ export const JobListingDrilldown: FC = () => {
         </div>
 
         <Tabs defaultValue="candidate" className="h-full w-full">
-          <TabsList >
+          <TabsList>
             <TabsTrigger value="candidate">
               <h2>View as CANDIDATE</h2>
             </TabsTrigger>
@@ -359,22 +357,31 @@ export const JobListingDrilldown: FC = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="candidate">
-            <div className={"flex-col space-y-2"}>
+            <div className={"space-y-2"}>
               <TypographyH3>Required Credentials</TypographyH3>
               <div className={"grid-cols-4 gap-3"}>{credentialCards}</div>
               {presentationExchangeRender}
-              <Button
-                variant={"secondary"}
-                onClick={() => setShowRawCredentialDetails(!showRawCredentialDetails)}
-              >
-                {showRawCredentialDetails ? "HIDE" : "SHOW"} RAW CREDENTIAL DETAILS
-              </Button>
+
+              <div>
+                <Button
+                  variant={"secondary"}
+                  onClick={() =>
+                    setShowRawCredentialDetails(!showRawCredentialDetails)
+                  }
+                >
+                  {showRawCredentialDetails ? "HIDE" : "SHOW"} RAW CREDENTIAL
+                  DETAILS
+                </Button>
+              </div>
 
               {showRawCredentialDetails && (
                 <>
                   <TypographyH4>Credentials</TypographyH4>
                   <div className={"bg-slate-200"}>
-                    <JSONPretty id="json-pretty2" data={credentials}></JSONPretty>
+                    <JSONPretty
+                      id="json-pretty2"
+                      data={credentials}
+                    ></JSONPretty>
                   </div>
                   <TypographyH4>Presenation definition</TypographyH4>
                   <div className={"bg-slate-100"}>
@@ -402,9 +409,9 @@ export const JobListingDrilldown: FC = () => {
                             {header.isPlaceholder
                               ? null
                               : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
                           </TableHead>
                         );
                       })}
@@ -443,7 +450,6 @@ export const JobListingDrilldown: FC = () => {
             </div>
           </TabsContent>
         </Tabs>
-
       </div>
     </div>
   );
