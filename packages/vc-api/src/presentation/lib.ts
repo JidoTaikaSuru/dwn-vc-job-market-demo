@@ -1,5 +1,6 @@
 import { IPresentationDefinition } from "@sphereon/pex";
-import {Database} from "../__generated__/supabase-types.js";
+import { Database } from "../__generated__/supabase-types.js";
+import { stripDidPrefix } from "../credentials/lib.js";
 
 export type PresentationDefinitionPlaceholder = {
   key: string;
@@ -34,26 +35,43 @@ export const loadPlaceholdersIntoPresentationDefinition = (
   return JSON.parse(presentationDefinitionString);
 };
 
-export const loadUserDataPlaceholdersIntoPresentationDefinition = (presentationDefinition: IPresentationDefinition, user: Database["public"]["Tables"]["users"]["Row"]) => {
-  return loadPlaceholdersIntoPresentationDefinition(
-      presentationDefinition,
-      [
-        {
-          key: "{{user_supabase_id}}",
-          value: user.id,
-          validate: (value) => {
-            //TODO regex check for uuid
-            return true;
-          },
-        },
-        {
-          key: "{{user_wallet_pubkey}}",
-          value: user.public_key || "",
-          validate: (value) => {
-            //TODO regex check for ethereum address
-            return true;
-          },
-        },
-      ],
-  );
-}
+export const loadUserDataPlaceholdersIntoPresentationDefinition = (
+  presentationDefinition: IPresentationDefinition,
+  user: Database["public"]["Tables"]["users"]["Row"],
+) => {
+  return loadPlaceholdersIntoPresentationDefinition(presentationDefinition, [
+    {
+      key: "{{user_supabase_id}}",
+      value: user.id,
+      validate: (value) => {
+        //TODO regex check for uuid
+        return true;
+      },
+    },
+    {
+      key: "{{user_wallet_pubkey}}",
+      value: user.public_key || "",
+      validate: (value) => {
+        //TODO regex check for ethereum address
+        return true;
+      },
+    },
+
+    {
+      key: "{{user_did_value}}",
+      value: stripDidPrefix(user.did || "") || "",
+      validate: (value) => {
+        //TODO regex check for ethereum address
+        return true;
+      },
+    },
+    {
+      key: "{{user_did}}",
+      value: user.did || "",
+      validate: (value) => {
+        //TODO regex check for ethereum address
+        return true;
+      },
+    },
+  ]);
+};

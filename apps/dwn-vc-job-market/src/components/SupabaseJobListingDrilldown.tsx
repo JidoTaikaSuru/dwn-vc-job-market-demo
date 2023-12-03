@@ -332,6 +332,7 @@ export const SupabaseJobListingDrilldown: FC = () => {
         <CredentialCard
           title={`Unknown VC ${credential.id}`}
           expirationDate={todayPlus3Months()}
+          issuanceDate={todayPlus3Months()}
           description={"Test description for the VC"}
           howToGet={"You can get it if you wish for it really hard"}
           userHasCredential={
@@ -373,8 +374,9 @@ export const SupabaseJobListingDrilldown: FC = () => {
               <TypographyH3>Required Credentials</TypographyH3>
               <div className={"grid-cols-4 gap-3"}>{credentialCards}</div>
               {presentationExchangeRender}
-
               <div>
+                <TypographyH3>Debug</TypographyH3>
+
                 <Button
                   variant={"secondary"}
                   onClick={() =>
@@ -385,7 +387,6 @@ export const SupabaseJobListingDrilldown: FC = () => {
                   DETAILS
                 </Button>
               </div>
-
               {showRawCredentialDetails && (
                 <>
                   <TypographyH4>Credentials</TypographyH4>

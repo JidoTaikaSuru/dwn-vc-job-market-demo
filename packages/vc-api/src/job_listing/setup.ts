@@ -46,17 +46,17 @@ const requireJti = {
   purpose: "We only accept credentials with a specific jti",
   filter: {
     type: "string",
-    const: "did:web:gotid.org:credential:has-account:{{user_supabase_id}}",
+    const: "did:web:gotid.org:credential:has-account:{{user_did_value}}",
     // pattern: "^did:web:gotid.org:credential:has-account:.*",
   },
 };
 
 const requireCredentialSubjectId = {
   path: ["$.vc.credentialSubject.id"],
-  purpose: "Holder must be did:eth:{{user_wallet_pubkey}}",
+  purpose: "Holder must be {{user_did}}",
   filter: {
     type: "string",
-    const: "did:eth:{{user_wallet_pubkey}}",
+    const: "{{user_did}}",
   },
 };
 
@@ -65,7 +65,7 @@ export const hasAccountPresentationDefinition: IPresentationDefinition = {
   input_descriptors: [
     {
       id: "user has a HasAccount VC issued by us",
-      name: "user has a HasAccount VC issued by us",
+      name: "HasAccount",
       purpose:
         "Please provide your HasAccount VC that we issued to you on account creation",
       constraints: {
@@ -84,10 +84,10 @@ export const hasVerifiedEmailPresentationDefinition: IPresentationDefinition = {
   id: "bd980aee-10ba-462c-8088-4afdda24ed97",
   input_descriptors: [
     {
-      id: "user has a HasAccount VC issued by us",
-      name: "user has a HasAccount VC issued by us",
+      id: "user has a VerifiedEmail VC issued by us",
+      name: "VerifiedEmail",
       purpose:
-        "Please provide your HasAccount VC that we issued to you on account creation",
+        "Please provide your VerifiedEmail VC that we issued to you on account creation. If you don't have one, try signing up for an account with us using OTP",
       constraints: {
         fields: [
           requireIssuer,
@@ -100,44 +100,80 @@ export const hasVerifiedEmailPresentationDefinition: IPresentationDefinition = {
   ],
 };
 
+export const hasPassedCaptchaPresentationDefinition: IPresentationDefinition = {
+  id: "6edbf323-b47c-43e6-be94-2210ad55fbd0",
+  input_descriptors: [
+    {
+      id: "user has a a PassedCaptcha VC issued by us",
+      name: "PassedCaptcha",
+      purpose:
+        "Please provide your PassedCapctha VC that we issued to you on account creation. If you don't have one, too bad, this is a demo VC that is meant to intentionally fail",
+      constraints: {
+        fields: [
+          requireIssuer,
+          requireType("PassedCaptcha"),
+          requireJti,
+          requireCredentialSubjectId,
+        ],
+      },
+    },
+  ],
+};
+
+//JDs here come from indeed.com
 const preCreateJobListings: JobListingPutBody[] = [
   {
     id: "8ae3ea55-53f2-4000-ae39-8328816eb748",
     title: "Software Engineer",
-    description: "We are looking for a software engineer",
+    description:
+      "A Software Engineer, or Software Development Engineer, is responsible for developing software programs or systems that align with user needs. Their duties include meeting with clients or business professionals to strategize ideas for beneficial software, coordinating with other IT professionals to design software and running tests to catch coding errors.",
     company: "Decentralinked",
     presentation_definition: loadPlaceholdersIntoPresentationDefinition(
       hasAccountPresentationDefinition,
       [issuerIdPlaceholder],
     ),
   },
-  {
-    id: "aaf168a8-1e16-41b3-8fa7-b7ee53e8aaea",
-    title: "Software Engineer",
-    description: "Engineer of software",
-    company: "Deknilartneced",
-    presentation_definition: loadPlaceholdersIntoPresentationDefinition(
-      hasAccountPresentationDefinition,
-      [issuerIdPlaceholder],
-    ),
-  },
-  {
-    id: "f453da48-1402-4a1c-8679-3f01ecc5849e",
-    title: "Senior Software Engineer",
-    description: "We are looking for a Sr software engineer",
-    company: "Deknilartneced",
-    presentation_definition: loadPlaceholdersIntoPresentationDefinition(
-      hasVerifiedEmailPresentationDefinition,
-      [issuerIdPlaceholder],
-    ),
-  },
+  // {
+  //   id: "aaf168a8-1e16-41b3-8fa7-b7ee53e8aaea",
+  //   title: "Software Engineer",
+  //   description:
+  //     "A Software Engineer, or Software Development Engineer, is responsible for developing software programs or systems that align with user needs. Their duties include meeting with clients or business professionals to strategize ideas for beneficial software, coordinating with other IT professionals to design software and running tests to catch coding errors.",
+  //   company: "Deknilartneced",
+  //   presentation_definition: loadPlaceholdersIntoPresentationDefinition(
+  //     hasAccountPresentationDefinition,
+  //     [issuerIdPlaceholder],
+  //   ),
+  // },
+  // {
+  //   id: "f453da48-1402-4a1c-8679-3f01ecc5849e",
+  //   title: "Senior Software Engineer",
+  //   description:
+  //     "A Senior Software Engineer is a professional responsible for directing software development projects, producing clean code, and leading a team of engineers. They possess extensive experience in software development, project management, and have in-depth knowledge of programming languages and databases.",
+  //   company: "Deknilartneced",
+  //   presentation_definition: loadPlaceholdersIntoPresentationDefinition(
+  //     hasVerifiedEmailPresentationDefinition,
+  //     [issuerIdPlaceholder],
+  //   ),
+  // },
   {
     id: "47d78076-4c3c-45e8-a54f-c76c3cf1472e",
     title: "Senior Software Engineer",
-    description: "We are looking for a Sr software engineer",
+    description:
+      "A Senior Software Engineer is a professional responsible for directing software development projects, producing clean code, and leading a team of engineers. They possess extensive experience in software development, project management, and have in-depth knowledge of programming languages and databases.",
     company: "Decentralinked",
     presentation_definition: loadPlaceholdersIntoPresentationDefinition(
       hasVerifiedEmailPresentationDefinition,
+      [issuerIdPlaceholder],
+    ),
+  },
+  {
+    id: "997d8528-d7c6-4ae3-b906-e59e9529c896",
+    title: "Staff Software Engineer",
+    description:
+      'Staff software engineers combine their technical proficiencies and leadership skills to find effective software solutions. People in this role typically have extensive experience, advanced computer skills, and knowledge of software development principles. Learning more about what a staff software engineer does and how you can prepare for this career path can help you determine whether the role interests you. In this article, we answer the question, "What is a staff software engineer?", list some of their duties and responsibilities, explain how to start your career in this field and explore some skills you can develop for success.',
+    company: "Decentralinked",
+    presentation_definition: loadPlaceholdersIntoPresentationDefinition(
+      hasPassedCaptchaPresentationDefinition,
       [issuerIdPlaceholder],
     ),
   },

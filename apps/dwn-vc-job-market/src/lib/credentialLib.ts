@@ -2,6 +2,7 @@ import { UniqueVerifiableCredential } from "@veramo/core";
 import { IVerifiableCredential } from "@sphereon/ssi-types";
 import { IPresentationDefinition, PEX } from "@sphereon/pex";
 import { Wallet } from "ethers";
+import { PresentationExchangeStatus } from "@/components/CredentialCard.tsx";
 
 const pex = new PEX();
 export const HAS_ACCOUNT_PRESENTATION_DEFINITION =
@@ -47,10 +48,13 @@ export const checkVcMatchAgainstPresentation = (
     { holderDIDs: [`did:ethr:${wallet?.address}`] },
   );
   console.log("matchingCredentials", matchingCredentials);
+  const pass = !(
+    matchingCredentials.errors && matchingCredentials.errors.length > 0
+  );
   return {
-    pass: !(
-      matchingCredentials.errors && matchingCredentials.errors.length > 0
-    ),
+    pass: pass
+      ? PresentationExchangeStatus.pass
+      : PresentationExchangeStatus.fail,
     matchingVcs: matchingCredentials,
   };
 };

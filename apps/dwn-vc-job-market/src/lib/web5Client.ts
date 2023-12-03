@@ -3,6 +3,7 @@ import { User } from "@supabase/supabase-js";
 import { DateSort, ProtocolDefinition } from "@tbd54566975/dwn-sdk-js";
 import { protocols } from "@/lib/protocols.ts";
 import { logIfDebug, transformMultipleRecordsToListType } from "@/lib/utils.ts";
+import { faker } from "@faker-js/faker";
 
 interface DwnClientFunctions {
   dwnCreateAndSendJApplicationReplyingToJob: (
@@ -464,15 +465,31 @@ export class DwnClient implements DwnClientFunctions {
       name,
     );
 
-    const profiledata = {
+    const industries = [
+      "Gaming",
+      "Aerospace",
+      "Agriculture",
+      "Automotive",
+      "Banking",
+      "Biotechnology",
+      "Cryptocurrency",
+      "Identity Services",
+      "Security",
+      "Social Media",
+    ];
+
+    const profileData = {
       "@type": "selfprofile",
       name: name,
       author: this.myDid,
+      country: faker.location.country(),
+      industry: industries[Math.floor(Math.random() * industries.length)],
     };
+    console.log("dwnCreateSelfProfileName ~ profileData:", profileData);
 
     try {
       const { record } = await this.web5.dwn.records.create({
-        data: profiledata,
+        data: profileData,
         message: {
           protocol: protocols["selfProfileProtocol"].protocol,
           protocolPath: "selfprofile",
@@ -543,6 +560,7 @@ export class DwnClient implements DwnClientFunctions {
       return record;
     } catch (e) {
       console.log("dwnCreateJobPost ~ e:", e);
+      throw new Error(`${e}`);
     }
   }
 }

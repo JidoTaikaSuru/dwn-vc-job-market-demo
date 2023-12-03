@@ -17,8 +17,11 @@ export const web5ConnectSelector = selector({
   get: async ({ get }) => {
     console.log("initializing web5 components");
     const { web5, did: myDid } = await getWeb5Connection();
+
     const { user } = get(getSupabaseUserSelector);
     if (!user) throw new Error("No user");
+    const userRec = get(getSupabaseUserTableRecordSelector);
+    if (!userRec) throw new Error("No user record");
     const client = new DwnClient({ web5, user, myDid });
     for (const protocol of Object.values(protocols)) {
       await configureProtocol(web5, protocol);
@@ -31,7 +34,14 @@ export const web5ConnectSelector = selector({
       did: myDid,
     });
 
-    return { web5, myDid, protocols: protocols, web5Client: client };
+    return {
+      web5,
+      myDid,
+      protocols: protocols,
+      web5Client: client,
+      user,
+      userRec,
+    };
   },
 });
 
@@ -39,6 +49,20 @@ const getSupabaseUserSelector = selector({
   key: "getSupabaseUserSelector",
   get: async () => {
     const { data } = await supabaseClient.auth.getUser();
+    return data;
+  },
+});
+
+const getSupabaseUserTableRecordSelector = selector({
+  key: "getSupabaseUserTableRecordSelector",
+  get: async ({ get }) => {
+    const { user } = get(getSupabaseUserSelector);
+    if (!user) return undefined;
+    const { data } = await supabaseClient
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .single();
     return data;
   },
 });
