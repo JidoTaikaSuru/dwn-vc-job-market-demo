@@ -24,6 +24,10 @@ import { useToast } from "@/components/ui/use-toast.ts";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useParams } from "react-router-dom";
 import { protocols } from "@/lib/protocols.ts";
+import {
+  CredentialToCredentialCard,
+  PresentationExchangeStatus,
+} from "@/components/CredentialCard.tsx";
 
 function truncateString(str: string, num: number): string {
   if (str.length <= num) {
@@ -165,10 +169,10 @@ export const UserProfile: FC = () => {
       <TypographyH3>Credentials</TypographyH3>
       <div className={"space-y-2"}>
         {credentials?.map((credential) => (
-          <div className={"flex items-center"}>
-            <JSONPretty data={credential} />
-            <Identicon string={credential.issuer} size={24} />
-          </div>
+          <CredentialToCredentialCard
+            credential={credential}
+            userHasCredential={PresentationExchangeStatus.profileView}
+          />
         ))}
       </div>
       <TypographyH3>Debug</TypographyH3>

@@ -31,7 +31,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
-import { CredentialCard } from "@/components/CredentialCard.tsx";
+import {
+  CredentialCard,
+  PresentationExchangeStatus,
+} from "@/components/CredentialCard.tsx";
 import { APP_NAME } from "@/components/Navbar.tsx";
 import { TypographyH3, TypographyH4 } from "@/components/Typography.tsx";
 import {
@@ -316,7 +319,11 @@ export const JobListingDrilldown: FC = () => {
             expirationDate={todayPlus3Months()}
             description={"Test description for the VC"}
             howToGet={"You can get it if you wish for it really hard"}
-            userHasCredential={pass}
+            userHasCredential={
+              pass
+                ? PresentationExchangeStatus.pass
+                : PresentationExchangeStatus.fail
+            }
           />
         );
       }
@@ -326,7 +333,11 @@ export const JobListingDrilldown: FC = () => {
           expirationDate={todayPlus3Months()}
           description={"Test description for the VC"}
           howToGet={"You can get it if you wish for it really hard"}
-          userHasCredential={pass}
+          userHasCredential={
+            pass
+              ? PresentationExchangeStatus.pass
+              : PresentationExchangeStatus.fail
+          }
         />
       );
     },

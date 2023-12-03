@@ -13,6 +13,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
+import { IVerifiableCredential } from "@sphereon/ssi-types";
+import { APP_NAME } from "@/components/Navbar.tsx";
 
 type CredentialCardProps = {
   // id: string;
@@ -20,8 +22,67 @@ type CredentialCardProps = {
   expirationDate: Date;
   description: string;
   howToGet: string;
-  userHasCredential: boolean;
+  userHasCredential: PresentationExchangeStatus;
   // credentials: IVerifiableCredential[];
+};
+
+const todayPlus3Months = () => {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 3);
+  return d;
+};
+
+export enum PresentationExchangeStatus {
+  pass = "PASS",
+  fail = "FAIL",
+  profileView = "PROFILE",
+}
+
+export const CredentialToCredentialCard: FC<{
+  credential: IVerifiableCredential;
+  userHasCredential: PresentationExchangeStatus;
+}> = ({ credential, userHasCredential }) => {
+  const hasAccountId = "user has a HasAccount VC issued by us";
+
+  console.debug("converting credential to credential card", credential);
+  if (
+    credential.id === hasAccountId ||
+    credential.id?.includes("has-account")
+  ) {
+    // const matchingVc = getMatchingVc(hasAccountId);
+    return (
+      <CredentialCard
+        title={`Has an account with ${APP_NAME}`}
+        expirationDate={todayPlus3Months()}
+        description={
+          "The user has an account with a us, a spam prevention authority"
+        }
+        howToGet={"You can get it if you wish for it really hard"}
+        userHasCredential={userHasCredential}
+      />
+    );
+  } else if (credential.id?.includes("has-verified-email")) {
+    return (
+      <CredentialCard
+        title={`Has a verified email`}
+        expirationDate={todayPlus3Months()}
+        description={
+          "The user has passed OTP authentication with us, a spam prevention authority"
+        }
+        howToGet={"Log into this application w/ OTP"}
+        userHasCredential={userHasCredential}
+      />
+    );
+  }
+  return (
+    <CredentialCard
+      title={`Unknown VC ${credential.id}`}
+      expirationDate={todayPlus3Months()}
+      description={"Test description for the VC"}
+      howToGet={"You can get it if you wish for it really hard"}
+      userHasCredential={userHasCredential}
+    />
+  );
 };
 
 export const CredentialCard: FC<CredentialCardProps> = ({
@@ -35,11 +96,17 @@ export const CredentialCard: FC<CredentialCardProps> = ({
   // Dedupe the credentials by finding the latest one tha was issued
   // Display the credential
 
+  let borderColor = "red";
+  if (userHasCredential === PresentationExchangeStatus.pass) {
+    borderColor = "green";
+  } else if (userHasCredential === PresentationExchangeStatus.profileView) {
+    borderColor = "blue";
+  }
   return (
     <Card
       className={"max-w-sm text-center border-2"}
       style={{
-        borderColor: userHasCredential ? "green" : "red",
+        borderColor,
       }}
     >
       <CardHeader>

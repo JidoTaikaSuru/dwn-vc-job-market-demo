@@ -60,7 +60,7 @@ export class SupabaseCredentialManager
     );
     console.log("requestIssueBasicCredentials", res);
     const res2 = await axios.post(
-      `${REST_API_URL}/credentials/issue/has-account`,
+      `${REST_API_URL}/credentials/issue/has-verified-email`,
       undefined,
       {
         headers: {

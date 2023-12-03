@@ -38,7 +38,7 @@ export const issueHasVerifiedEmailCredentialHandler = async (
   date.setMonth(date.getMonth() + 3);
   const verifiableCredential = await agent.createVerifiableCredential({
     credential: {
-      id: `did:web:gotid.org:credential:has-account:${stripDidPrefix(
+      id: `did:web:gotid.org:credential:has-verified-email:${stripDidPrefix(
         user.did,
       )}`,
       issuer: {
@@ -48,7 +48,9 @@ export const issueHasVerifiedEmailCredentialHandler = async (
       expirationDate: date,
       type: ["VerifiableCredential", "HasVerifiedEmail"],
       credentialSubject: {
-        id: `did:eth:${user.public_key}`, // This should be did:ethr:<the public key of the embedded wallet, or the id of the user from supabase>
+        id: user.did,
+        pubkey: `did:eth:${user.public_key}`, // This should be did:ethr:<the public key of the embedded wallet, or the id of the user from supabase>
+        supabaseId: user.id,
         verifiedEmail: true,
         emailAliased: emailAliased,
       },
