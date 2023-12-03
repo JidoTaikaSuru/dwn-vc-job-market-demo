@@ -1,7 +1,23 @@
 import type { Database } from "@/__generated__/supabase-types";
-import { FC, useContext, useState } from "react";
+import { FC, useContext, useState, useMemo } from "react";
 import { credentialStore } from "@/lib/common";
-import { useParams } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable
+} from "@tanstack/react-table";
+import type {
+  ColumnDef
+} from "@tanstack/react-table";
+import { Link, useParams } from "react-router-dom";
 import { SessionContext } from "@/contexts/SessionContext.tsx";
 import JSONPretty from "react-json-pretty";
 import {
@@ -32,8 +48,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { selectorFamily, useRecoilValue } from "recoil";
 
-import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
+import { web5ConnectSelector, dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector } from "@/lib/web5Recoil.ts";
 import { useToast } from "@/components/ui/use-toast.ts";
+import { Record } from "@web5/api";
+import { DwnListType } from "@/lib/utils";
+
+type RowData = any;
 
 const todayPlus3Months = () => {
   const d = new Date();
@@ -51,23 +71,23 @@ const getJobListingFromSupabase = selectorFamily<
   key: "getJobListingFromSupabase",
   get:
     ({ jwt, jobListingId }) =>
-    async () => {
-      console.groupCollapsed("getJobListingFromSupabase");
-      console.log("getJobListingFromSupabase", jwt, jobListingId);
-      const listing = await credentialStore.getJobListing({
-        jwt,
-        jobListingId,
-      });
-      console.log("Fetched listing from supabase", listing);
-      if (!listing) {
-        console.log("no data found for id", jobListingId);
-        // setError("No data found for id " + jobListingId);
+      async () => {
+        console.groupCollapsed("getJobListingFromSupabase");
+        console.log("getJobListingFromSupabase", jwt, jobListingId);
+        const listing = await credentialStore.getJobListing({
+          jwt,
+          jobListingId,
+        });
+        console.log("Fetched listing from supabase", listing);
+        if (!listing) {
+          console.log("no data found for id", jobListingId);
+          // setError("No data found for id " + jobListingId);
+          console.groupEnd();
+          return undefined;
+        }
         console.groupEnd();
-        return undefined;
-      }
-      console.groupEnd();
-      return listing;
-    },
+        return listing;
+      },
 });
 
 export const JobListingDrilldown: FC = () => {
@@ -92,6 +112,39 @@ export const JobListingDrilldown: FC = () => {
   const presentationDefinition =
     // @ts-ignore
     jobListing?.presentation_definition as IPresentationDefinition;
+
+  const jobReplies = useRecoilValue<any>(
+    dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector
+  );
+  console.log("🚀 ~ file: JobListingDrilldown.tsx:118 ~ jobReplies:", jobReplies)
+
+  const columns: ColumnDef<RowData>[] = useMemo(
+    () => [
+      {
+        header: "DID",
+        accessorKey: "did",
+      },
+      {
+        header: "Name",
+        accessorKey: "name",
+      },
+      {
+        header: "E-mail",
+        accessorKey: "email",
+      },
+      {
+        header: "Message",
+        accessorKey: "message",
+      },
+    ],
+    [],
+  );
+
+  const table = useReactTable({
+    columns,
+    data: jobReplies,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   if (!listingId) {
     console.log("no listing found for id", listingId);
@@ -255,71 +308,126 @@ export const JobListingDrilldown: FC = () => {
         )}
         {error && <div className={"text-red-500"}>{error}</div>}
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>Apply</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Apply for the Company</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  My Email
-                </Label>
-                <Label className="text-center">{session?.user?.email}</Label>
+        <div >
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>Apply</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Apply for the Company</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    My Email
+                  </Label>
+                  <Label className="text-center">{session?.user?.email}</Label>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="username" className="text-right">
+                    Message
+                  </Label>
+                  <Input
+                    required
+                    id="text"
+                    className="col-span-3"
+                    onChange={(e) => setApplyMessage(e.target.value)}
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="username" className="text-right">
-                  Message
-                </Label>
-                <Input
-                  required
-                  id="text"
-                  className="col-span-3"
-                  onChange={(e) => setApplyMessage(e.target.value)}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                onClick={() => {
-                  const sendApplication = async () => {
-                    if (!applyMessage) {
-                      toast({
-                        title: "Error",
-                        description: "Please enter a message",
-                      });
-                      return;
-                    }
-                    try {
-                      await web5Client.dwnCreateAndSendJApplicationReplyingToJob(
-                        jobListing.company,
-                        applyMessage,
-                        jobListing.id,
-                      );
-                      toast({
-                        title: `Success`,
-                        description: `Successfully applied to ${jobListing.company}!`,
-                      });
-                      setOpen(false);
-                    } catch (e) {
-                      toast({
-                        title: "Error",
-                        description: `Error sending application: ${e}`,
-                      });
-                      return;
-                    }
-                  };
-                  sendApplication();
-                }}
-              >
-                Submit Application
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button
+                  onClick={() => {
+                    const sendApplication = async () => {
+                      if (!applyMessage) {
+                        toast({
+                          title: "Error",
+                          description: "Please enter a message",
+                        });
+                        return;
+                      }
+                      try {
+                        await web5Client.dwnCreateAndSendJApplicationReplyingToJob(
+                          jobListing.company,
+                          applyMessage,
+                          jobListing.id,
+                        );
+                        toast({
+                          title: `Success`,
+                          description: `Successfully applied to ${jobListing.company}!`,
+                        });
+                        setOpen(false);
+                      } catch (e) {
+                        toast({
+                          title: "Error",
+                          description: `Error sending application: ${e}`,
+                        });
+                        return;
+                      }
+                    };
+                    sendApplication();
+                  }}
+                >
+                  Submit Application
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <h2> Candidates applied to the job</h2>
+
+        <div className="rounded-md border mb-5" >
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody className="mb-5">
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

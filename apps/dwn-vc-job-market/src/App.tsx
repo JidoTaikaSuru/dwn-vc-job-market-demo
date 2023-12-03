@@ -7,7 +7,6 @@ import { JobListingDrilldown } from "@/components/JobListingDrilldown.tsx";
 import { Companies } from "./components/Companies.tsx";
 import UpdateProfile from "./components/UpdateProfile";
 import { JobListingsByCompany } from "@/components/JobListingsByCompany.tsx";
-import { DwnMyJobs } from "./components/DwnMyJobs";
 import { SupabaseJobListings } from "@/components/experiments/SupabaseJobListings.tsx";
 import { Suspense } from "react";
 import { UserProfile } from "@/components/UserProfile.tsx";
@@ -37,10 +36,6 @@ const router = createBrowserRouter([
   {
     path: "/updateProfile",
     element: <UpdateProfile />,
-  },
-  {
-    path: "/dwnMyJobs",
-    element: <DwnMyJobs />,
   },
   {
     path: "/profile",

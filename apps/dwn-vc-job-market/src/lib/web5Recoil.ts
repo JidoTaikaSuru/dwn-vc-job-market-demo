@@ -161,3 +161,13 @@ export const dwnGetCompanyJobsSelector = selectorFamily<
       );
     },
 });
+
+export const dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecordsSelector = selector
+({
+  key: "dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords",  
+  get: async ({ get }) => {
+    
+      const { web5Client } = get(web5ConnectSelector);
+      return await web5Client.dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
+    }
+});
