@@ -93,7 +93,7 @@ const getJobListingFromSupabase = selectorFamily<
     },
 });
 
-export const JobListingDrilldown: FC = () => {
+export const SupabaseJobListingDrilldown: FC = () => {
   const { listingId } = useParams();
   const { session, wallet, credentials } = useContext(SessionContext);
   const { web5Client } = useRecoilValue(web5ConnectSelector);
@@ -122,7 +122,7 @@ export const JobListingDrilldown: FC = () => {
     }),
   );
   console.log(
-    "🚀 ~ file: JobListingDrilldown.tsx:118 ~ jobReplies:",
+    "🚀 ~ file: SupabaseJobListingDrilldown.tsx:118 ~ jobReplies:",
     jobReplies,
   );
   const columns: ColumnDef<RowData>[] = useMemo(
@@ -317,6 +317,7 @@ export const JobListingDrilldown: FC = () => {
           <CredentialCard
             title={`Has an account with ${APP_NAME}`}
             expirationDate={todayPlus3Months()}
+            issuanceDate={todayPlus3Months()}
             description={"Test description for the VC"}
             howToGet={"You can get it if you wish for it really hard"}
             userHasCredential={

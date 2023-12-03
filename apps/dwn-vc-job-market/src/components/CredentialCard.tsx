@@ -20,6 +20,7 @@ type CredentialCardProps = {
   // id: string;
   title: string;
   expirationDate: Date;
+  issuanceDate: Date;
   description: string;
   howToGet: string;
   userHasCredential: PresentationExchangeStatus;
@@ -53,7 +54,8 @@ export const CredentialToCredentialCard: FC<{
     return (
       <CredentialCard
         title={`Has an account with ${APP_NAME}`}
-        expirationDate={todayPlus3Months()}
+        expirationDate={new Date(credential.expirationDate || "")}
+        issuanceDate={new Date(credential.issuanceDate || "")}
         description={
           "The user has an account with a us, a spam prevention authority"
         }
@@ -66,6 +68,7 @@ export const CredentialToCredentialCard: FC<{
       <CredentialCard
         title={`Has a verified email`}
         expirationDate={todayPlus3Months()}
+        issuanceDate={new Date(credential.issuanceDate || "")}
         description={
           "The user has passed OTP authentication with us, a spam prevention authority"
         }
@@ -77,7 +80,8 @@ export const CredentialToCredentialCard: FC<{
   return (
     <CredentialCard
       title={`Unknown VC ${credential.id}`}
-      expirationDate={todayPlus3Months()}
+      expirationDate={new Date(credential.expirationDate || "")}
+      issuanceDate={new Date(credential.issuanceDate || "")}
       description={"Test description for the VC"}
       howToGet={"You can get it if you wish for it really hard"}
       userHasCredential={userHasCredential}
@@ -88,6 +92,7 @@ export const CredentialToCredentialCard: FC<{
 export const CredentialCard: FC<CredentialCardProps> = ({
   title,
   expirationDate,
+  issuanceDate,
   // description,
   howToGet,
   userHasCredential,
@@ -114,8 +119,11 @@ export const CredentialCard: FC<CredentialCardProps> = ({
       </CardHeader>
       {/*<CardContent style={{ border: "1px solid blue" }}>*/}
       <CardContent>
-        {userHasCredential ? (
-          <div>Expires: {expirationDate.toLocaleDateString()}</div>
+        {userHasCredential !== PresentationExchangeStatus.fail ? (
+          <>
+            <div>Issued: {issuanceDate.toLocaleString()}</div>
+            <div>Expires: {expirationDate.toLocaleString()}</div>
+          </>
         ) : (
           <Dialog>
             <DialogTrigger>

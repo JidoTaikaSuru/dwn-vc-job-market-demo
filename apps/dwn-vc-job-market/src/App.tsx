@@ -3,11 +3,11 @@ import { SessionContextProvider } from "@/contexts/SessionContext.tsx";
 import Navbar from "@/components/Navbar.tsx";
 import { RequireUserLoggedIn } from "@/components/RequireUserLoggedIn.tsx";
 import { createBrowserRouter, Link, RouterProvider } from "react-router-dom";
-import { JobListingDrilldown } from "@/components/JobListingDrilldown.tsx";
+import { SupabaseJobListingDrilldown } from "@/components/SupabaseJobListingDrilldown.tsx";
 import { Companies } from "./components/Companies.tsx";
 import UpdateProfile from "./components/UpdateProfile";
 import { CompanyJobListings } from "@/components/CompanyJobListings.tsx";
-import { SupabaseJobListings } from "@/components/experiments/SupabaseJobListings.tsx";
+import { SupabaseJobListings } from "@/components/SupabaseJobListings.tsx";
 import { Suspense } from "react";
 import { UserProfile } from "@/components/UserProfile.tsx";
 import { AdminPlayground } from "@/components/AdminPlayground.tsx";
@@ -72,7 +72,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/listings/supabase/view/:listingId",
-    element: <JobListingDrilldown />,
+    element: <SupabaseJobListingDrilldown />,
   },
 
   {
