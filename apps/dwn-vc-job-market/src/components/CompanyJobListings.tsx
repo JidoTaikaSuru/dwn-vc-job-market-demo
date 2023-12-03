@@ -29,7 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast.ts";
 import {
-  dwnQueryJobPostThatCanTakeApplicationsAsReplyProtocolSelector,
+  dwnQueryOtherDWNByProtocolSelector,
   dwnReadOtherDWNSelector,
   web5ConnectSelector,
 } from "@/lib/web5Recoil.ts";
@@ -38,16 +38,18 @@ type RowData = any;
 
 export const CompanyJobListings: FC = () => {
   const { companyDid } = useParams();
-  const { web5Client, protocols } = useRecoilValue(web5ConnectSelector);
+  const { web5Client, myDid, protocols } = useRecoilValue(web5ConnectSelector);
   const company = useRecoilValue(
     dwnReadOtherDWNSelector({
       did: companyDid || "",
       protocol: protocols["selfProfileProtocol"],
     }),
   );
+
   const listings = useRecoilValue(
-    dwnQueryJobPostThatCanTakeApplicationsAsReplyProtocolSelector({
+    dwnQueryOtherDWNByProtocolSelector({
       did: companyDid || "",
+      protocol: protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
     }),
   );
   const [jobTitle, setJobTitle] = useState("");
@@ -63,14 +65,14 @@ export const CompanyJobListings: FC = () => {
       },
       {
         header: "Title",
-        accessorKey: "title",
+        cell: ({ row }) => row.original.data.title || row.original.data.name, //TODO clean up legacy data
       },
       {
         header: "",
         accessorKey: "id",
         cell: (value) => (
           <Link
-            to={`/listings/view/${value.row.original.id}`}
+            to={`/listings/view?applicationRecordId=${value.row.original.id}&companyDid=${companyDid}`}
             className="text-blue-500"
           >
             Apply
@@ -195,8 +197,11 @@ export const CompanyJobListings: FC = () => {
                   }
                   try {
                     const jobdata = {
+                      companyName: company?.name,
+                      companyDid: myDid,
                       title: jobTitle,
                       description: jobDescription,
+                      created_at: new Date().toISOString(),
                       presentation_definition: `{"id":"bd980aee-10ba-462c-8088-4afdda24ed97","input_descriptors":[{"id":"user has a HasAccount VC issued by us","name":"user has a HasAccount VC issued by us","purpose":"Please provide your HasAccount VC that we issued to you on account creation","constraints":{"fields":[{"path":["$.vc.type"],"filter":{"type":"array","contains":{"type":"string","const":"HasVerifiedEmail"}},"purpose":"Holder must possess HasVerifiedEmail VC"}]}}]}`,
                     };
 

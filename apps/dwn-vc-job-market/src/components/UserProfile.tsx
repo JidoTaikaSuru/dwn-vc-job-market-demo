@@ -5,7 +5,7 @@ import {
   dwnQueryOtherDwnForJsonDataSelector,
   dwnQuerySelfByProtocolSelector,
   dwnReadOtherDWNSelector,
-  dwnReadSelfReturnRecordAndDataSelector,
+  dwnReadSelfProfileSelector,
   web5ConnectSelector,
 } from "@/lib/web5Recoil.ts";
 import {
@@ -42,7 +42,7 @@ export const UserProfile: FC = () => {
 
   const targetDid = userDid || myDid;
 
-  const profile = useRecoilValue(dwnReadSelfReturnRecordAndDataSelector);
+  const profile = useRecoilValue(dwnReadSelfProfileSelector);
 
   const profileJobApplicationSimpleProtocol = useRecoilValue(
     dwnQueryOtherDWNByProtocolSelector({
@@ -130,6 +130,7 @@ export const UserProfile: FC = () => {
   return (
     <div className={"space-y-2"}>
       <TypographyH1>Profile</TypographyH1>
+      <TypographyH4>TARGET: {targetDid}</TypographyH4>
       <Identicon string={targetDid} size={80} />
       {targetDid === myDid && (
         <div className={"flex items-center"}>

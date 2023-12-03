@@ -12,6 +12,7 @@ import { Suspense } from "react";
 import { UserProfile } from "@/components/UserProfile.tsx";
 import { SetupDwn } from "@/components/SetupDwn.tsx";
 import { TypographyH2 } from "@/components/Typography.tsx";
+import { DwnJobListingDrilldown } from "@/components/DwnJobListingDrilldown.tsx";
 
 const router = createBrowserRouter([
   {
@@ -24,11 +25,16 @@ const router = createBrowserRouter([
             <Link to="/listings">/listings</Link>
           </li>
           <li>
+            <Link to="/listings/view?companyDid=&applicationRecordId=">
+              /listings/view?companyDid=&applicationRecordId=
+            </Link>
+          </li>
+          <li>
             <Link to="/listings/supabase">/listings/supabase</Link>
           </li>
           <li>
-            <Link to="/listings/view/:supabaseListingId">
-              /listings/view/:supabase_listing_id
+            <Link to="/listings/supabase/view/:supabaseListingId">
+              /listings/supabase/view/:supabase_listing_id
             </Link>
           </li>
           <li>
@@ -57,13 +63,18 @@ const router = createBrowserRouter([
     element: <Companies />,
   },
   {
+    path: "/listings/view",
+    element: <DwnJobListingDrilldown />,
+  },
+  {
     path: "/listings/supabase",
     element: <SupabaseJobListings />,
   },
   {
-    path: "/listings/view/:listingId",
+    path: "/listings/supabase/view/:listingId",
     element: <JobListingDrilldown />,
   },
+
   {
     path: "/listings/company/:companyDid",
     element: <CompanyJobListings />,

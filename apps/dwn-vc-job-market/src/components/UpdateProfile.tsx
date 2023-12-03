@@ -7,7 +7,7 @@ import type { Record } from "@web5/api";
 import { useRecoilValue } from "recoil";
 
 import {
-  dwnReadSelfReturnRecordAndDataSelector,
+  dwnReadSelfProfileSelector,
   web5ConnectSelector,
 } from "@/lib/web5Recoil.ts";
 
@@ -19,7 +19,7 @@ const UpdateProfile: React.FC = () => {
   const [data, setData] = useState<any>();
   const { toast } = useToast();
   const { web5Client } = useRecoilValue(web5ConnectSelector);
-  const res = useRecoilValue(dwnReadSelfReturnRecordAndDataSelector);
+  const res = useRecoilValue(dwnReadSelfProfileSelector);
   const {
     register,
     handleSubmit,
@@ -28,7 +28,7 @@ const UpdateProfile: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const rec = await web5Client.dwnReadSelfReturnRecordAndData();
+      const rec = await web5Client.dwnReadSelfProfile();
       if (rec) {
         setMyRecord(rec.record);
         setData(rec.data);

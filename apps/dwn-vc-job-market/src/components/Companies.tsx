@@ -5,7 +5,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import type { FC } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
 import { supabaseClient } from "@/lib/common.ts";
 import { Link } from "react-router-dom";
 import { Database } from "@/__generated__/supabase-types.ts";
-import { useRecoilValue } from "recoil";
+import { selector, useRecoilValue } from "recoil";
 import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
@@ -27,11 +27,60 @@ type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   fullDid: string;
 };
 
+const fetchCompanies = selector({
+  key: "fetchCompanies",
+  get: async ({ get }) => {
+    const { web5Client, protocols } = get(web5ConnectSelector);
+    const did_db_table = "dwn_did_registry_2";
+    const { data, error } = await supabaseClient.from(did_db_table).select("*");
+
+    if (data) {
+      console.log("data123", data);
+      const waitGroup: Promise<RowData>[] = data.map(async (row) => {
+        //Getting most up to date job listing from each DWN  ( one might want to cache this in the search engine so not everyone has to ask all the DWN's all the time.  )
+        console.log("rowDIDROW", row);
+        console.log("Reading data from, ", row.did);
+        const iName = await web5Client.dwnReadOtherDWN(
+          row.did,
+          protocols["selfProfileProtocol"],
+        );
+        let dwnName = "";
+        if (iName && iName.name) {
+          dwnName = iName.name;
+        }
+        console.log("iname", iName, "rowDid", row.did);
+        console.debug("Finished fetching self profile, fetching jobs");
+        const iJobList = await web5Client.dwnQueryOtherDWNByProtocol(
+          row.did,
+          protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
+        );
+        console.debug("Finished fetching jobs", iJobList);
+        let jobPostCount = 0;
+        if (iJobList && iJobList.length && iJobList.length > 0) {
+          jobPostCount = iJobList.length;
+        }
+        console.log("rowDid", row.did);
+        return {
+          ...row,
+          jobpostcount: jobPostCount,
+          dwnname: dwnName,
+          did: row.did.substring(0, 32),
+          fullDid: row.did,
+        };
+      });
+      const resultingData = await Promise.all(waitGroup);
+      console.log("resultingData", resultingData);
+      return resultingData;
+    }
+    if (error) {
+      throw new Error(error.message);
+    }
+  },
+});
+
 //TODO Add pagination ... na   don't worry its a hackathon
 export const Companies: FC = () => {
-  const [listings, setListings] = useState<Array<RowData>>([]);
-  const { web5Client, protocols } = useRecoilValue(web5ConnectSelector);
-
+  const listings = useRecoilValue(fetchCompanies);
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
       {
@@ -67,61 +116,9 @@ export const Companies: FC = () => {
 
   const table = useReactTable({
     columns,
-    data: listings,
+    data: listings || [],
     getCoreRowModel: getCoreRowModel(),
   });
-  useEffect(() => {
-    const fetchData = async () => {
-      const did_db_table = "dwn_did_registry_2";
-
-      const { data, error } = await supabaseClient
-        .from(did_db_table)
-        .select("*");
-
-      if (data) {
-        const newdata: Array<RowData> = [];
-
-        for (let i = 0; i < data.length; i++) {
-          //Getting most up to date job listing from each DWN  ( one might want to cache this in the search engine so not everyone has to ask all the DWN's all the time.  )
-          const row = data[i];
-          console.log("Reading data from, ", row.did);
-          const iName = await web5Client.dwnReadOtherDWN(
-            row.did,
-            protocols["selfProfileProtocol"],
-          );
-          let dwnName = "";
-          if (iName && iName.name) {
-            dwnName = iName.name;
-          }
-          console.debug("Finished fetching self profile, fetching jobs");
-          const iJobList = await web5Client.dwnQueryOtherDWNByProtocol(
-            row.did,
-            protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
-          );
-          console.debug("Finished fetching jobs", iJobList);
-          let jobPostCount = 0;
-          if (iJobList && iJobList.length && iJobList.length > 0) {
-            jobPostCount = iJobList.length;
-          }
-          console.log("rowDid", row.did);
-          newdata.push({
-            ...row,
-            jobpostcount: jobPostCount,
-            dwnname: dwnName,
-            did: row.did.substring(0, 32),
-            fullDid: row.did,
-          });
-        }
-
-        setListings(newdata);
-      }
-      if (error) {
-        throw new Error(error.message);
-      }
-    };
-    fetchData();
-  }, []);
-
   return (
     <>
       <h1>Companies</h1>

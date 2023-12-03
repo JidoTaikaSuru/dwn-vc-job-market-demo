@@ -33,8 +33,10 @@ export const SetupDwn: FC = () => {
       <Button
         onClick={async () => {
           await web5Client.dwnCreateJobPostAgainstCompany({
-            name: "test job post",
+            company: "The Test Company",
+            title: "test job post",
             description: "test job post description",
+            created_at: new Date().toISOString(),
           });
         }}
       >
@@ -42,7 +44,7 @@ export const SetupDwn: FC = () => {
       </Button>
       <Button
         onClick={async () => {
-          const namdata = await web5Client.dwnReadSelfReturnRecordAndData();
+          const namdata = await web5Client.dwnReadSelfProfile();
           console.log(namdata);
         }}
       >
@@ -72,16 +74,6 @@ export const SetupDwn: FC = () => {
         }}
       >
         getAllDWNnames
-      </Button>
-
-      <Button
-        onClick={async () => {
-          const ll =
-            await web5Client.dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords();
-          console.log(ll);
-        }}
-      >
-        dwnQuerySelfForAnyRecordsWrittenByOthersAndAreInReplyToOneOfMyRecords
       </Button>
 
       <TypographyH2>Danger Zone</TypographyH2>

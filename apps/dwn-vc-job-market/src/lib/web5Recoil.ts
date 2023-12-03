@@ -113,18 +113,34 @@ export const dwnReadOtherDWNSelector = selectorFamily({
       return res;
     },
 });
-export const dwnReadSelfReturnRecordAndDataSelector = selector<
-  DwnListType | undefined
->({
-  key: "dwnReadSelfReturnRecordAndData",
+
+export const dwnReadOtherDWNByRecordIdSelector = selectorFamily({
+  key: "dwnReadOtherDWN",
+  get:
+    (props: { did: string; recordId: string; protocol: ProtocolDefinition }) =>
+    async ({ get }) => {
+      console.groupCollapsed("dwnReadOtherDWNByRecordIdSelector");
+      const { web5Client } = get(web5ConnectSelector);
+      const res = await web5Client.dwnReadOtherDWNByRecordId(
+        props.did,
+        props.recordId,
+        props.protocol,
+      );
+      console.groupEnd();
+      return res;
+    },
+});
+
+export const dwnReadSelfProfileSelector = selector({
+  key: "dwnReadSelfProfileSelector",
   get: async ({ get }) => {
     const { web5Client } = get(web5ConnectSelector);
-    return await web5Client.dwnReadSelfReturnRecordAndData();
+    return await web5Client.dwnReadSelfProfile();
   },
 });
 
 export const dwnQueryOtherDWNByProtocolSelector = selectorFamily({
-  key: "dwnReadSelfProfile",
+  key: "dwnQueryOtherDWNByProtocolSelector",
   get:
     (props: { did: string; protocol: ProtocolDefinition }) =>
     async ({ get }) => {
@@ -138,7 +154,7 @@ export const dwnQueryOtherDWNByProtocolSelector = selectorFamily({
 });
 
 export const dwnQuerySelfProfileOtherDwn = selectorFamily({
-  key: "dwnReadSelfProfile",
+  key: "dwnQuerySelfProfileOtherDwn",
   get:
     (props: { did: string }) =>
     async ({ get }) => {

@@ -2,11 +2,7 @@ import { Record, Web5 } from "@web5/api";
 import { User } from "@supabase/supabase-js";
 import { DateSort, ProtocolDefinition } from "@tbd54566975/dwn-sdk-js";
 import { protocols } from "@/lib/protocols.ts";
-import {
-  logIfDebug,
-  transformMultipleRecordsToListType,
-  transformRecordToListType,
-} from "@/lib/utils.ts";
+import { logIfDebug, transformMultipleRecordsToListType } from "@/lib/utils.ts";
 
 interface DwnClientFunctions {
   dwnCreateAndSendJApplicationReplyingToJob: (
@@ -84,7 +80,7 @@ export class DwnClient implements DwnClientFunctions {
       }
       return await transformMultipleRecordsToListType(records || []);
     } catch (e) {
-      console.error("dwnQueryOtherDWN ~ e:", e);
+      console.error(`dwnQueryOtherDWN ~ ${e}:`);
       console.groupEnd();
       return [];
     }
@@ -101,6 +97,7 @@ export class DwnClient implements DwnClientFunctions {
       // Reads the indicated record from Bob's DWNs
       console.log("protocol", protocol.protocol);
       const { record, status } = await this.web5.dwn.records.read({
+        from: fromDWN,
         message: {
           filter: {
             protocol: protocol.protocol,
@@ -119,6 +116,45 @@ export class DwnClient implements DwnClientFunctions {
       return data;
     } catch (e) {
       console.error("dwnReadOtherDWN ~ e:", e);
+      return undefined;
+    }
+  }
+
+  async dwnReadOtherDWNByRecordId(
+    fromDWN: string,
+    recordId: string,
+    protocol: ProtocolDefinition,
+  ): Promise<any | undefined> {
+    try {
+      console.debug(
+        "dwnReadOtherDWNByRecordId()  fromDWN " +
+          fromDWN +
+          " for " +
+          protocol.protocol,
+      );
+      // Reads the indicated record from Bob's DWNs
+      console.log("protocol", protocol.protocol);
+      const { record, status } = await this.web5.dwn.records.read({
+        from: fromDWN,
+        message: {
+          filter: {
+            recordId: recordId,
+            protocol: protocol.protocol,
+          },
+        },
+      });
+      logIfDebug(`dwnReadOtherDWNByRecordId ~ record: ${record}`);
+      if (status.code !== 200) {
+        console.error("dwnReadOtherDWN ~ status:", status);
+        console.groupEnd();
+        return undefined;
+      }
+      // assuming the record is a json payload
+      const data = await record.data.json();
+      logIfDebug(`dwnReadOtherDWN ~ data: ${data}`);
+      return data;
+    } catch (e) {
+      console.error("dwnReadOtherDWNByRecordId ~ e:", e);
       return undefined;
     }
   }
@@ -202,9 +238,9 @@ export class DwnClient implements DwnClientFunctions {
     }
   }
 
-  async dwnReadSelfReturnRecordAndData() {
+  async dwnReadSelfProfile() {
     console.log(
-      "dwnReadSelf ~ protocol:",
+      "dwnReadSelfProfile ~ protocol:",
       protocols["selfProfileProtocol"].protocol,
     );
     try {
@@ -215,12 +251,10 @@ export class DwnClient implements DwnClientFunctions {
           },
         },
       });
-      console.log("dwnReadSelf ~ record:", record);
-      console.log("dwnReadSelfReturnRecordAndData ~ status:", status);
-      if (!record) return undefined;
-      return await transformRecordToListType(record);
+      console.log("dwnReadSelfProfile ~ record:", record);
+      return await record.data.json();
     } catch (e) {
-      console.log("dwnReadSelf ~ e:", e);
+      console.log("dwnReadSelfProfile ~ e:", e);
 
       return undefined;
     }
@@ -297,6 +331,9 @@ export class DwnClient implements DwnClientFunctions {
     recipientDWN: string,
     message: string,
     job_record_id: string,
+    additionalData?: {
+      [key: string]: any;
+    },
   ) {
     //bookmark
     const mmmmessg = "JApplication message: " + message;
@@ -309,6 +346,7 @@ export class DwnClient implements DwnClientFunctions {
       email: this.user.email,
       parent_job: job_record_id,
       recipient: recipientDWN,
+      ...additionalData,
     };
 
     try {
