@@ -14,6 +14,7 @@ import {
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
 import Identicon from "react-identicons";
 import { GenericTable } from "@/components/GenericTable.tsx";
+import { truncateString } from "@/lib/common";
 
 type RowData = any;
 
@@ -41,7 +42,14 @@ export const CompanyJobListings: FC = () => {
     () => [
       {
         header: "Id",
-        accessorKey: "id",
+        cell: ({row}) => (
+          <Link
+            to={`/listings/view?applicationRecordId=${row.original.id}&companyDid=${companyDid}`}
+            className="text-blue-500"
+          >
+           {`${row.original.id}`.substring(0, 32) + "..." }
+          </Link>
+        ),
       },
       {
         header: "Title",

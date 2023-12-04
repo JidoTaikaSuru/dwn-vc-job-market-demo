@@ -45,3 +45,10 @@ export const getWeb5Client = async () => {
   if (!data.user) throw new Error("No user");
   return new DwnClient({ web5, user: data.user, myDid });
 };
+
+export function truncateString(str: string, num: number): string {
+  if (str.length <= num) {
+    return str;
+  }
+  return str.slice(0, num / 2) + "...." + str.slice(str.length - num / 2);
+}

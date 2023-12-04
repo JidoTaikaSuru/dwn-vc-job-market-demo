@@ -28,13 +28,7 @@ import {
   CredentialToCredentialCard,
   PresentationExchangeStatus,
 } from "@/components/CredentialCard.tsx";
-
-function truncateString(str: string, num: number): string {
-  if (str.length <= num) {
-    return str;
-  }
-  return str.slice(0, num / 2) + "...." + str.slice(str.length - num / 2);
-}
+import { truncateString } from "@/lib/common";
 
 export const UserProfile: FC = () => {
   const { userDid } = useParams();
