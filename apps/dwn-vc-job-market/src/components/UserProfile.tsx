@@ -9,6 +9,7 @@ import {
 } from "@/lib/web5Recoil.ts";
 import {
   TypographyH1,
+  TypographyH2,
   TypographyH3,
   TypographyH4,
 } from "@/components/Typography.tsx";
@@ -28,11 +29,13 @@ import {
   CredentialToCredentialCard,
   PresentationExchangeStatus,
 } from "@/components/CredentialCard.tsx";
+import { JobRepliesTable } from "@/components/JobRepliesTable.tsx";
+import { CompanyJobListingsTable } from "@/components/CompanyJobListings.tsx";
 import { truncateString } from "@/lib/common";
 
 export const UserProfile: FC = () => {
   const { userDid } = useParams();
-  const { myDid } = useRecoilValue(web5ConnectSelector);
+  const { myDid, user } = useRecoilValue(web5ConnectSelector);
   const profile = useRecoilValue(
     dwnReadOtherDWNSelector({
       did: userDid || "",
@@ -130,13 +133,13 @@ export const UserProfile: FC = () => {
 
   // TODO Find a less blinding theme for react-json-pretty
   return (
-    <div className={"space-y-2 flex flex-col items-center p-5"}>
+    <div className={"space-y-4 flex flex-col items-center p-5"}>
       <TypographyH1>{profile?.name}'s Profile</TypographyH1>
       <Identicon string={targetDid} size={80} />
       {targetDid === myDid && (
         <div className={"flex items-center gap-2"}>
           <p style={{ fontWeight: "Bold" }}>wallet address :</p>
-          <p>{truncateString(wallet?.address ?? "", 32)}</p>
+          <p>{wallet?.address}</p>
           <CopyToClipboard
             text={wallet?.address || ""}
             onCopy={() => {
@@ -161,7 +164,20 @@ export const UserProfile: FC = () => {
           <FaRegCopy />
         </CopyToClipboard>
       </div>
-
+      <div className={"flex items-center break-all gap-2"}>
+        <p style={{ fontWeight: "Bold" }}>web2 id :</p>
+        <p>{user.id}</p>
+        <CopyToClipboard
+          text={targetDid || ""}
+          onCopy={() => {
+            console.log("Copied web2 id to clipboard");
+            toast({ description: "Copied did to clipboard" });
+          }}
+        >
+          <FaRegCopy />
+        </CopyToClipboard>
+      </div>
+      <div style={{ marginTop: 16 }} />
       <TypographyH3>Credentials</TypographyH3>
       <div
         className={"grid grid-cols-3 gap-4"}
@@ -174,14 +190,20 @@ export const UserProfile: FC = () => {
           />
         ))}
       </div>
-      <TypographyH3>Debug</TypographyH3>
+      <div style={{ marginTop: 16 }} />
 
+      <TypographyH2>My job listings</TypographyH2>
+      <CompanyJobListingsTable companyDid={myDid} concealHeader={true} />
+      <TypographyH2>My applications</TypographyH2>
+      <JobRepliesTable companyDid={""} applicationRecordId={""} />
+      <div style={{ marginTop: 16 }} />
+      <TypographyH2>Debug</TypographyH2>
       <Button variant={"secondary"} onClick={() => setShowRaw(!showRaw)}>
         {showRaw ? "HIDE" : "SHOW"} RAW DATA
       </Button>
       {showRaw && (
         <div className="gap-5 p-5" style={{ width: "1000px" }}>
-          <TypographyH3>Query others results</TypographyH3>
+          <TypographyH2>Query others results</TypographyH2>
           <TypographyH4>Job Application Simple Protocol</TypographyH4>
           <JSONPretty data={profileJobApplicationSimpleProtocol} />
           <TypographyH4>CV Personal Storage Protocol</TypographyH4>

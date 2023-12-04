@@ -19,6 +19,13 @@ type RowData = any;
 
 export const CompanyJobListings: FC = () => {
   const { companyDid } = useParams();
+  if (!companyDid) return <>Accessed route without a DID</>;
+  return <CompanyJobListingsTable companyDid={companyDid} />;
+};
+export const CompanyJobListingsTable: FC<{
+  companyDid: string;
+  concealHeader?: boolean;
+}> = ({ companyDid, concealHeader = false }) => {
   const { web5Client, myDid, protocols } = useRecoilValue(web5ConnectSelector);
   const company = useRecoilValue(
     dwnReadOtherDWNSelector({
@@ -66,7 +73,7 @@ export const CompanyJobListings: FC = () => {
             to={`/listings/view?applicationRecordId=${value.row.original.id}&companyDid=${companyDid}`}
             className="text-blue-500"
           >
-           <Button variant="outline">Apply</Button> 
+            <Button variant="outline">Apply</Button>
           </Link>
         ),
       },
@@ -87,10 +94,12 @@ export const CompanyJobListings: FC = () => {
 
   return (
     <>
-      <div className="flex mt-5 mb-5 gap-5 ">
-        <Identicon className="mt-2" string={company?.did} size={40} />
-        <h1>Job Listings for {company?.name}</h1>
-      </div>
+      {!concealHeader && (
+        <div className="flex mt-5 mb-5 gap-5 ">
+          <Identicon className="mt-2" string={company?.did} size={40} />
+          <h1>Job Listings for {company?.name}</h1>
+        </div>
+      )}
       <div className="rounded-md border">
         <GenericTable table={table} columns={columns} />
       </div>
