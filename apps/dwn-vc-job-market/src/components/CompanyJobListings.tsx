@@ -35,6 +35,9 @@ import {
 } from "@/lib/web5Recoil.ts";
 import { faker } from "@faker-js/faker";
 import { getRandomPresentationDefinition } from "@/lib/presentationExchangeLib.ts";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore https://github.com/doke-v/react-identicons/issues/40
+import Identicon from "react-identicons";
 
 type RowData = any;
 
@@ -182,7 +185,7 @@ export const CompanyJobListings: FC = () => {
             to={`/listings/view?applicationRecordId=${value.row.original.id}&companyDid=${companyDid}`}
             className="text-blue-500"
           >
-            Apply
+           <Button variant="outline">Apply</Button> 
           </Link>
         ),
       },
@@ -200,7 +203,10 @@ export const CompanyJobListings: FC = () => {
 
   return (
     <>
-      <h1 className={"mb-5"}>Job Listings for {company?.name}</h1>
+      <div className="flex mt-5 mb-5 gap-5 ">
+        <Identicon className="mt-2" string={company?.did} size={40} />
+        <h1>Job Listings for {company?.name}</h1>
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -212,9 +218,9 @@ export const CompanyJobListings: FC = () => {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}

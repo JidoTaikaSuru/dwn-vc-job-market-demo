@@ -22,31 +22,31 @@ const router = createBrowserRouter([
         <TypographyH2>Directory listing</TypographyH2>
         <ul>
           <li>
-            <Link to="Companies (DWN)">/listings</Link>
+            <Link to="/listings">Companies (DWN)</Link>
           </li>
           <li>
-            <Link to="Job Listing Drilldown (demo)">
-              /listings/view?companyDid=&applicationRecordId=
+            <Link to="/listings/view?companyDid=&applicationRecordId=">
+              Job Listing Drilldown (demo)
             </Link>
           </li>
           <li>
-            <Link to="Companies (Supabase)">/listings/supabase</Link>
+            <Link to="/listings/supabase">Companies (Supabase)</Link>
           </li>
           <li>
-            <Link to="Job Listing Drilldown (Supabase, demo)">
-              /listings/supabase/view/:supabase_listing_id
+            <Link to="/listings/supabase/view/:supabase_listing_id">
+            Job Listing Drilldown (Supabase, demo)
             </Link>
           </li>
           <li>
-            <Link to="Company Drilldown (demo)">
-              /listings/company/:companyDid
+            <Link to="/listings/company/:companyDid">
+            Company Drilldown (demo)
             </Link>
           </li>
           <li>
-            <Link to="User Profile">/profile/:userDid</Link>
+            <Link to="/profile/:userDid">User Profile</Link>
           </li>
           <li>
-            <Link to="Troubleshooting/Admin">/playground</Link>
+            <Link to="/playground">Troubleshooting/Admin</Link>
           </li>
         </ul>
       </div>
