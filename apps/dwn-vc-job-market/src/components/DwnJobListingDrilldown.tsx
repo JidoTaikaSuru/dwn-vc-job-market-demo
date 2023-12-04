@@ -59,7 +59,7 @@ const ApplyDialog: FC<{
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Apply</Button>
+        <Button>APPLY</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -353,7 +353,7 @@ export const DwnJobListingDrilldown: FC = () => {
               </Button>
 
               {showRawCredentialDetails && (
-                <>
+                <div className="gap-5 p-5" style={{ width: "1000px" }}>
                   <TypographyH4>Credentials (from Veramo)</TypographyH4>
                   <div className={"bg-slate-200"}>
                     <JSONPretty
@@ -389,7 +389,7 @@ export const DwnJobListingDrilldown: FC = () => {
                       data={jobListing.presentation_definition}
                     ></JSONPretty>
                   </div>
-                </>
+                </div>
               )}
               {error && <div className={"text-red-500"}>{error}</div>}
             </div>
@@ -399,7 +399,7 @@ export const DwnJobListingDrilldown: FC = () => {
               <TypographyH3>Received applications</TypographyH3>
 
               <div className="rounded-md border mb-5">
-                <GenericTable table={table} columns={columns} />
+              <GenericTable table={table} columns={columns} />
               </div>
             </div>
           </TabsContent>

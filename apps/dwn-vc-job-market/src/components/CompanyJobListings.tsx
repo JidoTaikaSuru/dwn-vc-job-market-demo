@@ -6,23 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Link, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast.ts";
-import {
   dwnQueryOtherDWNByProtocolSelector,
   dwnReadOtherDWNSelector,
   web5ConnectSelector,
 } from "@/lib/web5Recoil.ts";
-import { faker } from "@faker-js/faker";
-import { getRandomPresentationDefinition } from "@/lib/presentationExchangeLib.ts";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
 import Identicon from "react-identicons";
@@ -30,112 +17,6 @@ import { GenericTable } from "@/components/GenericTable.tsx";
 
 type RowData = any;
 
-const CreateNewJobPostDialog: FC<{
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  company: any;
-}> = ({ open, setOpen, company }) => {
-  const { web5Client, myDid } = useRecoilValue(web5ConnectSelector);
-  const [jobTitle, setJobTitle] = useState("");
-  const [jobDescription, setJobDescription] = useState("");
-  const { toast } = useToast();
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className={"mt-5"}>Create New Listing</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create Job Listing</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right">
-              Title
-            </Label>
-            <Input
-              required
-              onChange={(e) => setJobTitle(e.target.value)}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">
-              Description
-            </Label>
-            <Input
-              required
-              onChange={(e) => setJobDescription(e.target.value)}
-              className="col-span-3"
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button
-            onClick={() => {
-              const sendApplication = async () => {
-                if (!jobTitle) {
-                  toast({
-                    title: "Error",
-                    description: "Please enter a Job Title",
-                  });
-                  return;
-                }
-
-                if (!jobDescription) {
-                  toast({
-                    title: "Error",
-                    description: "Please enter a Job Description",
-                  });
-                  return;
-                }
-                try {
-                  const jobdata = {
-                    companyName: company?.name,
-                    companyDid: myDid,
-                    title: jobTitle,
-                    description: jobDescription,
-                    location: faker.location.county(),
-                    remote: faker.datatype.boolean(),
-                    created_at: new Date().toISOString(),
-                    presentation_definition: getRandomPresentationDefinition(), //Random known presentation definition
-                  };
-
-                  //TODO add status return to see if request successful
-                  try {
-                    console.log("creating job post", jobdata);
-                    await web5Client.dwnCreateJobPostAgainstCompany(jobdata);
-                  } catch (e) {
-                    toast({
-                      title: "Error",
-                      description: `Error creating Job Listing: ${e}`,
-                    });
-                    return;
-                  }
-                  toast({
-                    title: `Success`,
-                    description: `Successfully created new Job Listing : ${jobTitle}!`,
-                  });
-                  setOpen(false);
-                } catch (e) {
-                  toast({
-                    title: "Error",
-                    description: `Error creating Job Listing: ${e}`,
-                  });
-                  return;
-                }
-              };
-              sendApplication();
-            }}
-          >
-            Create New Listing
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
 export const CompanyJobListings: FC = () => {
   const { companyDid } = useParams();
   const { web5Client, myDid, protocols } = useRecoilValue(web5ConnectSelector);
@@ -178,7 +59,7 @@ export const CompanyJobListings: FC = () => {
             to={`/listings/view?applicationRecordId=${value.row.original.id}&companyDid=${companyDid}`}
             className="text-blue-500"
           >
-            <Button variant="outline">Apply</Button>
+           <Button variant="outline">Apply</Button> 
           </Link>
         ),
       },
@@ -206,7 +87,6 @@ export const CompanyJobListings: FC = () => {
       <div className="rounded-md border">
         <GenericTable table={table} columns={columns} />
       </div>
-      <CreateNewJobPostDialog open={open} setOpen={setOpen} company={company} />
     </>
   );
 };

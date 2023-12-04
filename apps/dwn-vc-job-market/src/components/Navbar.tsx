@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import React, { useContext, useEffect, useState } from "react";
+import React, { FC, useContext, useEffect, useState } from "react";
 import { SessionContext } from "@/contexts/SessionContext";
 import { supabaseClient } from "@/lib/common.ts";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
@@ -10,21 +10,143 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useRecoilValue } from "recoil";
-import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
+import { dwnReadSelfProfileSelector, web5ConnectSelector } from "@/lib/web5Recoil.ts";
 import { truncateAddress } from "@/lib/embeddedWalletLib.ts";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
 import Identicon from "react-identicons";
 
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast.ts";
+import { faker } from "@faker-js/faker";
+import { getRandomPresentationDefinition } from "@/lib/presentationExchangeLib.ts";
+
 export const APP_NAME = "DWN + VC Job Market";
+
+const CreateNewJobPostDialog: FC<{
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  company: any;
+}> = ({ open, setOpen, company }) => {
+  const { web5Client, myDid, user } = useRecoilValue(web5ConnectSelector);
+  const [jobTitle, setJobTitle] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const { toast } = useToast();
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline"
+          className="tracking-wider font-semibold flex gap-2">Create New Listing</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Create Job Listing</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="title" className="text-right">
+              Title
+            </Label>
+            <Input
+              required
+              onChange={(e) => setJobTitle(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="description" className="text-right">
+              Description
+            </Label>
+            <Input
+              required
+              onChange={(e) => setJobDescription(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            onClick={() => {
+              const sendApplication = async () => {
+                if (!jobTitle) {
+                  toast({
+                    title: "Error",
+                    description: "Please enter a Job Title",
+                  });
+                  return;
+                }
+
+                if (!jobDescription) {
+                  toast({
+                    title: "Error",
+                    description: "Please enter a Job Description",
+                  });
+                  return;
+                }
+                try {
+                  const jobdata = {
+                    companyName: company.name,
+                    companyDid: myDid,
+                    title: jobTitle,
+                    description: jobDescription,
+                    location: faker.location.county(),
+                    remote: faker.datatype.boolean(),
+                    created_at: new Date().toISOString(),
+                    presentation_definition: getRandomPresentationDefinition(), //Random known presentation definition
+                  };
+
+                  //TODO add status return to see if request successful
+                  try {
+                    console.log("creating job post", jobdata);
+                    await web5Client.dwnCreateJobPostAgainstCompany(jobdata);
+                  } catch (e) {
+                    toast({
+                      title: "Error",
+                      description: `Error creating Job Listing: ${e}`,
+                    });
+                    return;
+                  }
+                  toast({
+                    title: `Success`,
+                    description: `Successfully created new Job Listing : ${jobTitle}!`,
+                  });
+                  setOpen(false);
+                } catch (e) {
+                  toast({
+                    title: "Error",
+                    description: `Error creating Job Listing: ${e}`,
+                  });
+                  return;
+                }
+              };
+              sendApplication();
+            }}
+          >
+            Create New Listing
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const Navbar: React.FC = () => {
   const { myDid } = useRecoilValue(web5ConnectSelector);
   const { session, setSession, wallet } = useContext(SessionContext);
   const [startLogout, setStartLogout] = useState(false);
   const [strgPercent, setStrgPercent] = useState(0);
-
+  const company = useRecoilValue(dwnReadSelfProfileSelector);
   const storage_capacity = 10485758; //10MB is the known defualt limit for Chrome and firefox, safari mobile in some cases will give only 5MB
   let data_used = 0;
   let last_usage = 0;
@@ -85,6 +207,8 @@ const Navbar: React.FC = () => {
     logout();
   }, [startLogout]);
 
+  const [open, setOpen] = useState<boolean>(false);
+
   return (
     <nav className="sticky top-0 z-50 bg-fuchsia-200/50">
       <div className="flex w-screen items-center justify-between p-4">
@@ -113,6 +237,7 @@ const Navbar: React.FC = () => {
           ) : (
             ""
           )}
+          <CreateNewJobPostDialog open={open} setOpen={setOpen} company={company} />
           {wallet && (
             <a href={`/profile/${myDid}`} style={{ color: "#213547" }}>
               <Button
