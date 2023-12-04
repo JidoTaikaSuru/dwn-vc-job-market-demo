@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast.ts";
 import { faker } from "@faker-js/faker";
 import { getRandomPresentationDefinition } from "@/lib/presentationExchangeLib.ts";
+import { TextArea } from "./ui/text-area";
 
 export const APP_NAME = "DWN + VC Job Market";
 
@@ -64,14 +65,14 @@ const CreateNewJobPostDialog: FC<{
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid grid-cols-4 items-top gap-4">
             <Label htmlFor="description" className="text-right">
               Description
             </Label>
-            <Input
+            <TextArea
               required
-              onChange={(e) => setJobDescription(e.target.value)}
               className="col-span-3"
+              onChange={(e: any) => setJobDescription(e.target.value)}
             />
           </div>
         </div>

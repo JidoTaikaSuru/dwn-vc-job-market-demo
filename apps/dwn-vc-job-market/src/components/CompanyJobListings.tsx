@@ -14,7 +14,6 @@ import {
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
 import Identicon from "react-identicons";
 import { GenericTable } from "@/components/GenericTable.tsx";
-import { truncateString } from "@/lib/common";
 
 type RowData = any;
 
