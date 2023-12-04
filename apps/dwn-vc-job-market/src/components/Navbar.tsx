@@ -36,7 +36,7 @@ import { faker } from "@faker-js/faker";
 import { getRandomPresentationDefinition } from "@/lib/presentationExchangeLib.ts";
 import { TextArea } from "@/components/ui/text-area.tsx";
 
-export const APP_NAME = "DWN + VC Job Market";
+export const APP_NAME = "Decentralinked";
 
 const CreateNewJobPostDialog: FC<{
   open: boolean;
@@ -249,11 +249,13 @@ const Navbar: React.FC = () => {
           ) : (
             ""
           )}
-          <CreateNewJobPostDialog
-            open={open}
-            setOpen={setOpen}
-            company={company}
-          />
+          {company && (
+            <CreateNewJobPostDialog
+              open={open}
+              setOpen={setOpen}
+              company={company}
+            />
+          )}
           {wallet && (
             <a href={`/profile/${myDid}`} style={{ color: "#213547" }}>
               <Button

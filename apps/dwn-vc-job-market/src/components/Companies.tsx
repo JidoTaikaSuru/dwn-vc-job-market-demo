@@ -105,6 +105,13 @@ export const Companies: FC = () => {
       {
         header: "Name",
         accessorKey: "dwnname",
+        cell: ({ row }) => {
+          return (
+            <Link to={`/profile/${row.original.fullDid}`}>
+              {row.original.dwnname}
+            </Link>
+          );
+        },
       },
       {
         header: "Location",

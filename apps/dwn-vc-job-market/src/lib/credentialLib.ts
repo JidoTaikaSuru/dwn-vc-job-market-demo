@@ -9,6 +9,8 @@ export const HAS_ACCOUNT_PRESENTATION_DEFINITION =
   "2aec8c4c-e071-4bda-8a76-41ab27632afa";
 export const HAS_VERIFIED_EMAIL_PRESENTATION_DEFINITION =
   "bd980aee-10ba-462c-8088-4afdda24ed97";
+export const HAS_CAPTCHA_PRESENTATION_DEFINITION =
+  "6edbf323-b47c-43e6-be94-2210ad55fbd0";
 
 export const convertVeramoVcToPexFormat = (
   credentials: UniqueVerifiableCredential[],

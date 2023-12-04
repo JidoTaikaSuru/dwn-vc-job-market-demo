@@ -17,11 +17,15 @@ import { loadUserDataPlaceholdersIntoPresentationDefinition } from "@/lib/presen
 import {
   checkVcMatchAgainstPresentation,
   HAS_ACCOUNT_PRESENTATION_DEFINITION,
+  HAS_CAPTCHA_PRESENTATION_DEFINITION,
   HAS_VERIFIED_EMAIL_PRESENTATION_DEFINITION,
 } from "@/lib/credentialLib.ts";
 import { credentialStore } from "@/lib/common.ts";
 import { APP_NAME } from "@/components/Navbar.tsx";
-import { CredentialCard } from "@/components/CredentialCard.tsx";
+import {
+  CredentialCard,
+  PresentationExchangeStatus,
+} from "@/components/CredentialCard.tsx";
 import {
   Dialog,
   DialogContent,
@@ -191,11 +195,15 @@ export const DwnJobListingDrilldown: FC = () => {
   switch (presentationDefinition.id) {
     case HAS_ACCOUNT_PRESENTATION_DEFINITION:
       tooltipContent =
-        "You must have an account with us to apply and are qualified to apply for this position! Click to apply!";
+        "You have an account with us to apply and are qualified to apply for this position! Click to apply!";
       break;
     case HAS_VERIFIED_EMAIL_PRESENTATION_DEFINITION:
       tooltipContent =
-        "You must have a verified email with us and are qualified to apply for this position! Click to apply!";
+        "You have a verified email with us and are qualified to apply for this position! Click to apply!";
+      break;
+    case HAS_CAPTCHA_PRESENTATION_DEFINITION:
+      tooltipContent =
+        "You have passed a Captcha with us and are qualified to apply for this position! Click to apply!";
       break;
     default:
       tooltipContent =
@@ -211,7 +219,7 @@ export const DwnJobListingDrilldown: FC = () => {
       <ApplyDialog jobListing={jobListing} setOpen={setOpen} open={open} />
     </div>
   );
-  if (!pass) {
+  if (pass !== PresentationExchangeStatus.pass) {
     console.log("You do not have the required credentials.");
     switch (presentationDefinition.id) {
       case HAS_ACCOUNT_PRESENTATION_DEFINITION:
@@ -239,6 +247,14 @@ export const DwnJobListingDrilldown: FC = () => {
           </div>
         );
         break;
+      case HAS_CAPTCHA_PRESENTATION_DEFINITION:
+        presentationExchangeRender = (
+          <div>
+            You must have passed an optional Captcha challenge to apply for this
+            position!
+          </div>
+        );
+        break;
       default:
         presentationExchangeRender = (
           <div>You failed on an unknown presentation definition</div>
@@ -255,6 +271,7 @@ export const DwnJobListingDrilldown: FC = () => {
         const m = matchingVcs.matches?.find((vc) => vc.name === id);
       };
       const hasAccountId = "user has a HasAccount VC issued by us";
+      const passedCaptchaId = "user has a PassedCaptcha VC issued by us";
       if (credential.id === hasAccountId) {
         // const matchingVc = getMatchingVc(hasAccountId);
         return (
@@ -264,6 +281,21 @@ export const DwnJobListingDrilldown: FC = () => {
             expirationDate={todayPlus3Months()}
             description={"Test description for the VC"}
             howToGet={"You can get it if you wish for it really hard"}
+            userHasCredential={pass}
+          />
+        );
+      } else if (credential.id === passedCaptchaId) {
+        return (
+          <CredentialCard
+            title={`PassedCaptchaVC`}
+            issuanceDate={todayPlus3Months()}
+            expirationDate={todayPlus3Months()}
+            description={
+              "VC that's automatically issued when you complete a Captcha interaction"
+            }
+            howToGet={
+              " ¯\\_(ツ)_/¯ This credential is a demo to show what happens when you fail a presentation exchange"
+            }
             userHasCredential={pass}
           />
         );

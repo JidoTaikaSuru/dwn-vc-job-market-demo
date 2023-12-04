@@ -93,7 +93,7 @@ export const CredentialCard: FC<CredentialCardProps> = ({
   title,
   expirationDate,
   issuanceDate,
-  // description,
+  description,
   howToGet,
   userHasCredential,
 }) => {
@@ -132,7 +132,8 @@ export const CredentialCard: FC<CredentialCardProps> = ({
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>How to get the {title} credential</DialogTitle>
-                <DialogDescription>{howToGet}</DialogDescription>
+                <DialogDescription>{description}</DialogDescription>
+                <div>{howToGet}</div>
               </DialogHeader>
             </DialogContent>
           </Dialog>

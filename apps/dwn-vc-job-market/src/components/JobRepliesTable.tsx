@@ -19,7 +19,6 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
-import Frame from "react-frame-component";
 
 type RowData = any;
 
@@ -71,18 +70,18 @@ export const JobRepliesTable: FC<{
                 <Button variant={"outline"}>View Resume</Button>
               </DialogTrigger>
 
-              <DialogContent className="sm:max-w-md">
+              <DialogContent style={{ width: "600px" }}>
                 <DialogHeader>
                   <DialogTitle>Resume for {row.original.data.name}</DialogTitle>
                 </DialogHeader>
                 {/*TODO When things look weird in markdown, add markdown classes to index.css to get rid of shadcn styling*/}
                 {/*For now put into iframe to clear styles*/}
-                <Frame>
-                  <ReactMarkdown remarkPlugins={[gfm]}>
-                    {/*{demoResume}*/}
-                    {row.original.data.resume || row.original.data.description}
-                  </ReactMarkdown>
-                </Frame>
+                {/*<Frame>*/}
+                <ReactMarkdown remarkPlugins={[gfm]}>
+                  {/*{demoResume}*/}
+                  {row.original.data.resume || row.original.data.description}
+                </ReactMarkdown>
+                {/*</Frame>*/}
               </DialogContent>
             </Dialog>
           );
