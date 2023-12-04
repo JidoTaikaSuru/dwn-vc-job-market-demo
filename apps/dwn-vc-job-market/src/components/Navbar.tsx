@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
 import React, { useContext, useEffect, useState } from "react";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore https://github.com/doke-v/react-identicons/issues/40
 import { SessionContext } from "@/contexts/SessionContext";
 import { supabaseClient } from "@/lib/common.ts";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
@@ -12,11 +10,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
+import { useRecoilValue } from "recoil";
+import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
+import { truncateAddress } from "@/lib/embeddedWalletLib.ts";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore https://github.com/doke-v/react-identicons/issues/40
+import Identicon from "react-identicons";
 
 export const APP_NAME = "DWN + VC Job Market";
 
 const Navbar: React.FC = () => {
-  // const { myDid } = useRecoilValue(web5ConnectSelector);
+  const { myDid } = useRecoilValue(web5ConnectSelector);
   const { session, setSession, wallet } = useContext(SessionContext);
   const [startLogout, setStartLogout] = useState(false);
   const [strgPercent, setStrgPercent] = useState(0);
@@ -109,18 +113,17 @@ const Navbar: React.FC = () => {
           ) : (
             ""
           )}
-          {/*{wallet && (*/}
-          {/*  // <a href={"/profile"} className={"text-black"}>*/}
-          {/*  <a href={`/profile/${myDid}`} style={{ color: "#213547" }}>*/}
-          {/*    <Button*/}
-          {/*      variant="outline"*/}
-          {/*      className="tracking-wider text-base font-semibold flex gap-2"*/}
-          {/*    >*/}
-          {/*      {<Identicon string={myDid} size={24} />}*/}
-          {/*      {truncateAddress(wallet.address)}*/}
-          {/*    </Button>*/}
-          {/*  </a>*/}
-          {/*)}*/}
+          {wallet && (
+            <a href={`/profile/${myDid}`} style={{ color: "#213547" }}>
+              <Button
+                variant="outline"
+                className="tracking-wider text-base font-semibold flex gap-2"
+              >
+                {<Identicon string={myDid} size={24} />}
+                {truncateAddress(wallet.address)}
+              </Button>
+            </a>
+          )}
           {session && (
             <Button
               onClick={() => {
