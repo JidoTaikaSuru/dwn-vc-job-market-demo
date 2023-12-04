@@ -5,7 +5,7 @@
 
 ## Links
 
-* Devpost: TODO
+* Devpost: https://devpost.com/software/decentralinked
 * Video: TODO
 * Live application: TODO (vercel link here)
 
