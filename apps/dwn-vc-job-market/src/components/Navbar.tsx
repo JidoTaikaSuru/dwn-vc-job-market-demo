@@ -13,13 +13,17 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useRecoilValue } from "recoil";
-import { dwnReadSelfProfileSelector, web5ConnectSelector } from "@/lib/web5Recoil.ts";
+import {
+  dwnReadSelfProfileSelector,
+  web5ConnectSelector,
+} from "@/lib/web5Recoil.ts";
 import { truncateAddress } from "@/lib/embeddedWalletLib.ts";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
@@ -30,7 +34,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast.ts";
 import { faker } from "@faker-js/faker";
 import { getRandomPresentationDefinition } from "@/lib/presentationExchangeLib.ts";
-import { TextArea } from "./ui/text-area";
+import { TextArea } from "@/components/ui/text-area.tsx";
 
 export const APP_NAME = "DWN + VC Job Market";
 
@@ -47,12 +51,19 @@ const CreateNewJobPostDialog: FC<{
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline"
-          className="tracking-wider font-semibold flex gap-2">Create New Listing</Button>
+        <Button
+          variant="outline"
+          className="tracking-wider font-semibold flex gap-2"
+        >
+          Create New Listing
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="md:max-w-lg">
         <DialogHeader>
           <DialogTitle>Create Job Listing</DialogTitle>
+          <DialogDescription>
+            <p>Company: {company.name}</p>
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
@@ -238,7 +249,11 @@ const Navbar: React.FC = () => {
           ) : (
             ""
           )}
-          <CreateNewJobPostDialog open={open} setOpen={setOpen} company={company} />
+          <CreateNewJobPostDialog
+            open={open}
+            setOpen={setOpen}
+            company={company}
+          />
           {wallet && (
             <a href={`/profile/${myDid}`} style={{ color: "#213547" }}>
               <Button

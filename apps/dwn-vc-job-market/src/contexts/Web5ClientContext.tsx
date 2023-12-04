@@ -5,13 +5,13 @@ import { ProtocolDefinition } from "@tbd54566975/dwn-sdk-js";
 import { useRecoilValue } from "recoil";
 import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 
-type SessionContextProps = {
+type WebContextProps = {
   myDid: string;
   web5Client: DwnClient;
   protocols: { [key: string]: ProtocolDefinition };
 };
 
-export const Web5Context = createContext<SessionContextProps>({
+export const Web5Context = createContext<WebContextProps>({
   myDid: "",
   web5Client: {} as DwnClient,
   protocols: {} as { [key: string]: ProtocolDefinition },

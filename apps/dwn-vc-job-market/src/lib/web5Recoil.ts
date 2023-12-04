@@ -1,11 +1,18 @@
-import {selector, selectorFamily} from "recoil";
-import {ProtocolDefinition, ProtocolsQueryFilter,} from "@tbd54566975/dwn-sdk-js";
-import {did_db_table, getWeb5Connection, supabaseClient,} from "@/lib/common.ts";
-import {DwnClient} from "@/lib/web5Client.ts";
-import {protocols} from "@/lib/protocols.ts";
-import {configureProtocol, DwnListType, logIfDebug} from "@/lib/utils.ts";
+import { selector, selectorFamily } from "recoil";
+import {
+  ProtocolDefinition,
+  ProtocolsQueryFilter,
+} from "@tbd54566975/dwn-sdk-js";
+import {
+  did_db_table,
+  getWeb5Connection,
+  supabaseClient,
+} from "@/lib/common.ts";
+import { DwnClient } from "@/lib/web5Client.ts";
+import { protocols } from "@/lib/protocols.ts";
+import { configureProtocol, DwnListType, logIfDebug } from "@/lib/utils.ts";
+import { User } from "@supabase/supabase-js";
 
-// TODO CRITICAL: This line will error on a new user because they won't have a supabase record.
 export const web5ConnectSelector = selector({
   key: "web5ConnectSelector",
   get: async ({ get }) => {
@@ -13,20 +20,21 @@ export const web5ConnectSelector = selector({
     const { web5, did: myDid } = await getWeb5Connection();
 
     const { user } = get(getSupabaseUserSelector);
-    if (!user) throw new Error("No user");
     const userRec = get(getSupabaseUserTableRecordSelector);
-    if(!userRec) throw new Error("No User Record");
-    const client = new DwnClient({ web5, user, myDid });
+
+    const dwnClientUser = user || ({} as User); // Hack for when the user isn' signed in
+    const client = new DwnClient({ web5, myDid, user: dwnClientUser });
     for (const protocol of Object.values(protocols)) {
       await configureProtocol(web5, protocol);
     }
 
-    //TODO remove me
-    console.log("DOING UPSERT OF DID TO USERS TABLE, REMOVE ME BEFORE SUBMIT");
-    await supabaseClient.from("users").upsert({
-      id: user.id,
-      did: myDid,
-    });
+    if (user) {
+      // TODO, this is a hack, which we can remove later
+      await supabaseClient.from("users").upsert({
+        id: user.id,
+        did: myDid,
+      });
+    }
 
     return {
       web5,
@@ -42,7 +50,12 @@ export const web5ConnectSelector = selector({
 const getSupabaseUserSelector = selector({
   key: "getSupabaseUserSelector",
   get: async () => {
-    const { data } = await supabaseClient.auth.getUser();
+    const { data, error } = await supabaseClient.auth.getUser();
+    console.log("getSupabaseUserSelector ~ data:", data);
+    if (error) {
+      console.error("getSupabaseUserSelector ~ error:", error);
+      return { user: undefined };
+    }
     return data;
   },
 });
@@ -52,11 +65,11 @@ const getSupabaseUserTableRecordSelector = selector({
   get: async ({ get }) => {
     const { user } = get(getSupabaseUserSelector);
     if (!user) return undefined;
-    const { data } = await supabaseClient
+    const { data, error } = await supabaseClient
       .from("users")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
     return data;
   },
 });

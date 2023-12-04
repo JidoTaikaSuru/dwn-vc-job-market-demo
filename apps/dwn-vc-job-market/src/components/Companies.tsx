@@ -69,9 +69,9 @@ const fetchCompanies = selector({
         return {
           ...row,
           jobpostcount: jobPostCount,
-          dwnname: companyProfile.name,
-          industry: companyProfile.industry,
-          location: companyProfile.country,
+          dwnname: companyProfile?.name,
+          industry: companyProfile?.industry,
+          location: companyProfile?.country,
           did: row.did.substring(0, 32) + "...",
           fullDid: row.did,
         };
