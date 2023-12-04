@@ -49,15 +49,12 @@ const fetchCompanies = selector({
         //Getting most up to date job listing from each DWN  ( one might want to cache this in the search engine so not everyone has to ask all the DWN's all the time.  )
         console.log("rowDIDROW", row);
         console.log("Reading data from, ", row.did);
-        const iName = await web5Client.dwnReadOtherDWN(
+        const companyProfile = await web5Client.dwnReadOtherDWN(
           row.did,
           protocols["selfProfileProtocol"],
         );
-        let dwnName = "";
-        if (iName && iName.name) {
-          dwnName = iName.name;
-        }
-        console.log("iname", iName, "rowDid", row.did);
+
+        console.log("iname", companyProfile, "rowDid", row.did);
         console.debug("Finished fetching self profile, fetching jobs");
         const iJobList = await web5Client.dwnQueryOtherDWNByProtocol(
           row.did,
@@ -72,7 +69,9 @@ const fetchCompanies = selector({
         return {
           ...row,
           jobpostcount: jobPostCount,
-          dwnname: dwnName,
+          dwnname: companyProfile.name,
+          industry: companyProfile.industry,
+          location: companyProfile.country,
           did: row.did.substring(0, 32) + "...",
           fullDid: row.did,
         };
