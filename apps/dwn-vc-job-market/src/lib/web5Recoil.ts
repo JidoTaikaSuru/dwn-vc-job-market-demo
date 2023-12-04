@@ -1,17 +1,11 @@
-import { selector, selectorFamily } from "recoil";
-import {
-  ProtocolDefinition,
-  ProtocolsQueryFilter,
-} from "@tbd54566975/dwn-sdk-js";
-import {
-  did_db_table,
-  getWeb5Connection,
-  supabaseClient,
-} from "@/lib/common.ts";
-import { DwnClient } from "@/lib/web5Client.ts";
-import { protocols } from "@/lib/protocols.ts";
-import { configureProtocol, DwnListType, logIfDebug } from "@/lib/utils.ts";
+import {selector, selectorFamily} from "recoil";
+import {ProtocolDefinition, ProtocolsQueryFilter,} from "@tbd54566975/dwn-sdk-js";
+import {did_db_table, getWeb5Connection, supabaseClient,} from "@/lib/common.ts";
+import {DwnClient} from "@/lib/web5Client.ts";
+import {protocols} from "@/lib/protocols.ts";
+import {configureProtocol, DwnListType, logIfDebug} from "@/lib/utils.ts";
 
+// TODO CRITICAL: This line will error on a new user because they won't have a supabase record.
 export const web5ConnectSelector = selector({
   key: "web5ConnectSelector",
   get: async ({ get }) => {
