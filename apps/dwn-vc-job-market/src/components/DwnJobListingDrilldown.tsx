@@ -177,6 +177,9 @@ export const DwnJobListingDrilldown: FC = () => {
   if (!wallet) {
     return <div>Wallet not found</div>;
   }
+  if(!userRec){
+    return (<div>User Record not found</div>);
+  }
 
   const { pass, matchingVcs } = checkVcMatchAgainstPresentation(
     presentationDefinition,
