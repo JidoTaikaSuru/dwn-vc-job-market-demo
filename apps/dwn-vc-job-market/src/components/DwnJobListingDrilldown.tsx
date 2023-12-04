@@ -35,12 +35,6 @@ import {
 } from "@/lib/credentialLib.ts";
 import { credentialStore } from "@/lib/common.ts";
 import { APP_NAME } from "@/components/Navbar.tsx";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip.tsx";
 import { CredentialCard } from "@/components/CredentialCard.tsx";
 import {
   Dialog,
@@ -52,7 +46,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { TextArea } from "@/components/ui/text-area.tsx";
-import {IPresentationDefinition} from "@sphereon/pex";
+import { IPresentationDefinition } from "@sphereon/pex";
 
 type RowData = any;
 
@@ -255,17 +249,11 @@ export const DwnJobListingDrilldown: FC = () => {
 
   console.log("tooltipContent", tooltipContent);
 
+  // This will get replaced with a tooltip if you don't have the required credentials
   let presentationExchangeRender = (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger className={"w-48 flex"} asChild>
-          <Button onClick={() => alert("You applied for this job!")}>
-            APPLY FOR THIS JOB
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{tooltipContent}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div>
+      <ApplyDialog jobListing={jobListing} setOpen={setOpen} open={open} />
+    </div>
   );
   if (!pass) {
     console.log("You do not have the required credentials.");
@@ -326,7 +314,7 @@ export const DwnJobListingDrilldown: FC = () => {
       }
       return (
         <CredentialCard
-          title={`Unknown VC ${credential.id}`}
+          title={`Unknown VC type: "${credential.id}"`}
           issuanceDate={todayPlus3Months()}
           expirationDate={todayPlus3Months()}
           description={"Test description for the VC"}
@@ -363,7 +351,7 @@ export const DwnJobListingDrilldown: FC = () => {
             <div className={"flex-col space-y-2"}>
               <TypographyH3>Required Credentials</TypographyH3>
               <div className={"grid-cols-4 gap-3"}>{credentialCards}</div>
-              {/*{presentationExchangeRender}*/}
+              {presentationExchangeRender}
               <TypographyH3>Debug</TypographyH3>
               <Button
                 variant={"secondary"}
@@ -415,14 +403,6 @@ export const DwnJobListingDrilldown: FC = () => {
                 </>
               )}
               {error && <div className={"text-red-500"}>{error}</div>}
-
-              <div>
-                <ApplyDialog
-                  jobListing={jobListing}
-                  setOpen={setOpen}
-                  open={open}
-                />
-              </div>
             </div>
           </TabsContent>
           <TabsContent value="company">

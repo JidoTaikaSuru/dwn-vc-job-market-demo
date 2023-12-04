@@ -7,6 +7,8 @@ export type PresentationDefinitionPlaceholder = {
   validate?: (value: string) => boolean;
 };
 
+// TODO, below can be either fetched from the REST API or can be scaffolded (the same way the REST API does it)
+//  from the REST API library later
 export const knownPresentationDefinitions: {
   [key: string]: IPresentationDefinition;
 } = {
@@ -117,7 +119,7 @@ export const knownPresentationDefinitions: {
     id: "6edbf323-b47c-43e6-be94-2210ad55fbd0",
     input_descriptors: [
       {
-        id: "user has a a PassedCaptcha VC issued by us",
+        id: "user has a PassedCaptcha VC issued by us",
         name: "PassedCaptcha",
         purpose:
           "Please provide your PassedCapctha VC that we issued to you on account creation. If you don't have one, too bad, this is a demo VC that is meant to intentionally fail",
