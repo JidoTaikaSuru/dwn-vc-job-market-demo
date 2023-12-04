@@ -29,7 +29,7 @@ export const issueHasAccountCredentialHandler = async (
     credential: {
       id: `did:web:gotid.org:credential:has-account:${stripDidPrefix(
         user.did,
-      )}`,
+      )}-${process.hrtime()[0] * Math.pow(10, 9) + process.hrtime()[0]}`,
       issuer: {
         id: identifier.did,
         name: "Decentralinked Issuer",
@@ -38,7 +38,7 @@ export const issueHasAccountCredentialHandler = async (
       type: ["VerifiableCredential", "HasAccountWithTrustAuthority"],
       credentialSubject: {
         id: user.did,
-        pubKey: `did:eth:${user.public_key}`, // This should be did:ethr:<the public key of the embedded wallet, or the id of the user from supabase>
+        pubkey: `did:eth:${user.public_key}`, // This should be did:ethr:<the public key of the embedded wallet, or the id of the user from supabase>
         supabaseId: user.id,
       },
     },

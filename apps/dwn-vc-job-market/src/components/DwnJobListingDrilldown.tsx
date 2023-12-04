@@ -16,7 +16,6 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { SessionContext } from "@/contexts/SessionContext.tsx";
 import JSONPretty from "react-json-pretty";
-import { IPresentationDefinition } from "@sphereon/pex";
 import { Button } from "@/components/ui/button.tsx";
 import { TypographyH3, TypographyH4 } from "@/components/Typography.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,6 +52,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { TextArea } from "@/components/ui/text-area.tsx";
+import {IPresentationDefinition} from "@sphereon/pex";
 
 type RowData = any;
 
@@ -149,7 +149,8 @@ export const DwnJobListingDrilldown: FC = () => {
   const companyDid = query.get("companyDid") || "";
   console.log("query", query);
   // const listingId = query.get("listingId");
-  const { session, wallet, credentials } = useContext(SessionContext);
+  const { session, wallet, credentials, pexWrappedCredentials } =
+    useContext(SessionContext);
   const { web5Client, protocols, userRec } =
     useRecoilValue(web5ConnectSelector);
   const selfProfile = useRecoilValue(dwnReadSelfProfileSelector);
@@ -169,6 +170,8 @@ export const DwnJobListingDrilldown: FC = () => {
   const presentationDefinition =
     // @ts-ignore
     jobListing?.presentation_definition as IPresentationDefinition;
+  // Uncomment below and edit by hand if you suspect there's a problem with PEX or the Presentation Definition
+  // const presentationDefinition = SAMPLE_PRESENTATION_DEFINITION;
 
   const jobReplies = useRecoilValue(
     dwnQuerySelfByProtocolSelector({
@@ -374,11 +377,18 @@ export const DwnJobListingDrilldown: FC = () => {
 
               {showRawCredentialDetails && (
                 <>
-                  <TypographyH4>Credentials</TypographyH4>
+                  <TypographyH4>Credentials (from Veramo)</TypographyH4>
                   <div className={"bg-slate-200"}>
                     <JSONPretty
                       id="json-pretty2"
                       data={credentials}
+                    ></JSONPretty>
+                  </div>
+                  <TypographyH4>PEX Wrapped Credentials</TypographyH4>
+                  <div className={"bg-slate-200"}>
+                    <JSONPretty
+                      id="json-pretty2"
+                      data={pexWrappedCredentials}
                     ></JSONPretty>
                   </div>
                   <TypographyH4>

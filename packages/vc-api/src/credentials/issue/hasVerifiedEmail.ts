@@ -40,7 +40,7 @@ export const issueHasVerifiedEmailCredentialHandler = async (
     credential: {
       id: `did:web:gotid.org:credential:has-verified-email:${stripDidPrefix(
         user.did,
-      )}`,
+      )}-${process.hrtime()[0] * Math.pow(10, 9) + process.hrtime()[0]}`,
       issuer: {
         id: identifier.did,
         name: "Decentralinked Issuer",
