@@ -1,32 +1,20 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable, 
   FilterFn,
+  getCoreRowModel,
   getFilteredRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
-import {
-  RankingInfo,
-  rankItem,
-  compareItems,
-} from '@tanstack/match-sorter-utils'
+import { rankItem } from "@tanstack/match-sorter-utils";
 import type { FC } from "react";
 import { useMemo, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { supabaseClient } from "@/lib/common.ts";
 import { Link } from "react-router-dom";
 import { Database } from "@/__generated__/supabase-types.ts";
 import { selector, useRecoilValue } from "recoil";
 import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 import { Input } from "@/components/ui/input.tsx";
+import { GenericTable } from "@/components/GenericTable.tsx";
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   jobpostcount: number;
@@ -37,16 +25,16 @@ type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
-  const itemRank = rankItem(row.getValue(columnId), value)
+  const itemRank = rankItem(row.getValue(columnId), value);
 
   // Store the itemRank info
   addMeta({
     itemRank,
-  })
+  });
 
   // Return if the item should be filtered in/out
-  return itemRank.passed
-}
+  return itemRank.passed;
+};
 
 const fetchCompanies = selector({
   key: "fetchCompanies",
@@ -85,7 +73,7 @@ const fetchCompanies = selector({
           ...row,
           jobpostcount: jobPostCount,
           dwnname: dwnName,
-          did: row.did.substring(0, 32) + '...',
+          did: row.did.substring(0, 32) + "...",
           fullDid: row.did,
         };
       });
@@ -151,7 +139,7 @@ export const Companies: FC = () => {
     getCoreRowModel: getCoreRowModel(),
     state: {
       globalFilter,
-    }, 
+    },
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: fuzzyFilter,
     getFilteredRowModel: getFilteredRowModel(),
@@ -161,64 +149,17 @@ export const Companies: FC = () => {
     <div className="p-5 space-y-5">
       <div className={"flex gap-20 items-center justify-bottom"}>
         <h1>Companies</h1>
-        
-          <Input 
-            type="text"
-            value={globalFilter || ''}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Search..."
-            className="ml-auto"
-          />
+
+        <Input
+          type="text"
+          value={globalFilter || ""}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Search..."
+          className="ml-auto"
+        />
       </div>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="bg-blue-200/30">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+        <GenericTable table={table} columns={columns} />
       </div>
     </div>
   );

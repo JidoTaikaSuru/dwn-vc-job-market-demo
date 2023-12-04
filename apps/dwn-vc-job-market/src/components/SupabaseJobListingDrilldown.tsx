@@ -1,20 +1,8 @@
 import type { Database } from "@/__generated__/supabase-types";
 import { FC, useContext, useMemo, useState } from "react";
 import { credentialStore } from "@/lib/common";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useParams } from "react-router-dom";
 import { SessionContext } from "@/contexts/SessionContext.tsx";
 import JSONPretty from "react-json-pretty";
@@ -55,6 +43,7 @@ import {
   web5ConnectSelector,
 } from "@/lib/web5Recoil.ts";
 import { protocols } from "@/lib/protocols.ts";
+import { GenericTable } from "@/components/GenericTable.tsx";
 
 type RowData = any;
 
@@ -412,54 +401,7 @@ export const SupabaseJobListingDrilldown: FC = () => {
             <TypographyH3>Received applications</TypographyH3>
 
             <div className="rounded-md border mt-5 mb-5">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        return (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext(),
-                                )}
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody className="mb-5">
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center"
-                      >
-                        No results.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+              <GenericTable table={table} columns={columns} />
             </div>
           </TabsContent>
         </Tabs>

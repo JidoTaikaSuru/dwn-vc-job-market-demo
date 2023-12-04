@@ -1,19 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import type { FC } from "react";
 import { useMemo, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Link, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -38,6 +26,7 @@ import { getRandomPresentationDefinition } from "@/lib/presentationExchangeLib.t
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
 import Identicon from "react-identicons";
+import { GenericTable } from "@/components/GenericTable.tsx";
 
 type RowData = any;
 
@@ -189,7 +178,7 @@ export const CompanyJobListings: FC = () => {
             to={`/listings/view?applicationRecordId=${value.row.original.id}&companyDid=${companyDid}`}
             className="text-blue-500"
           >
-           <Button variant="outline">Apply</Button> 
+            <Button variant="outline">Apply</Button>
           </Link>
         ),
       },
@@ -215,54 +204,7 @@ export const CompanyJobListings: FC = () => {
         <h1>Job Listings for {company?.name}</h1>
       </div>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+        <GenericTable table={table} columns={columns} />
       </div>
       <CreateNewJobPostDialog open={open} setOpen={setOpen} company={company} />
     </>
