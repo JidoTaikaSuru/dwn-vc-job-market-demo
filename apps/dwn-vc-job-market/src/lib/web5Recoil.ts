@@ -21,6 +21,7 @@ export const web5ConnectSelector = selector({
     const { user } = get(getSupabaseUserSelector);
     if (!user) throw new Error("No user");
     const userRec = get(getSupabaseUserTableRecordSelector);
+    if(!userRec) throw new Error("No User Record");
     const client = new DwnClient({ web5, user, myDid });
     for (const protocol of Object.values(protocols)) {
       await configureProtocol(web5, protocol);
