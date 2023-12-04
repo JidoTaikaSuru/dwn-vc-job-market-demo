@@ -2,13 +2,9 @@ import { Button } from "@/components/ui/button";
 import React, { useContext, useEffect, useState } from "react";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
-import Identicon from "react-identicons";
 import { SessionContext } from "@/contexts/SessionContext";
-import { truncateAddress } from "@/lib/embeddedWalletLib";
 import { supabaseClient } from "@/lib/common.ts";
-import { useRecoilValue } from "recoil";
-import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
-import { CircularProgressbar, buildStyles  } from "react-circular-progressbar";
+import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import {
   Tooltip,
@@ -20,7 +16,7 @@ import {
 export const APP_NAME = "DWN + VC Job Market";
 
 const Navbar: React.FC = () => {
-  const { myDid } = useRecoilValue(web5ConnectSelector);
+  // const { myDid } = useRecoilValue(web5ConnectSelector);
   const { session, setSession, wallet } = useContext(SessionContext);
   const [startLogout, setStartLogout] = useState(false);
   const [strgPercent, setStrgPercent] = useState(0);
@@ -49,7 +45,8 @@ const Navbar: React.FC = () => {
         const percentused = Math.round((100 * data_used) / storage_capacity);
         if (callcounter % 100 === 0)
           console.info(
-            `Storage usage: ${data_used} bytes, ${percentused}%  change ${cur_diff / (1024 * 1024)
+            `Storage usage: ${data_used} bytes, ${percentused}%  change ${
+              cur_diff / (1024 * 1024)
             }`,
           );
         setStrgPercent(percentused);
@@ -59,7 +56,8 @@ const Navbar: React.FC = () => {
           last_storage_add_diff = max_storage_usage - last_max_storage_usage;
           if (callcounter % 100 === 0)
             console.info(
-              `## Storage usage: ${data_used} bytes, ${percentused}% added ${last_storage_add_diff / (1024 * 1024)
+              `## Storage usage: ${data_used} bytes, ${percentused}% added ${
+                last_storage_add_diff / (1024 * 1024)
               }`,
             );
         }
@@ -94,32 +92,35 @@ const Navbar: React.FC = () => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger className={"w-48 flex"} asChild>
-                  <div style={{ width: '40px', height: '40px' }}>
+                  <div style={{ width: "40px", height: "40px" }}>
                     <CircularProgressbar
                       value={strgPercent}
                       text={`${strgPercent}%`}
                       strokeWidth={7}
                       styles={buildStyles({
-                        textSize: '30px', // Adjust the text size as needed
+                        textSize: "30px", // Adjust the text size as needed
                       })}
                     />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>Local DWN Storage</TooltipContent>
               </Tooltip>
-            </TooltipProvider>) : ""}
-          {wallet && (
-            // <a href={"/profile"} className={"text-black"}>
-            <a href={`/profile/${myDid}`} style={{ color: "#213547" }}>
-              <Button
-                variant="outline"
-                className="tracking-wider text-base font-semibold flex gap-2"
-              >
-                {<Identicon string={myDid} size={24} />}
-                {truncateAddress(wallet.address)}
-              </Button>
-            </a>
+            </TooltipProvider>
+          ) : (
+            ""
           )}
+          {/*{wallet && (*/}
+          {/*  // <a href={"/profile"} className={"text-black"}>*/}
+          {/*  <a href={`/profile/${myDid}`} style={{ color: "#213547" }}>*/}
+          {/*    <Button*/}
+          {/*      variant="outline"*/}
+          {/*      className="tracking-wider text-base font-semibold flex gap-2"*/}
+          {/*    >*/}
+          {/*      {<Identicon string={myDid} size={24} />}*/}
+          {/*      {truncateAddress(wallet.address)}*/}
+          {/*    </Button>*/}
+          {/*  </a>*/}
+          {/*)}*/}
           {session && (
             <Button
               onClick={() => {
