@@ -28,7 +28,6 @@ import {
   CredentialToCredentialCard,
   PresentationExchangeStatus,
 } from "@/components/CredentialCard.tsx";
-import { Bold } from "lucide-react";
 
 function truncateString(str: string, num: number): string {
   if (str.length <= num) {
@@ -170,8 +169,10 @@ export const UserProfile: FC = () => {
       </div>
 
       <TypographyH3>Credentials</TypographyH3>
-      <div className={"space-y-2 p-5"}
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+      <div
+        className={"grid grid-cols-3 gap-4"}
+        // style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}
+      >
         {credentials?.map((credential) => (
           <CredentialToCredentialCard
             credential={credential}
@@ -185,7 +186,7 @@ export const UserProfile: FC = () => {
         {showRaw ? "HIDE" : "SHOW"} RAW DATA
       </Button>
       {showRaw && (
-        <div className="gap-5 p-5" style={{width: '1000px'}}>
+        <div className="gap-5 p-5" style={{ width: "1000px" }}>
           <TypographyH3>Query others results</TypographyH3>
           <TypographyH4>Job Application Simple Protocol</TypographyH4>
           <JSONPretty data={profileJobApplicationSimpleProtocol} />

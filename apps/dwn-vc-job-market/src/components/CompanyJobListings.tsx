@@ -178,6 +178,10 @@ export const CompanyJobListings: FC = () => {
         cell: ({ row }) => row.original.data.title || row.original.data.name, //TODO clean up legacy data
       },
       {
+        header: "Created",
+        accessorKey: "data.created_at",
+      },
+      {
         header: "",
         accessorKey: "id",
         cell: (value) => (
@@ -192,6 +196,9 @@ export const CompanyJobListings: FC = () => {
     ],
     [],
   );
+
+  console.log("LISTINGS", listings, "COMPANY", company, "DID", companyDid);
+
   const table = useReactTable({
     columns,
     data: listings || [],

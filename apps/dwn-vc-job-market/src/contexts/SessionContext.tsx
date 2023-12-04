@@ -3,9 +3,13 @@ import { createContext, useEffect, useState } from "react";
 import { Wallet } from "ethers";
 import { Session } from "@supabase/supabase-js";
 import { credentialStore, supabaseClient } from "@/lib/common.ts";
-import { IVerifiableCredential } from "@sphereon/ssi-types";
+import {
+  IVerifiableCredential,
+  WrappedVerifiableCredential,
+} from "@sphereon/ssi-types";
 import { convertVeramoVcToPexFormat } from "@/lib/credentialLib.ts";
 import { getUserEmbeddedWallet } from "@/lib/embeddedWalletLib.ts";
+import { SSITypesBuilder } from "@sphereon/pex/lib/types";
 
 type SessionContextProps = {
   session?: Session;
@@ -13,6 +17,7 @@ type SessionContextProps = {
   wallet?: Wallet;
   setWallet: (val: Wallet) => void; //Set in routes/login
   credentials: IVerifiableCredential[];
+  pexWrappedCredentials: WrappedVerifiableCredential[];
 };
 
 export const SessionContext = createContext<SessionContextProps>({
@@ -23,13 +28,16 @@ export const SessionContext = createContext<SessionContextProps>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setWallet: () => {},
   credentials: [],
+  pexWrappedCredentials: [],
 });
 
 export const SessionContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [session, setSession] = useState<Session>();
   const [wallet, setWallet] = useState<Wallet>();
   const [credentials, setCredentials] = useState<IVerifiableCredential[]>([]);
-
+  const [pexWrappedCredentials, setPexWrappedCredentials] = useState<
+    WrappedVerifiableCredential[]
+  >([]);
   // Refresh sessio?n context every 10s, could redirect to login later.
   useEffect(() => {
     const fetchData = async () => {
@@ -59,6 +67,15 @@ export const SessionContextProvider: FC<PropsWithChildren> = ({ children }) => {
         });
         const compliantCredentials = convertVeramoVcToPexFormat(credentials);
         setCredentials(compliantCredentials);
+
+        const verifiableCredentialCopy = JSON.parse(
+          JSON.stringify(credentials),
+        );
+        const pexWrappedCredentials =
+          SSITypesBuilder.mapExternalVerifiableCredentialsToWrappedVcs(
+            verifiableCredentialCopy,
+          );
+        setPexWrappedCredentials(pexWrappedCredentials);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -77,6 +94,7 @@ export const SessionContextProvider: FC<PropsWithChildren> = ({ children }) => {
         wallet,
         setWallet,
         credentials,
+        pexWrappedCredentials,
       }}
     >
       {children}

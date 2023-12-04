@@ -16,7 +16,6 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { SessionContext } from "@/contexts/SessionContext.tsx";
 import JSONPretty from "react-json-pretty";
-import { IPresentationDefinition } from "@sphereon/pex";
 import { Button } from "@/components/ui/button.tsx";
 import { TypographyH3, TypographyH4 } from "@/components/Typography.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,12 +35,6 @@ import {
 } from "@/lib/credentialLib.ts";
 import { credentialStore } from "@/lib/common.ts";
 import { APP_NAME } from "@/components/Navbar.tsx";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip.tsx";
 import { CredentialCard } from "@/components/CredentialCard.tsx";
 import {
   Dialog,
@@ -53,6 +46,7 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { TextArea } from "@/components/ui/text-area.tsx";
+import { IPresentationDefinition } from "@sphereon/pex";
 
 type RowData = any;
 
@@ -149,7 +143,8 @@ export const DwnJobListingDrilldown: FC = () => {
   const companyDid = query.get("companyDid") || "";
   console.log("query", query);
   // const listingId = query.get("listingId");
-  const { session, wallet, credentials } = useContext(SessionContext);
+  const { session, wallet, credentials, pexWrappedCredentials } =
+    useContext(SessionContext);
   const { web5Client, protocols, userRec } =
     useRecoilValue(web5ConnectSelector);
   const selfProfile = useRecoilValue(dwnReadSelfProfileSelector);
@@ -169,6 +164,8 @@ export const DwnJobListingDrilldown: FC = () => {
   const presentationDefinition =
     // @ts-ignore
     jobListing?.presentation_definition as IPresentationDefinition;
+  // Uncomment below and edit by hand if you suspect there's a problem with PEX or the Presentation Definition
+  // const presentationDefinition = SAMPLE_PRESENTATION_DEFINITION;
 
   const jobReplies = useRecoilValue(
     dwnQuerySelfByProtocolSelector({
@@ -252,17 +249,11 @@ export const DwnJobListingDrilldown: FC = () => {
 
   console.log("tooltipContent", tooltipContent);
 
+  // This will get replaced with a tooltip if you don't have the required credentials
   let presentationExchangeRender = (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger className={"w-48 flex"} asChild>
-          <Button onClick={() => alert("You applied for this job!")}>
-            APPLY FOR THIS JOB
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{tooltipContent}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div>
+      <ApplyDialog jobListing={jobListing} setOpen={setOpen} open={open} />
+    </div>
   );
   if (!pass) {
     console.log("You do not have the required credentials.");
@@ -323,7 +314,7 @@ export const DwnJobListingDrilldown: FC = () => {
       }
       return (
         <CredentialCard
-          title={`Unknown VC ${credential.id}`}
+          title={`Unknown VC type: "${credential.id}"`}
           issuanceDate={todayPlus3Months()}
           expirationDate={todayPlus3Months()}
           description={"Test description for the VC"}
@@ -360,7 +351,7 @@ export const DwnJobListingDrilldown: FC = () => {
             <div className={"flex-col space-y-2"}>
               <TypographyH3>Required Credentials</TypographyH3>
               <div className={"grid-cols-4 gap-3"}>{credentialCards}</div>
-              {/*{presentationExchangeRender}*/}
+              {presentationExchangeRender}
               <TypographyH3>Debug</TypographyH3>
               <Button
                 variant={"secondary"}
@@ -374,11 +365,18 @@ export const DwnJobListingDrilldown: FC = () => {
 
               {showRawCredentialDetails && (
                 <>
-                  <TypographyH4>Credentials</TypographyH4>
+                  <TypographyH4>Credentials (from Veramo)</TypographyH4>
                   <div className={"bg-slate-200"}>
                     <JSONPretty
                       id="json-pretty2"
                       data={credentials}
+                    ></JSONPretty>
+                  </div>
+                  <TypographyH4>PEX Wrapped Credentials</TypographyH4>
+                  <div className={"bg-slate-200"}>
+                    <JSONPretty
+                      id="json-pretty2"
+                      data={pexWrappedCredentials}
                     ></JSONPretty>
                   </div>
                   <TypographyH4>
@@ -405,14 +403,6 @@ export const DwnJobListingDrilldown: FC = () => {
                 </>
               )}
               {error && <div className={"text-red-500"}>{error}</div>}
-
-              <div>
-                <ApplyDialog
-                  jobListing={jobListing}
-                  setOpen={setOpen}
-                  open={open}
-                />
-              </div>
             </div>
           </TabsContent>
           <TabsContent value="company">
