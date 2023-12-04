@@ -151,3 +151,9 @@ button:focus-visible {
         @apply bg-background text-foreground;
     }
 }
+
+
+.markdown p {
+    display: inline !important;
+    border: 1px solid red;
+}

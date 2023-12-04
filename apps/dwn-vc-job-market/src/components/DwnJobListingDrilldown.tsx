@@ -1,7 +1,5 @@
-import { FC, useContext, useMemo, useState } from "react";
-import type { ColumnDef } from "@tanstack/react-table";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { Link, useLocation } from "react-router-dom";
+import { FC, useContext, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { SessionContext } from "@/contexts/SessionContext.tsx";
 import JSONPretty from "react-json-pretty";
 import { Button } from "@/components/ui/button.tsx";
@@ -35,9 +33,7 @@ import {
 import { Label } from "@/components/ui/label.tsx";
 import { TextArea } from "@/components/ui/text-area.tsx";
 import { IPresentationDefinition } from "@sphereon/pex";
-import { GenericTable } from "@/components/GenericTable.tsx";
-
-type RowData = any;
+import { JobRepliesTable } from "@/components/JobRepliesTable.tsx";
 
 const todayPlus3Months = () => {
   const d = new Date();
@@ -74,7 +70,7 @@ const ApplyDialog: FC<{
           </div>
           <div className="grid grid-cols-4 items-top gap-4">
             <Label htmlFor="username" className="text-right">
-              Message
+              Resume (Markdown)
             </Label>
             <TextArea
               required
@@ -105,7 +101,7 @@ const ApplyDialog: FC<{
                   );
                   toast({
                     title: `Success`,
-                    description: `Successfully applied to ${jobListing.company}!`,
+                    description: `Successfully applied to ${jobListing.title}!`,
                   });
                   setOpen(false);
                 } catch (e) {
@@ -156,43 +152,6 @@ export const DwnJobListingDrilldown: FC = () => {
   // Uncomment below and edit by hand if you suspect there's a problem with PEX or the Presentation Definition
   // const presentationDefinition = SAMPLE_PRESENTATION_DEFINITION;
 
-  const jobReplies = useRecoilValue(
-    dwnQuerySelfByProtocolSelector({
-      protocol: protocols["jobApplicationSimpleProtocol"],
-    }),
-  );
-
-  const columns: ColumnDef<RowData>[] = useMemo(
-    () => [
-      {
-        header: "Name",
-        accessorKey: "data.name",
-        cell: ({ row }) => {
-          return (
-            <Link to={`/profile/${row.original.record.author}`}>
-              {row.original.data.name}
-            </Link>
-          );
-        },
-      },
-      {
-        header: "E-mail",
-        accessorKey: "data.email",
-      },
-      {
-        header: "Message",
-        accessorKey: "data.description",
-      },
-    ],
-    [],
-  );
-
-  const table = useReactTable({
-    columns,
-    data: jobReplies || [],
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   if (!applicationRecordId) {
     setError("listing id missing from query params " + applicationRecordId);
     return <>Page accessed without providing a job listing id in params</>;
@@ -204,7 +163,12 @@ export const DwnJobListingDrilldown: FC = () => {
   console.log("userCredentials", credentials);
   console.log("listingData", jobListing);
   console.log("selfProfile", selfProfile);
-  console.log("jobReplies", jobReplies);
+
+  const jobReplies = useRecoilValue(
+    dwnQuerySelfByProtocolSelector({
+      protocol: protocols["jobApplicationSimpleProtocol"],
+    }),
+  );
   console.groupEnd();
 
   if (!jobListing) {
@@ -399,7 +363,10 @@ export const DwnJobListingDrilldown: FC = () => {
               <TypographyH3>Received applications</TypographyH3>
 
               <div className="rounded-md border mb-5">
-              <GenericTable table={table} columns={columns} />
+                <JobRepliesTable
+                  companyDid={companyDid}
+                  applicationRecordId={applicationRecordId}
+                />
               </div>
             </div>
           </TabsContent>
