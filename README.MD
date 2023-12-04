@@ -1,6 +1,6 @@
 # DWN + VC Job Market
 
-> This is our submission for first the (DIF Hackathon)[https://devpost.com/software/decentralinked], then second the TBD Hackathon (the schedules for the two
+> This is our submission for first the [DIF Hackathon](https://devpost.com/software/decentralinked), then second the TBD Hackathon (the schedules for the two
 > overlapped)
 
 ## Links
