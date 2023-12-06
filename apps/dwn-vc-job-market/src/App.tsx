@@ -1,18 +1,19 @@
-import "./App.css";
-import { SessionContextProvider } from "@/contexts/SessionContext.tsx";
+import { AdminPlayground } from "@/components/AdminPlayground.tsx";
+import { CompanyJobListings } from "@/components/CompanyJobListings.tsx";
+import { DwnJobListingDrilldown } from "@/components/DwnJobListingDrilldown.tsx";
 import Navbar from "@/components/Navbar.tsx";
 import { RequireUserLoggedIn } from "@/components/RequireUserLoggedIn.tsx";
-import { createBrowserRouter, Link, RouterProvider } from "react-router-dom";
 import { SupabaseJobListingDrilldown } from "@/components/SupabaseJobListingDrilldown.tsx";
-import { Companies } from "./components/Companies.tsx";
-import UpdateProfile from "./components/UpdateProfile";
-import { CompanyJobListings } from "@/components/CompanyJobListings.tsx";
 import { SupabaseJobListings } from "@/components/SupabaseJobListings.tsx";
-import { Suspense } from "react";
-import { UserProfile } from "@/components/UserProfile.tsx";
-import { AdminPlayground } from "@/components/AdminPlayground.tsx";
 import { TypographyH2 } from "@/components/Typography.tsx";
-import { DwnJobListingDrilldown } from "@/components/DwnJobListingDrilldown.tsx";
+import { UserProfile } from "@/components/UserProfile.tsx";
+import { SessionContextProvider } from "@/contexts/SessionContext.tsx";
+import { Suspense } from "react";
+import { createBrowserRouter, Link, RouterProvider } from "react-router-dom";
+import "./App.css";
+import { Companies } from "./components/Companies.tsx";
+import Footer from "./components/Footer.tsx";
+import UpdateProfile from "./components/UpdateProfile";
 
 const router = createBrowserRouter([
   {
@@ -34,12 +35,12 @@ const router = createBrowserRouter([
           </li>
           <li>
             <Link to="/listings/supabase/view/:supabase_listing_id">
-            Job Listing Drilldown (Supabase, demo)
+              Job Listing Drilldown (Supabase, demo)
             </Link>
           </li>
           <li>
             <Link to="/listings/company/:companyDid">
-            Company Drilldown (demo)
+              Company Drilldown (demo)
             </Link>
           </li>
           <li>
@@ -102,6 +103,7 @@ function App() {
           </Suspense>
         </RequireUserLoggedIn>
       </div>
+      <Footer />
     </SessionContextProvider>
   );
 }

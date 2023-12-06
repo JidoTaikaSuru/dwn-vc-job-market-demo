@@ -249,6 +249,16 @@ const Navbar: React.FC = () => {
           ) : (
             ""
           )}
+          {session && (
+            <a href={"/"}>
+            <Button
+              variant="outline"
+              className="tracking-wider font-semibold flex gap-2"
+            >
+              FIND JOBS
+            </Button>
+            </a>
+          )}
           {company && (
             <CreateNewJobPostDialog
               open={open}

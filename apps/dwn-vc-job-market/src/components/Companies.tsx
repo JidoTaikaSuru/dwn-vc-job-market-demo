@@ -15,6 +15,7 @@ import { selector, useRecoilValue } from "recoil";
 import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
 import { Input } from "@/components/ui/input.tsx";
 import { GenericTable } from "@/components/GenericTable.tsx";
+import { TypographyH2 } from "./Typography";
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   jobpostcount: number;
@@ -154,7 +155,7 @@ export const Companies: FC = () => {
   return (
     <div className="p-5 space-y-5">
       <div className={"flex gap-20 items-center justify-bottom"}>
-        <h1>Companies</h1>
+        <TypographyH2>Jobs Listing</TypographyH2>
 
         <Input
           type="text"
@@ -162,6 +163,7 @@ export const Companies: FC = () => {
           onChange={(e) => setGlobalFilter(e.target.value)}
           placeholder="Search..."
           className="ml-auto"
+          style={{width: "500px"}}
         />
       </div>
       <div className="rounded-md border">
