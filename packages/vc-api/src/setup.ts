@@ -48,9 +48,11 @@ import {
 import { DataSource } from "typeorm";
 
 import dotenv from "dotenv";
+import { IonDIDProvider } from "@veramo/did-provider-ion";
 
 dotenv.config();
 export const DEFAULT_IDENTIFIER_SCHEMA = "default";
+export const ION_IDENTIFIER_SCHEMA = "ion";
 // This will be the name for the local sqlite database for demo purposes
 // const DATABASE_FILE = "database.sqlite";
 
@@ -103,6 +105,9 @@ export const agent = createAgent<
           rpcUrl: "https://goerli.infura.io/v3/" + INFURA_PROJECT_ID,
         }),
         "did:web": new WebDIDProvider({
+          defaultKms: "local",
+        }),
+        "did:ion": new IonDIDProvider({
           defaultKms: "local",
         }),
       },

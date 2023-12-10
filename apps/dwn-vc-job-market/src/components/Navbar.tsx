@@ -35,6 +35,7 @@ import { useToast } from "@/components/ui/use-toast.ts";
 import { faker } from "@faker-js/faker";
 import { getRandomPresentationDefinition } from "@/lib/presentationExchangeLib.ts";
 import { TextArea } from "@/components/ui/text-area.tsx";
+import { BOOTSTRAP_SERVERS } from "@/lib/credentialManager.ts";
 
 export const APP_NAME = "Decentralinked";
 
@@ -49,7 +50,7 @@ const CreateNewJobPostDialog: FC<{
   const { toast } = useToast();
 
   const { session } = useContext(SessionContext);
-                  
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -122,20 +123,31 @@ const CreateNewJobPostDialog: FC<{
 
                   console.log("Start Proof of Work ~ proofOfWork");
 
-                  const validatorDid = "did:ion:EiDxKqbPxJLSqG9RePds3y5AtAdj8NkbXLFO4Hb3dzqbsA:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkd24tc2lnIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4IjoiMVdtN0VKNUxQTDBDTDc3NWY3bF9KXzkzT08tVWh6MmJyM3FsVS1jdmVoTSJ9LCJwdXJwb3NlcyI6WyJhdXRoZW50aWNhdGlvbiJdLCJ0eXBlIjoiSnNvbldlYktleTIwMjAifSx7ImlkIjoiZHduLWVuYyIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJ1eExOWE1ULVRlb3FzMDktbmxhUjZUczhpZkpjYkdsRDdqR2tkbVBwR0ZZIiwieSI6IjhzYnpHOGc2NFoyVzZiby1mbWJSQzhKRUxKRG5ISldtejNqZk1Od2R6b00ifSwicHVycG9zZXMiOlsia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoiZHduIiwic2VydmljZUVuZHBvaW50Ijp7ImVuY3J5cHRpb25LZXlzIjpbIiNkd24tZW5jIl0sIm5vZGVzIjpbImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduMCIsImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduMSJdLCJzaWduaW5nS2V5cyI6WyIjZHduLXNpZyJdfSwidHlwZSI6IkRlY2VudHJhbGl6ZWRXZWJOb2RlIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlEQVMyZUdaUzlIYkNTaXIzejNaTTRxeW9oWmRGaFN3ZmQxZ3pFaW9HeXhjUSJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpRER5cS1naDUwUzlmVTRMZ0ppM1M3MUd3Snk3STRQZ2hIVDM4NVRDNzY3aVEiLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUFFU3huVHA0elRwX0h3U0NkU1B5SVZDa1c1a2pFcFlIZFZnaHJScGNVdHlnIn19"; 
+                  const validatorDid = BOOTSTRAP_SERVERS[0].did;
                   const challenge = `(answerHash.match(/00000/g) || []).length > 0`;
                   const validDuration = 100000;
-                  
+
                   /*
-                   = await credentialStore.getProofOfWorkChallenge({
-                    did: myDid,
-                   jwt: session?.access_token ?? ""
-                  });
-                  */
+                                                                                                                                                 = await credentialStore.getProofOfWorkChallenge({
+                                                                                                                                                  did: myDid,
+                                                                                                                                                 jwt: session?.access_token ?? ""
+                                                                                                                                                });
+                                                                                                                                                */
 
+                  // TODO: Timeout after 60s
                   //TODO: send the answer hash to the validator server to check authentity and validate
-                  const {answerHash, executionTime} = await proofOfWork(validatorDid, myDid, challenge, validDuration);
+                  const { answerHash, salt } = await proofOfWork(
+                    validatorDid,
+                    myDid,
+                    challenge,
+                    validDuration,
+                  );
 
+                  await credentialStore.submitProofOfWorkChallenge({
+                    clientDid: myDid,
+                    challengeHash: answerHash,
+                    challengeSalt: salt,
+                  });
                   //TODO: send answer hash and execution time to the server to get next validation
 
                   try {
@@ -270,12 +282,12 @@ const Navbar: React.FC = () => {
           )}
           {session && (
             <a href={"/"}>
-            <Button
-              variant="outline"
-              className="tracking-wider font-semibold flex gap-2"
-            >
-              FIND JOBS
-            </Button>
+              <Button
+                variant="outline"
+                className="tracking-wider font-semibold flex gap-2"
+              >
+                FIND JOBS
+              </Button>
             </a>
           )}
           {company && (

@@ -7,6 +7,21 @@ import { Database } from "@/__generated__/supabase-types.ts";
 
 export const REST_API_URL = "http://localhost:8080";
 
+type BootstrapServer = {
+  url: string;
+  name: string;
+  description?: string;
+  logo?: string;
+  did: string;
+};
+export const BOOTSTRAP_SERVERS: BootstrapServer[] = [
+  {
+    name: "LOCAL",
+    url: REST_API_URL,
+    did: "did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b",
+  },
+];
+
 export interface CredentialManager<
   RequestParameters,
   CredentialsResponse = UniqueVerifiableCredential,
@@ -84,6 +99,7 @@ export class SupabaseCredentialManager
     });
     return res.data;
   };
+
   getProofOfWorkChallenge = async (requestParameters: {
     did: string;
     validatorDid: string;
@@ -91,10 +107,35 @@ export class SupabaseCredentialManager
     executionTime: number;
     jwt: string;
   }) => {
-    const res = await axios.get<{validatorDid: string, challenge: number, validDuration: number}>
-    (`${REST_API_URL}/proofOfWork/${requestParameters.did}&${requestParameters.validatorDid}&${requestParameters.answerHash}&${requestParameters.executionTime}`, {
+    const res = await axios.get<{
+      validatorDid: string;
+      challenge: number;
+      validDuration: number;
+    }>(
+      `${REST_API_URL}/proofOfWork/${requestParameters.did}&${requestParameters.validatorDid}&${requestParameters.answerHash}&${requestParameters.executionTime}`,
+      {
+        headers: {
+          "x-access-token": requestParameters.jwt,
+        },
+      },
+    );
+    return res.data;
+  };
+
+  submitProofOfWorkChallenge = async (requestParameters: {
+    clientDid: string;
+    challengeSalt: string;
+    challengeHash: string;
+  }) => {
+    const res = await axios.post<{
+      validatorDid: string;
+      challenge: number;
+      validDuration: number;
+    }>(`${REST_API_URL}/proofOfWork/`, {
       headers: {
-        "x-access-token": requestParameters.jwt,
+        "X-Client-Id": requestParameters.clientDid,
+        "X-Challenge-Hash": requestParameters.challengeHash,
+        "X-Challenge-Salt": requestParameters.challengeSalt,
       },
     });
     return res.data;
