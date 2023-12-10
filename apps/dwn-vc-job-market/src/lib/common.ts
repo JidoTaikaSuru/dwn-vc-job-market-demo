@@ -72,11 +72,13 @@ export const proofOfWork = async (
 
   let answerHash = "";
 
-  const salt = randomHexString();
+  let salt = "";
 
   const startTime = Date.now();
   let iteration = 0;
   do {
+    salt = randomHexString();
+
     console.log(`iteration #${iteration++} ~ proofOfWork ~`);
 
     answerHash = await argon2id({
@@ -84,7 +86,7 @@ export const proofOfWork = async (
       salt,
       parallelism: 1,
       iterations: 1,
-      memorySize: 1000,
+      memorySize: 10000,
       hashLength: 32, // output size = 32 bytes
       outputType: "hex",
     });

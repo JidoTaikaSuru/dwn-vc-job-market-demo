@@ -1,12 +1,11 @@
 import { FastifyInstance, FastifyServerOptions } from "fastify";
 import { agent, DEFAULT_IDENTIFIER_SCHEMA } from "../setup.js";
-import { argon2id } from "hash-wasm";
+import { argon2id, argon2Verify } from "hash-wasm";
 
-export type ProofOfWorkPostBody = {
-  did: string;
-  validatorDid: string;
-  answerHash: string;
-  executionTime: number;
+export type ProofOfWorkHeaders = {
+  "X-Challenge-Hash": string;
+  "X-Client-Id": string;
+  "X-Challenge-Salt": string;
 };
 
 // default timeout value equal 100 seconds
@@ -24,7 +23,7 @@ export default async function proofOfWorkRoutes(
   server: FastifyInstance,
   options: FastifyServerOptions,
 ) {
-  server.post<{ Body: ProofOfWorkPostBody }>("/proofOfWork", {
+  server.post<{ Headers: ProofOfWorkHeaders }>("/proofOfWork", {
     schema: {
       headers: {
         type: "object",
@@ -33,7 +32,7 @@ export default async function proofOfWorkRoutes(
           "X-Client-Id": { type: "string" },
           "X-Challenge-Salt": { type: "string" },
         },
-        required: ["X-Challenge-Solution", "X-Client-Id"],
+        required: ["X-Challenge-Hash", "X-Client-Id", "X-Challenge-Salt"],
       },
       // body: {
       //   type: "object",
@@ -59,13 +58,25 @@ export default async function proofOfWorkRoutes(
       const clientDid = request.headers["X-Client-Id"];
       const challengeSalt = request.headers["X-Challenge-Salt"];
       const challengeHash = request.headers["X-Challenge-Hash"];
+      if (!clientDid || !challengeSalt || !challengeHash) {
+        return reply.status(400).send("You are missing a required header");
+      } else if (
+        Array.isArray(clientDid) ||
+        Array.isArray(challengeSalt) ||
+        Array.isArray(challengeHash)
+      ) {
+        return reply
+          .status(400)
+          .send("You passed the same authorization header more than once");
+      }
+
       const serverDid = await agent.didManagerGetByAlias({
         alias: DEFAULT_IDENTIFIER_SCHEMA,
       });
 
-      answerHash = await argon2id({
-        password: validatorDid + myDid,
-        salt,
+      const serverAnswer = await argon2id({
+        password: serverDid + clientDid,
+        salt: challengeSalt,
         parallelism: 1,
         iterations: 1,
         memorySize: 1000,
@@ -73,7 +84,24 @@ export default async function proofOfWorkRoutes(
         outputType: "hex",
       });
 
-      reply.send({ nextValidatorDid, challenge, validDuration });
+      const isValid = await argon2Verify({
+        password: serverDid + clientDid,
+        hash: challengeHash,
+      });
+
+      console.log(
+        "serverAnswer:",
+        serverAnswer,
+        "challengeHash:",
+        challengeHash,
+        "isValid",
+        isValid,
+      );
+
+      if (!isValid) {
+        return reply.status(401).send("Failed to verify hash");
+      }
+      reply.status(200);
     },
   });
 }
