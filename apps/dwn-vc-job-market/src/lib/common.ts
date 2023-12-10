@@ -5,6 +5,7 @@ import { Web5, Web5ConnectOptions } from "@web5/api/browser";
 import { protocols } from "@/lib/protocols.ts";
 import { DwnClient } from "@/lib/web5Client.ts";
 import { configureProtocol } from "@/lib/utils.ts";
+import { argon2id } from 'hash-wasm';
 
 export const did_db_table = "dwn_did_registry_2";
 export const DEBUGGING = false;
@@ -51,4 +52,44 @@ export function truncateString(str: string, num: number): string {
     return str;
   }
   return str.slice(0, num / 2) + "...." + str.slice(str.length - num / 2);
+}
+
+export const proofOfWork = async (validatorDid: string, myDid: string, challenge: string, validDuration: number)
+  : Promise<{ answerHash: string, executionTime: number }> => {
+  const buffer = require('buffer/').Buffer;
+
+  const randomHexString = () => {
+    let size = Math.floor(Math.random() * Math.floor(500));
+    size = size >= 16 ? size : 16;
+    const randomString = [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    return buffer.from(randomString).toString('hex');
+  }
+
+  let answerHash = '';
+
+  const startTime = Date.now();
+  let iteration = 0;
+  do {
+    console.log(`iteration #${iteration++} ~ proofOfWork ~`)
+
+    answerHash = await argon2id({
+      password: validatorDid + myDid,
+      salt: randomHexString(),
+      parallelism: 1,
+      iterations: 1,
+      memorySize: 1000,
+      hashLength: 32, // output size = 32 bytes
+      outputType: 'hex',
+    });
+
+    if (eval(challenge)) {
+      const executionTime = Date.now() - startTime;
+      console.log(`Answer Hash is approved! ~ proofOfWork ~  answerHash: ${answerHash}; executionTime: ${executionTime}`)
+      return { answerHash: answerHash, executionTime: executionTime };
+    }
+
+  } while (Date.now() - startTime < validDuration);
+
+  console.log("Time Out ~ proofOfWork ~ ")
+  return { answerHash: "", executionTime: validDuration };
 }

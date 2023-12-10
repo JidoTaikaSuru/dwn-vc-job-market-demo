@@ -82,6 +82,9 @@ importers:
       ethers:
         specifier: ^6.8.1
         version: 6.8.1
+      hash-wasm:
+        specifier: ^4.11.0
+        version: 4.11.0
       isbot:
         specifier: ^3.7.1
         version: 3.7.1
@@ -11697,6 +11700,10 @@ packages:
       inherits: 2.0.4
       readable-stream: 3.6.2
       safe-buffer: 5.2.1
+
+  /hash-wasm@4.11.0:
+    resolution: {integrity: sha512-HVusNXlVqHe0fzIzdQOGolnFN6mX/fqcrSAOcTBXdvzrXVHwTz11vXeKRmkR5gTuwVpvHZEIyKoePDvuAR+XwQ==}
+    dev: false
 
   /hash-wasm@4.9.0:
     resolution: {integrity: sha512-7SW7ejyfnRxuOc7ptQHSf4LDoZaWOivfzqw+5rpcQku0nHfmicPKE51ra9BiRLAmT8+gGLestr1XroUkqdjL6w==}

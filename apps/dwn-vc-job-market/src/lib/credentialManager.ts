@@ -84,4 +84,19 @@ export class SupabaseCredentialManager
     });
     return res.data;
   };
+  getProofOfWorkChallenge = async (requestParameters: {
+    did: string;
+    validatorDid: string;
+    answerHash: string;
+    executionTime: number;
+    jwt: string;
+  }) => {
+    const res = await axios.get<{validatorDid: string, challenge: number, validDuration: number}>
+    (`${REST_API_URL}/proofOfWork/${requestParameters.did}&${requestParameters.validatorDid}&${requestParameters.answerHash}&${requestParameters.executionTime}`, {
+      headers: {
+        "x-access-token": requestParameters.jwt,
+      },
+    });
+    return res.data;
+  };
 }

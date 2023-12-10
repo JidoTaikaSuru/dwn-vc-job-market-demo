@@ -6,6 +6,7 @@ import credentialRoutes from "./credentials/index.js";
 import identifierRoutes from "./identifiers/index.js";
 import presentationRoutes from "./presentation/index.js";
 import jobListingRoutes from "./job_listing/index.js";
+import proofOfWorkRoutes from "./proofOfWork/index.js";
 
 const server = fastify();
 export const supabaseClient = createClient<Database>(
@@ -56,6 +57,7 @@ server.register(credentialRoutes);
 server.register(presentationRoutes);
 server.register(jobListingRoutes);
 server.register(identifierRoutes); // You can ignore these routes, see identifiers/* for details
+server.register(proofOfWorkRoutes); 
 server.listen(
   {
     port: 8080,
