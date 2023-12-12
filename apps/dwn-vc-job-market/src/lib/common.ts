@@ -97,7 +97,7 @@ export const proofOfWork = async (
     console.log("🚀 ~ file: common.ts:85 ~ ~ proofOfWork ~  hexAnswerHash:", answerHex)
 
     if (eval(challenge)) {
-      console.log("🚀 ~ file: common.ts:99 ~ proofOfWork ~ HASH IS APPROVED!:")
+      console.log("🚀 ~ file: common.ts:99 ~ proofOfWork ~ HASH IS APPROVED! Total time:", Date.now() - startTime)
       return { answerHash };
     }
   } while (Date.now() - startTime < validDuration);

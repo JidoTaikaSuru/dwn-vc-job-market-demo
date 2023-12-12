@@ -101,20 +101,18 @@ export class SupabaseCredentialManager
   };
 
   getProofOfWorkChallenge = async (requestParameters: {
-    did: string;
-    validatorDid: string;
-    answerHash: string;
-    executionTime: number;
+    clientDid: string;
     jwt: string;
   }) => {
     const res = await axios.get<{
-      validatorDid: string;
-      challenge: number;
-      validDuration: number;
+      challenge: string;
+      serverDid: string;
+      timeOut: number;
     }>(
-      `${REST_API_URL}/proofOfWork/${requestParameters.did}&${requestParameters.validatorDid}&${requestParameters.answerHash}&${requestParameters.executionTime}`,
+      `${REST_API_URL}/proofOfWork/getChallenge`,
       {
         headers: {
+          "X-Client-Id": requestParameters.clientDid,
           "x-access-token": requestParameters.jwt,
         },
       },
@@ -125,6 +123,7 @@ export class SupabaseCredentialManager
   submitProofOfWorkChallenge = async (requestParameters: {
     clientDid: string;
     challengeHash: string;
+    jwt: string;
   }) => {
     const res = await axios.post(
       `${REST_API_URL}/proofOfWork`,
@@ -133,6 +132,7 @@ export class SupabaseCredentialManager
       headers: {
         "X-Client-Id": requestParameters.clientDid,
         "X-Challenge-Hash": requestParameters.challengeHash,
+        "x-access-token": requestParameters.jwt,
       },
     });
     return res.data;
