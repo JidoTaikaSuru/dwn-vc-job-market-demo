@@ -123,25 +123,20 @@ const CreateNewJobPostDialog: FC<{
 
                   console.log("Start Proof of Work ~ proofOfWork");
 
-                  const {serverDid, challenge, timeOut} = await credentialStore.getProofOfWorkChallenge({
+                  const {serverDid, challenge} = await credentialStore.getProofOfWorkChallenge({
                     clientDid: myDid,
-                    jwt: session?.access_token || ""
                   });
-
-                  console.log("🚀 ~ file: Navbar.tsx:136 ~ sendApplication ~ proofOfWork ~ serverDid, challenge, timeOut:", serverDid, challenge, timeOut)
 
                   //TODO: send the answer hash to the validator server to check authentity and validate
                   const { answerHash } = await proofOfWork(
                     serverDid,
                     myDid,
                     challenge,
-                    timeOut,
                   );
 
                   const reply = await credentialStore.submitProofOfWorkChallenge({
                     clientDid: myDid,
                     challengeHash: answerHash,
-                    jwt: session?.access_token || ""
                   });
 
                   //TODO need to return a reply

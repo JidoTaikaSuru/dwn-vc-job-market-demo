@@ -20,17 +20,15 @@ export default async function proofOfWorkRoutes(
         properties: {
           "x-challenge-hash": { type: "string" },
           "x-client-id": { type: "string" },
-          "x-access-token": { type: "string" },
         },
-        required: ["x-challenge-hash", "x-client-id", "x-access-token"],
+        required: ["x-challenge-hash", "x-client-id"],
       },
     },
 
     handler: async (request, reply) => {
       const clientDid = request.headers["x-client-id"];
-      const challengeHash = request.headers["x-challenge-hash"];
-      const accessToken = request.headers["x-access-token"];
-      if (!clientDid || !challengeHash || !accessToken) {
+      const challengeHash = request.headers["x-challenge-hash"];;
+      if (!clientDid || !challengeHash) {
         return reply.status(400).send(`You are missing a required header`);
       } else if (
         Array.isArray(clientDid) ||
@@ -76,20 +74,17 @@ export default async function proofOfWorkRoutes(
         type: "object",
         properties: {
           "x-client-id": { type: "string" },
-          "x-access-token": { type: "string" },
         },
-        required: ["x-access-token", "x-client-id"],
+        required: ["x-client-id"],
       },
     },
 
     handler: async (request, reply) => {
       const clientDid = request.headers["x-client-id"];
-      const accessToken = request.headers["x-access-token"];
-      if (!clientDid || !accessToken) {
+      if (!clientDid) {
         return reply.status(400).send(`You are missing a required header`);
       } else if (
-        Array.isArray(clientDid) ||
-        Array.isArray(accessToken)
+        Array.isArray(clientDid)
       ) {
         return reply
           .status(400)
@@ -101,9 +96,8 @@ export default async function proofOfWorkRoutes(
       });
 
       const challenge = `(answerHex.match(/0000/g) || []).length > 0`;
-      const timeOut = 100000;
 
-      return reply.status(200).send({serverDid: did, challenge, timeOut});
+      return reply.status(200).send({serverDid: did, challenge});
     },
   });
 }

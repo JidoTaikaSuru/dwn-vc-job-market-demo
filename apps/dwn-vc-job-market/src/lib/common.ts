@@ -59,10 +59,7 @@ export const proofOfWork = async (
   validatorDid: string,
   myDid: string,
   challenge: string,
-  validDuration: number,
 ): Promise<{ answerHash: string }> => {
-  console.log("🚀 ~ file: common.ts:64 ~proofOfWork ~ myDid:", myDid)
-  console.log("🚀 ~ file: common.ts:64 ~ proofOfWork ~ validatorDid:", validatorDid)
   const randomHexString = () => {
     let size = Math.floor(Math.random() * Math.floor(500));
     size = size >= 16 ? size : 16;
@@ -77,12 +74,10 @@ export const proofOfWork = async (
   const startTime = Date.now();
   let iteration = 0;
   do {
-    console.log(`iteration #${iteration++} ~ proofOfWork ~`);
-
     answerHash = await argon2id({
       password: validatorDid + myDid,
       salt: randomHexString(),
-      parallelism: 1,
+      parallelism: 2,
       iterations: 1,
       memorySize: 1000,
       hashLength: 32, // output size = 32 bytes
@@ -93,14 +88,10 @@ export const proofOfWork = async (
 
     const answerHex = buffer.Buffer.from(lastPart, 'base64').toString("hex");
 
-    console.log("🚀 ~ file: common.ts:85 ~ ~ proofOfWork ~  answerHash:", answerHash)
-    console.log("🚀 ~ file: common.ts:85 ~ ~ proofOfWork ~  hexAnswerHash:", answerHex)
-
     if (eval(challenge)) {
-      console.log("🚀 ~ file: common.ts:99 ~ proofOfWork ~ HASH IS APPROVED! Total time:", Date.now() - startTime)
       return { answerHash };
     }
-  } while (Date.now() - startTime < validDuration);
+  } while (Date.now() - startTime < 500000);
 
   throw new Error("Time Out ~ proofOfWork ~ ");
 };
