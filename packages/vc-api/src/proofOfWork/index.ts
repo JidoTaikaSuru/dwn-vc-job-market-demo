@@ -1,68 +1,37 @@
 import { FastifyInstance, FastifyServerOptions } from "fastify";
 import { agent, DEFAULT_IDENTIFIER_SCHEMA } from "../setup.js";
-import { argon2id, argon2Verify } from "hash-wasm";
+import { argon2Verify } from "hash-wasm";
 
 export type ProofOfWorkHeaders = {
-  "X-Challenge-Hash": string;
-  "X-Client-Id": string;
-  "X-Challenge-Salt": string;
+  "x-challenge-hash": string;
+  "x-client-id": string;
 };
-
-// default timeout value equal 100 seconds
-const defaultValidTimeout = 100000;
-
-// timeout delta to increase or decrease the valid timeout
-// depending on successfull or failed proof of work
-const timeoutDelta = 10000;
-
-const answerHashVariable = "answerHash";
-
-const challengeBody = "00000";
 
 export default async function proofOfWorkRoutes(
   server: FastifyInstance,
   options: FastifyServerOptions,
 ) {
-  server.post<{ Headers: ProofOfWorkHeaders }>("/proofOfWork", {
+  server.route({
+    method: "POST",
+    url: "/proofOfWork",
     schema: {
       headers: {
         type: "object",
         properties: {
-          "X-Challenge-Hash": { type: "string" },
-          "X-Client-Id": { type: "string" },
-          "X-Challenge-Salt": { type: "string" },
+          "x-challenge-hash": { type: "string" },
+          "x-client-id": { type: "string" },
         },
-        required: ["X-Challenge-Hash", "X-Client-Id", "X-Challenge-Salt"],
+        required: ["x-challenge-hash", "x-client-id"],
       },
-      // body: {
-      //   type: "object",
-      //   properties: {
-      //     did: {
-      //       type: "string",
-      //     },
-      //     answerHash: {
-      //       type: "string",
-      //     },
-      //     validatorDid: {
-      //       type: "string",
-      //     },
-      //     executionTime: {
-      //       type: "number",
-      //     },
-      //   },
-      //   required: ["proofOfWork"],
-      // },
     },
 
     handler: async (request, reply) => {
-      const clientDid = request.headers["X-Client-Id"];
-      const challengeSalt = request.headers["X-Challenge-Salt"];
-      const challengeHash = request.headers["X-Challenge-Hash"];
-      if (!clientDid || !challengeSalt || !challengeHash) {
-        return reply.status(400).send("You are missing a required header");
+      const clientDid = request.headers["x-client-id"];
+      const challengeHash = request.headers["x-challenge-hash"];
+      if (!clientDid || !challengeHash) {
+        return reply.status(400).send(`You are missing a required header`);
       } else if (
         Array.isArray(clientDid) ||
-        Array.isArray(challengeSalt) ||
         Array.isArray(challengeHash)
       ) {
         return reply
@@ -70,28 +39,20 @@ export default async function proofOfWorkRoutes(
           .send("You passed the same authorization header more than once");
       }
 
-      const serverDid = await agent.didManagerGetByAlias({
+      const { did } = await agent.didManagerGetByAlias({
         alias: DEFAULT_IDENTIFIER_SCHEMA,
       });
-
-      const serverAnswer = await argon2id({
-        password: serverDid + clientDid,
-        salt: challengeSalt,
-        parallelism: 1,
-        iterations: 1,
-        memorySize: 1000,
-        hashLength: 32, // output size = 32 bytes
-        outputType: "hex",
-      });
+      console.log("🚀 ~ file: index.ts:67 ~ handler: ~ clientDid:", clientDid)
+      console.log("🚀 ~ file: index.ts:78 ~ handler: ~ serverDid:", did)
 
       const isValid = await argon2Verify({
-        password: serverDid + clientDid,
+        password: did + clientDid,
         hash: challengeHash,
       });
 
       console.log(
         "serverAnswer:",
-        serverAnswer,
+        did,
         "challengeHash:",
         challengeHash,
         "isValid",

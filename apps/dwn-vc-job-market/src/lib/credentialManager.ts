@@ -124,18 +124,15 @@ export class SupabaseCredentialManager
 
   submitProofOfWorkChallenge = async (requestParameters: {
     clientDid: string;
-    challengeSalt: string;
     challengeHash: string;
   }) => {
-    const res = await axios.post<{
-      validatorDid: string;
-      challenge: number;
-      validDuration: number;
-    }>(`${REST_API_URL}/proofOfWork/`, {
+    const res = await axios.post(
+      `${REST_API_URL}/proofOfWork`,
+    undefined, 
+    {
       headers: {
         "X-Client-Id": requestParameters.clientDid,
         "X-Challenge-Hash": requestParameters.challengeHash,
-        "X-Challenge-Salt": requestParameters.challengeSalt,
       },
     });
     return res.data;

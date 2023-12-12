@@ -60,7 +60,9 @@ export const proofOfWork = async (
   myDid: string,
   challenge: string,
   validDuration: number,
-): Promise<{ answerHash: string; salt: string }> => {
+): Promise<{ answerHash: string }> => {
+  console.log("🚀 ~ file: common.ts:64 ~proofOfWork ~ myDid:", myDid)
+  console.log("🚀 ~ file: common.ts:64 ~ proofOfWork ~ validatorDid:", validatorDid)
   const randomHexString = () => {
     let size = Math.floor(Math.random() * Math.floor(500));
     size = size >= 16 ? size : 16;
@@ -72,36 +74,33 @@ export const proofOfWork = async (
 
   let answerHash = "";
 
-  let salt = "";
-
   const startTime = Date.now();
   let iteration = 0;
   do {
-    salt = randomHexString();
-
     console.log(`iteration #${iteration++} ~ proofOfWork ~`);
 
     answerHash = await argon2id({
       password: validatorDid + myDid,
-      salt,
+      salt: randomHexString(),
       parallelism: 1,
       iterations: 1,
-      memorySize: 10000,
+      memorySize: 1000,
       hashLength: 32, // output size = 32 bytes
-      outputType: "hex",
+      outputType: "encoded",
     });
 
+    const lastPart = answerHash.substring(answerHash.lastIndexOf("$") + 1, answerHash.length);
+
+    const answerHex = buffer.Buffer.from(lastPart, 'base64').toString("hex");
+
+    console.log("🚀 ~ file: common.ts:85 ~ ~ proofOfWork ~  answerHash:", answerHash)
+    console.log("🚀 ~ file: common.ts:85 ~ ~ proofOfWork ~  hexAnswerHash:", answerHex)
+
     if (eval(challenge)) {
-      const executionTime = Date.now() - startTime;
-      console.log(
-        `Answer Hash is approved! ~ proofOfWork ~  answerHash: ${answerHash}; executionTime: ${executionTime}`,
-      );
-      // return { answerHash: answerHash, executionTime: executionTime };
-      return { answerHash, salt };
+      console.log("🚀 ~ file: common.ts:99 ~ proofOfWork ~ HASH IS APPROVED!:")
+      return { answerHash };
     }
   } while (Date.now() - startTime < validDuration);
 
   throw new Error("Time Out ~ proofOfWork ~ ");
-  // console.log("Time Out ~ proofOfWork ~ ")
-  // return { answerHash: "", executionTime: validDuration };
 };

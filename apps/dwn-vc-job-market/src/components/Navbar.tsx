@@ -124,32 +124,25 @@ const CreateNewJobPostDialog: FC<{
                   console.log("Start Proof of Work ~ proofOfWork");
 
                   const validatorDid = BOOTSTRAP_SERVERS[0].did;
-                  const challenge = `(answerHash.match(/00000/g) || []).length > 0`;
+                  const challenge = `(answerHex.match(/0000/g) || []).length > 0`;
                   const validDuration = 100000;
 
-                  /*
-                                                                                                                                                 = await credentialStore.getProofOfWorkChallenge({
-                                                                                                                                                  did: myDid,
-                                                                                                                                                 jwt: session?.access_token ?? ""
-                                                                                                                                                });
-                                                                                                                                                */
-
-                  // TODO: Timeout after 60s
                   //TODO: send the answer hash to the validator server to check authentity and validate
-                  const { answerHash, salt } = await proofOfWork(
+                  const { answerHash } = await proofOfWork(
                     validatorDid,
                     myDid,
                     challenge,
                     validDuration,
                   );
 
-                  await credentialStore.submitProofOfWorkChallenge({
+                  const reply = await credentialStore.submitProofOfWorkChallenge({
                     clientDid: myDid,
                     challengeHash: answerHash,
-                    challengeSalt: salt,
                   });
-                  //TODO: send answer hash and execution time to the server to get next validation
 
+                  //TODO need to return a reply
+                  console.log("🚀 ~ file: Navbar.tsx:150 ~ sendApplication ~ submitProofOfWorkChallenge:", reply)
+                  
                   try {
                     console.log("creating job post", jobdata);
                     await web5Client.dwnCreateJobPostAgainstCompany(jobdata);
