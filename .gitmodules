@@ -1,3 +1,6 @@
 [submodule "packages/dwn-server"]
 	path = packages/dwn-server
 	url = git@github.com:JidoTaikaSuru/dwn-server.git
+[submodule "packages/dwn-job-board-backend"]
+	path = packages/dwn-job-board-backend
+	url = git@github.com:JidoTaikaSuru/dwn-job-board-backend.git
