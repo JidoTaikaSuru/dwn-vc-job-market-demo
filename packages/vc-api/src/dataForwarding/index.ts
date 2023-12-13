@@ -12,6 +12,7 @@ import * as ethers  from  "ethers";
 const keyto = require('@trust/keyto'); //this is the winner
 
 import dotenv from "dotenv";
+import {registerDataSubscriptionEndpoint} from "./register.js";
 
 
 dotenv.config();
@@ -163,5 +164,23 @@ export default async function TakeDataRoutes(
       return reply.status(401).send("Failed");
  
     },
+  });
+  
+  server.route({
+    method: "POST",
+    url: "/registerDataSubscriptionEndpoint",
+    schema: {
+      headers: {
+        type: "object",
+        properties: {
+          "x-challenge-hash": { type: "string" },
+          "x-client-id": { type: "string" },
+          "x-client-endpoint": { type: "string" },
+        },
+        required: ["x-challenge-hash", "x-client-id", "x-client-endpoint"],
+      },
+    },
+
+    handler: registerDataSubscriptionEndpoint,
   });
 }

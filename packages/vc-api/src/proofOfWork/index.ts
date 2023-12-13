@@ -2,6 +2,8 @@ import { FastifyInstance, FastifyServerOptions } from "fastify";
 import { agent, DEFAULT_IDENTIFIER_SCHEMA } from "../setup.js";
 import { argon2Verify } from "hash-wasm";
 
+const challenge = `(answerHex.match(/0000/g) || []).length > 0`
+
 export type ProofOfWorkHeaders = {
   "x-challenge-hash": string;
   "x-client-id": string;
@@ -42,22 +44,11 @@ export default async function proofOfWorkRoutes(
       const { did } = await agent.didManagerGetByAlias({
         alias: DEFAULT_IDENTIFIER_SCHEMA,
       });
-      console.log("🚀 ~ file: index.ts:67 ~ handler: ~ clientDid:", clientDid)
-      console.log("🚀 ~ file: index.ts:78 ~ handler: ~ serverDid:", did)
 
       const isValid = await argon2Verify({
         password: did + clientDid,
         hash: challengeHash,
       });
-
-      console.log(
-        "serverAnswer:",
-        did,
-        "challengeHash:",
-        challengeHash,
-        "isValid",
-        isValid,
-      );
 
       if (!isValid) {
         return reply.status(401).send("Failed to verify hash");
@@ -94,8 +85,6 @@ export default async function proofOfWorkRoutes(
       const { did } = await agent.didManagerGetByAlias({
         alias: DEFAULT_IDENTIFIER_SCHEMA,
       });
-
-      const challenge = `(answerHex.match(/0000/g) || []).length > 0`;
 
       return reply.status(200).send({serverDid: did, challenge});
     },
