@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyServerOptions } from "fastify";
 import { agent, DEFAULT_IDENTIFIER_SCHEMA } from "../setup.js";
 import { argon2id, argon2Verify, sha256, createSHA256} from "hash-wasm";
+import { jwtAuthentication, supabaseClient } from "../index.js";
 
 import * as jose from 'jose'
 import { encode, decode } from '@ipld/dag-json'
@@ -24,12 +25,15 @@ export type TakeDataHeaders = {
  
 
 
+const trusted_pubkeys= (process.env['trustpklist']? process.env['trustpklist'] : "0xf8d34981a0258898893f516e7BB094b8433A9680,0x5aE625186BCd5749a40198Fb6a6bac7AC3CC031E,0x7a73277fa9C4F614Fe0959f27d09CaBeB28b3555").replace("0x","").split(",");
+console.log("🚀 ~ file: index.ts:28 ~ trusted_pubkeys:", trusted_pubkeys)
 
 //const debug_parent_privatekey ="680425c1f7cbb803be68aff2c841f654e3a2373920268231f99c95a954536ab9" // this fails 
 const debug_parent_privatekey = process.env['parentpk']? process.env['parentpk'] : "2163b9e4411ad1df8720833b35dcf57ce44556280d9e020de2dc11752798fddd"
 console.log("🚀 ~ file: index.ts:30 ~ debug_parent_privatekey:", debug_parent_privatekey)
 const debug_parent_wallet =  new ethers.Wallet(debug_parent_privatekey )
 const parent_pubkey = debug_parent_wallet.address; 
+console.log("🚀 ~ file: index.ts:33 ~ parent_pubkey:", parent_pubkey)
 
 const keyJwk  = keyto.from(debug_parent_privatekey, 'blk').toJwk('public');
 console.log("🚀 ~ file: index.ts:28 ~ keyJwk:", keyJwk)
@@ -92,37 +96,15 @@ export default async function TakeDataRoutes(
 
 
 
-
-
-      /*
-        const salt = new Uint8Array(16);
-      
-        const key = await argon2id({
-          password: 'pass',
-          salt, // salt is a buffer containing random bytes
-          parallelism: 1,
-          iterations: 256,
-          memorySize: 512, // use 512KB memory
-          hashLength: 32, // output size = 32 bytes
-          outputType: 'encoded', // return standard encoded string containing parameters needed to verify the key
-        });
-      
-        console.log('Derived key:', key);
-      
-        const isValid = await argon2Verify({
-          password: 'pass',
-          hash: key,
-        });
-        console.log("🚀 ~ file: index.ts:104 ~ run ~ isValid:", isValid)
-      
-        console.log(isValid ? 'Valid password' : 'Invalid password');
-
-      */
-
-
-
-
       if(producer_jwt && request.body ){
+
+
+        const { data:sublist, error } = await supabaseClient.from("data_subscribers").select('*').order('successful_forwarding', { ascending: true })
+
+        if(sublist && sublist.length >0 ){
+            const forwarder = sublist[0].endpoint
+            console.log("🚀 ~ file: index.ts:106 ~ handler: ~ forwarder:", forwarder)
+        }
 
         console.log("🚀 ~ file: index.ts:79 ~ handler: ~ parent_jwt_pubkey:", JSON.stringify(parent_jwk_pubkey))
 
@@ -153,7 +135,7 @@ export default async function TakeDataRoutes(
 
 
         const signed_body_hash = await new jose.SignJWT({ 'urn:recieved:data': true , "data:hash":bodyhashHex, "my_endpoint":my_endpoint})
-        .setProtectedHeader({ alg:'ES256K'})  // ES256K  doesn't wokr   ES256K
+        .setProtectedHeader({ alg:'ES256K'})  
         .setIssuedAt()
         .setIssuer('urn:example:issuer')
         .setAudience('urn:example:audience')

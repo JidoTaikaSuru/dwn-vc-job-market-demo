@@ -8,6 +8,9 @@ import presentationRoutes from "./presentation/index.js";
 import jobListingRoutes from "./job_listing/index.js";
 import proofOfWorkRoutes from "./proofOfWork/index.js";
 import dataForwarding from "./dataForwarding/index.js";
+import forwarding from "./dataForwarding/forwarding.js";
+import requesttask from "./dataForwarding/requesttask.js";
+
 
 import dotenv from "dotenv";
 
@@ -62,6 +65,11 @@ server.register(jobListingRoutes);
 server.register(identifierRoutes); // You can ignore these routes, see identifiers/* for details
 server.register(proofOfWorkRoutes); 
 server.register(dataForwarding);
+server.register(forwarding);
+server.register(requesttask);
+
+
+
 server.listen(
   {
     port: process.env['port']? parseInt(process.env['port']) : 8080,
