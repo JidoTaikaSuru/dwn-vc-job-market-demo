@@ -2,4 +2,4 @@ name: dif-2023
 packages:
   - "packages/*"
   - "apps/*"
-  - "cli/*"
+  - "backend/"
