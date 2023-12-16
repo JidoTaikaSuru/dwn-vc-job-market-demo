@@ -5,7 +5,7 @@ import type {
 import axios from "axios";
 import { Database } from "@/__generated__/supabase-types.ts";
 
-export const REST_API_URL = "http://localhost:8080";
+export const REST_API_URL = import.meta.env.VITE_BACKEND_URL;
 
 type BootstrapServer = {
   url: string;
