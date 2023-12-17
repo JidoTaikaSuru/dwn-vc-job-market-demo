@@ -56,19 +56,6 @@ export interface CredentialManager<
   ) => Promise<null>;
 }
 
-export async function makeAxiosRequest<R, T>(requestParameters: {
-  jwt: string
-} & R, url: string, httpMethod: 'get' | 'post', data?: any): Promise<T> {
-  const headers = { 'x-access-token': requestParameters.jwt };
-  const axiosConfig = { headers: headers };
-  let res;
-  if (httpMethod === 'get') {
-    res = await axios.get<T>(url, axiosConfig);
-  } else {
-    res = await axios.post<T>(url, data, axiosConfig);
-  }
-  return res.data;
-}
 
 
 export class SupabaseCredentialManager
