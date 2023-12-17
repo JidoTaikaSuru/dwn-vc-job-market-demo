@@ -1,11 +1,17 @@
-import { selector, selectorFamily } from 'recoil';
-import { ProtocolDefinition, ProtocolsQueryFilter } from '@tbd54566975/dwn-sdk-js';
-import { did_db_table, getWeb5Connection, supabaseClient } from '@/lib/common.ts';
-import { DwnClient } from '@/lib/web5Client.ts';
-import { protocols } from '@/lib/protocols.ts';
-import { configureProtocol, DwnListType, logIfDebug } from '@/lib/utils.ts';
-import { User } from '@supabase/supabase-js';
-import { getSupabaseUserSelector, getSupabaseUserTableRecordSelector } from '@/lib/supabaseRecoil.ts';
+import { selector, selectorFamily } from "recoil";
+import {
+  ProtocolDefinition,
+  ProtocolsQueryFilter,
+} from "@tbd54566975/dwn-sdk-js";
+import {
+  did_db_table,
+  getWeb5Connection,
+  supabaseClient,
+} from "@/lib/common.ts";
+import { DwnClient } from "@/lib/web5Client.ts";
+import { protocols } from "@/lib/protocols.ts";
+import { configureProtocol, DwnListType, logIfDebug } from "@/lib/utils.ts";
+import { User } from "@supabase/supabase-js";
 
 export const web5ConnectSelector = selector({
   key: "web5ConnectSelector",
@@ -41,6 +47,32 @@ export const web5ConnectSelector = selector({
   },
 });
 
+const getSupabaseUserSelector = selector({
+  key: "getSupabaseUserSelector",
+  get: async () => {
+    const { data, error } = await supabaseClient.auth.getUser();
+    console.log("getSupabaseUserSelector ~ data:", data);
+    if (error) {
+      console.error("getSupabaseUserSelector ~ error:", error);
+      return { user: undefined };
+    }
+    return data;
+  },
+});
+
+const getSupabaseUserTableRecordSelector = selector({
+  key: "getSupabaseUserTableRecordSelector",
+  get: async ({ get }) => {
+    const { user } = get(getSupabaseUserSelector);
+    if (!user) return undefined;
+    const { data, error } = await supabaseClient
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+    return data;
+  },
+});
 export const getPublicDwnDidListSelector = selector({
   key: "getPublicDwnDidListSelector",
   get: async () => {
