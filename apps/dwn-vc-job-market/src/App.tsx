@@ -1,19 +1,19 @@
-import { AdminPlayground } from "@/components/AdminPlayground.tsx";
-import { CompanyJobListings } from "@/components/CompanyJobListings.tsx";
-import { DwnJobListingDrilldown } from "@/components/DwnJobListingDrilldown.tsx";
-import Navbar from "@/components/Navbar.tsx";
-import { RequireUserLoggedIn } from "@/components/RequireUserLoggedIn.tsx";
-import { SupabaseJobListingDrilldown } from "@/components/SupabaseJobListingDrilldown.tsx";
-import { SupabaseJobListings } from "@/components/SupabaseJobListings.tsx";
-import { TypographyH2 } from "@/components/Typography.tsx";
-import { UserProfile } from "@/components/UserProfile.tsx";
-import { SessionContextProvider } from "@/contexts/SessionContext.tsx";
-import { Suspense } from "react";
-import { createBrowserRouter, Link, RouterProvider } from "react-router-dom";
-import "./App.css";
-import { Companies } from "./components/Companies.tsx";
-import Footer from "./components/Footer.tsx";
-import UpdateProfile from "./components/UpdateProfile";
+import { AdminPlayground } from '@/components/AdminPlayground.tsx';
+import { CompanyJobListings } from '@/components/CompanyJobListings.tsx';
+import { DwnJobListingDrilldown } from '@/components/DwnJobListingDrilldown.tsx';
+import Navbar from '@/components/Navbar.tsx';
+import { RequireUserLoggedIn } from '@/components/RequireUserLoggedIn.tsx';
+import { SupabaseJobListingDrilldown } from '@/components/SupabaseJobListingDrilldown.tsx';
+import { SupabaseJobListings } from '@/components/SupabaseJobListings.tsx';
+import { TypographyH2 } from '@/components/Typography.tsx';
+import { UserProfile } from '@/components/UserProfile.tsx';
+import { SessionContextProvider } from '@/contexts/SessionContext.tsx';
+import { Suspense } from 'react';
+import { createBrowserRouter, Link, RouterProvider } from 'react-router-dom';
+import './App.css';
+import { Companies } from './components/Companies.tsx';
+import Footer from './components/Footer.tsx';
+import UpdateProfile from './components/UpdateProfile';
 
 const router = createBrowserRouter([
   {
@@ -66,14 +66,13 @@ const router = createBrowserRouter([
     element: <DwnJobListingDrilldown />,
   },
   {
-    path: "/listings/supabase",
+    path: "/listings/rest",
     element: <SupabaseJobListings />,
   },
   {
-    path: "/listings/supabase/view/:listingId",
+    path: "/listings/rest/view/:listingId",
     element: <SupabaseJobListingDrilldown />,
   },
-
   {
     path: "/listings/company/:companyDid",
     element: <CompanyJobListings />,

@@ -1,49 +1,31 @@
-import type { Database } from "@/__generated__/supabase-types";
-import { FC, useContext, useMemo, useState } from "react";
-import { credentialStore } from "@/lib/common";
-import type { ColumnDef } from "@tanstack/react-table";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { useParams } from "react-router-dom";
-import { SessionContext } from "@/contexts/SessionContext.tsx";
-import JSONPretty from "react-json-pretty";
+import type { Database } from '@/__generated__/supabase-types';
+import { FC, useContext, useMemo, useState } from 'react';
+import { credentialStore } from '@/lib/common';
+import type { ColumnDef } from '@tanstack/react-table';
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { useParams } from 'react-router-dom';
+import { SessionContext } from '@/contexts/SessionContext.tsx';
+import JSONPretty from 'react-json-pretty';
 import {
   checkVcMatchAgainstPresentation,
   HAS_ACCOUNT_PRESENTATION_DEFINITION,
   HAS_VERIFIED_EMAIL_PRESENTATION_DEFINITION,
-} from "@/lib/credentialLib.ts";
-import { IPresentationDefinition } from "@sphereon/pex";
-import { Button } from "@/components/ui/button.tsx";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip.tsx";
-import {
-  CredentialCard,
-  PresentationExchangeStatus,
-} from "@/components/CredentialCard.tsx";
-import { APP_NAME } from "@/components/Navbar.tsx";
-import { TypographyH3, TypographyH4 } from "@/components/Typography.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TextArea } from "@/components/ui/text-area";
-import { Label } from "@/components/ui/label";
-import { selectorFamily, useRecoilValue } from "recoil";
-import { useToast } from "@/components/ui/use-toast.ts";
-import {
-  dwnQuerySelfByProtocolSelector,
-  web5ConnectSelector,
-} from "@/lib/web5Recoil.ts";
-import { protocols } from "@/lib/protocols.ts";
-import { GenericTable } from "@/components/GenericTable.tsx";
+} from '@/lib/credentialLib.ts';
+import { IPresentationDefinition } from '@sphereon/pex';
+import { Button } from '@/components/ui/button.tsx';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip.tsx';
+import { CredentialCard, PresentationExchangeStatus } from '@/components/CredentialCard.tsx';
+import { APP_NAME } from '@/components/Navbar.tsx';
+import { TypographyH3, TypographyH4 } from '@/components/Typography.tsx';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TextArea } from '@/components/ui/text-area';
+import { Label } from '@/components/ui/label';
+import { selectorFamily, useRecoilValue } from 'recoil';
+import { useToast } from '@/components/ui/use-toast.ts';
+import { dwnQuerySelfByProtocolSelector, web5ConnectSelector } from '@/lib/web5Recoil.ts';
+import { protocols } from '@/lib/protocols.ts';
+import { GenericTable } from '@/components/GenericTable.tsx';
 
 type RowData = any;
 
@@ -70,7 +52,7 @@ const getJobListingFromSupabase = selectorFamily<
         jwt,
         jobListingId,
       });
-      console.log("Fetched listing from supabase", listing);
+      console.log("Fetched listing from rest", listing);
       if (!listing) {
         console.log("no data found for id", jobListingId);
         // setError("No data found for id " + jobListingId);
