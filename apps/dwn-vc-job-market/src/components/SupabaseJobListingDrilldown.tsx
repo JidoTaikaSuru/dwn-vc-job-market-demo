@@ -26,6 +26,7 @@ import { useToast } from '@/components/ui/use-toast.ts';
 import { dwnQuerySelfByProtocolSelector, web5ConnectSelector } from '@/lib/web5Recoil.ts';
 import { protocols } from '@/lib/protocols.ts';
 import { GenericTable } from '@/components/GenericTable.tsx';
+import { restClient } from '@/lib/client/rest/client.ts';
 
 type RowData = any;
 
@@ -36,50 +37,47 @@ const todayPlus3Months = () => {
 };
 
 const getJobListingFromSupabase = selectorFamily<
-  Database["public"]["Tables"]["job_listings"]["Row"] | undefined,
+  Database['public']['Tables']['job_listings']['Row'] | undefined,
   {
     jwt: string;
     jobListingId: string;
   }
 >({
-  key: "getJobListingFromSupabase",
+  key: 'getJobListingFromSupabase',
   get:
     ({ jwt, jobListingId }) =>
-    async () => {
-      console.groupCollapsed("getJobListingFromSupabase");
-      console.log("getJobListingFromSupabase", jwt, jobListingId);
-      const listing = await credentialStore.getJobListing({
-        jwt,
-        jobListingId,
-      });
-      console.log("Fetched listing from rest", listing);
-      if (!listing) {
-        console.log("no data found for id", jobListingId);
-        // setError("No data found for id " + jobListingId);
+      async ({ get }) => {
+        console.groupCollapsed('getJobListingFromSupabase');
+        console.log('getJobListingFromSupabase', jwt, jobListingId);
+        const listing = get(restClient.jobListings.getJobListingSelector(jobListingId));
+        console.log('Fetched listing from rest', listing);
+        if (!listing) {
+          console.log('no data found for id', jobListingId);
+          // setError("No data found for id " + jobListingId);
+          console.groupEnd();
+          return undefined;
+        }
         console.groupEnd();
-        return undefined;
-      }
-      console.groupEnd();
-      return listing;
-    },
+        return listing;
+      },
 });
 
 export const SupabaseJobListingDrilldown: FC = () => {
   const { listingId } = useParams();
   const { session, wallet, credentials } = useContext(SessionContext);
   const { web5Client } = useRecoilValue(web5ConnectSelector);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [showRawCredentialDetails, setShowRawCredentialDetails] =
     useState(false);
   const { toast } = useToast();
 
   const [open, setOpen] = useState<boolean>(false);
 
-  const [applyMessage, setApplyMessage] = useState<string>("");
+  const [applyMessage, setApplyMessage] = useState<string>('');
   const jobListing = useRecoilValue(
     getJobListingFromSupabase({
-      jwt: session?.access_token || "",
-      jobListingId: listingId || "",
+      jwt: session?.access_token || '',
+      jobListingId: listingId || '',
     }),
   );
 
@@ -89,30 +87,30 @@ export const SupabaseJobListingDrilldown: FC = () => {
 
   const jobReplies = useRecoilValue(
     dwnQuerySelfByProtocolSelector({
-      protocol: protocols["jobApplicationSimpleProtocol"],
+      protocol: protocols['jobApplicationSimpleProtocol'],
     }),
   );
   console.log(
-    "🚀 ~ file: SupabaseJobListingDrilldown.tsx:118 ~ jobReplies:",
+    '🚀 ~ file: SupabaseJobListingDrilldown.tsx:118 ~ jobReplies:',
     jobReplies,
   );
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
       {
-        header: "DID",
-        accessorKey: "did",
+        header: 'DID',
+        accessorKey: 'did',
       },
       {
-        header: "Name",
-        accessorKey: "name",
+        header: 'Name',
+        accessorKey: 'name',
       },
       {
-        header: "E-mail",
-        accessorKey: "email",
+        header: 'E-mail',
+        accessorKey: 'email',
       },
       {
-        header: "Message",
-        accessorKey: "message",
+        header: 'Message',
+        accessorKey: 'message',
       },
     ],
     [],
@@ -125,15 +123,15 @@ export const SupabaseJobListingDrilldown: FC = () => {
   });
 
   if (!listingId) {
-    console.log("no listing found for id", listingId);
-    setError("listing id missing from path " + listingId);
+    console.log('no listing found for id', listingId);
+    setError('listing id missing from path ' + listingId);
     return <>Page accessed without providing a job listing id in params</>;
   }
 
   // Load user credentials
-  console.log("listing", listingId);
-  console.log("userCredentials", credentials);
-  console.log("listingData", jobListing);
+  console.log('listing', listingId);
+  console.log('userCredentials', credentials);
+  console.log('listingData', jobListing);
   if (!jobListing) {
     return <div>Loading...</div>;
   }
@@ -146,29 +144,29 @@ export const SupabaseJobListingDrilldown: FC = () => {
     credentials,
     wallet,
   );
-  let tooltipContent = "";
+  let tooltipContent = '';
 
   switch (presentationDefinition.id) {
     case HAS_ACCOUNT_PRESENTATION_DEFINITION:
       tooltipContent =
-        "You must have an account with us to apply and are qualified to apply for this position! Click to apply!";
+        'You must have an account with us to apply and are qualified to apply for this position! Click to apply!';
       break;
     case HAS_VERIFIED_EMAIL_PRESENTATION_DEFINITION:
       tooltipContent =
-        "You must have a verified email with us and are qualified to apply for this position! Click to apply!";
+        'You must have a verified email with us and are qualified to apply for this position! Click to apply!';
       break;
     default:
       tooltipContent =
-        "You are qualified to apply for this position! Click to apply!";
+        'You are qualified to apply for this position! Click to apply!';
       break;
   }
 
-  console.log("tooltipContent", tooltipContent);
+  console.log('tooltipContent', tooltipContent);
 
   let presentationExchangeRender = (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger className={"w-48 flex"} asChild>
+        <TooltipTrigger className={'w-48 flex'} asChild>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button>APPLY FOR THIS JOB</Button>
@@ -201,8 +199,8 @@ export const SupabaseJobListingDrilldown: FC = () => {
                     const sendApplication = async () => {
                       if (!applyMessage) {
                         toast({
-                          title: "Error",
-                          description: "Please enter a message",
+                          title: 'Error',
+                          description: 'Please enter a message',
                         });
                         return;
                       }
@@ -219,7 +217,7 @@ export const SupabaseJobListingDrilldown: FC = () => {
                         setOpen(false);
                       } catch (e) {
                         toast({
-                          title: "Error",
+                          title: 'Error',
                           description: `Error sending application: ${e}`,
                         });
                         return;
@@ -239,7 +237,7 @@ export const SupabaseJobListingDrilldown: FC = () => {
     </TooltipProvider>
   );
   if (!pass) {
-    console.log("You do not have the required credentials.");
+    console.log('You do not have the required credentials.');
     switch (presentationDefinition.id) {
       case HAS_ACCOUNT_PRESENTATION_DEFINITION:
         presentationExchangeRender = (
@@ -249,7 +247,7 @@ export const SupabaseJobListingDrilldown: FC = () => {
             <a
               onClick={() =>
                 credentialStore.requestIssueBasicCredentials({
-                  jwt: session?.access_token || "",
+                  jwt: session?.access_token || '',
                 })
               }
             >
@@ -281,7 +279,7 @@ export const SupabaseJobListingDrilldown: FC = () => {
         if (!pass) return undefined;
         const m = matchingVcs.matches?.find((vc) => vc.name === id);
       };
-      const hasAccountId = "user has a HasAccount VC issued by us";
+      const hasAccountId = 'user has a HasAccount VC issued by us';
       if (credential.id === hasAccountId) {
         // const matchingVc = getMatchingVc(hasAccountId);
         return (
@@ -289,8 +287,8 @@ export const SupabaseJobListingDrilldown: FC = () => {
             title={`Has an account with ${APP_NAME}`}
             expirationDate={todayPlus3Months()}
             issuanceDate={todayPlus3Months()}
-            description={"Test description for the VC"}
-            howToGet={"You can get it if you wish for it really hard"}
+            description={'Test description for the VC'}
+            howToGet={'You can get it if you wish for it really hard'}
             userHasCredential={
               pass
                 ? PresentationExchangeStatus.pass
@@ -304,8 +302,8 @@ export const SupabaseJobListingDrilldown: FC = () => {
           title={`Unknown VC ${credential.id}`}
           expirationDate={todayPlus3Months()}
           issuanceDate={todayPlus3Months()}
-          description={"Test description for the VC"}
-          howToGet={"You can get it if you wish for it really hard"}
+          description={'Test description for the VC'}
+          howToGet={'You can get it if you wish for it really hard'}
           userHasCredential={
             pass
               ? PresentationExchangeStatus.pass
@@ -318,17 +316,17 @@ export const SupabaseJobListingDrilldown: FC = () => {
 
   return (
     <div>
-      <div className={"flex flex-col space-y-2"}>
+      <div className={'flex flex-col space-y-2'}>
         <h1>{jobListing.title}</h1>
         <div className="grid grid-cols-4 gap-2">
-          <div className={"col-span-1"}>Company</div>
-          <div className={"col-span-3"}>{jobListing.company}</div>
-          <div className={"col-span-1"}>Description</div>
-          <div className={"col-span-3"}>{jobListing.description}</div>
-          <div className={"col-span-1"}>Created At</div>
-          <div className={"col-span-3"}>{jobListing.created_at}</div>
-          <div className={"col-span-1"}>Updated At</div>
-          <div className={"col-span-3"}>{jobListing.updated_at}</div>
+          <div className={'col-span-1'}>Company</div>
+          <div className={'col-span-3'}>{jobListing.company}</div>
+          <div className={'col-span-1'}>Description</div>
+          <div className={'col-span-3'}>{jobListing.description}</div>
+          <div className={'col-span-1'}>Created At</div>
+          <div className={'col-span-3'}>{jobListing.created_at}</div>
+          <div className={'col-span-1'}>Updated At</div>
+          <div className={'col-span-3'}>{jobListing.updated_at}</div>
         </div>
 
         <Tabs defaultValue="candidate" className="h-full w-full">
@@ -341,34 +339,34 @@ export const SupabaseJobListingDrilldown: FC = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="candidate">
-            <div className={"space-y-2"}>
+            <div className={'space-y-2'}>
               <TypographyH3>Required Credentials</TypographyH3>
-              <div className={"grid-cols-4 gap-3"}>{credentialCards}</div>
+              <div className={'grid-cols-4 gap-3'}>{credentialCards}</div>
               {presentationExchangeRender}
               <div>
                 <TypographyH3>Debug</TypographyH3>
 
                 <Button
-                  variant={"secondary"}
+                  variant={'secondary'}
                   onClick={() =>
                     setShowRawCredentialDetails(!showRawCredentialDetails)
                   }
                 >
-                  {showRawCredentialDetails ? "HIDE" : "SHOW"} RAW CREDENTIAL
+                  {showRawCredentialDetails ? 'HIDE' : 'SHOW'} RAW CREDENTIAL
                   DETAILS
                 </Button>
               </div>
               {showRawCredentialDetails && (
                 <>
                   <TypographyH4>Credentials</TypographyH4>
-                  <div className={"bg-slate-200"}>
+                  <div className={'bg-slate-200'}>
                     <JSONPretty
                       id="json-pretty2"
                       data={credentials}
                     ></JSONPretty>
                   </div>
                   <TypographyH4>Presenation definition</TypographyH4>
-                  <div className={"bg-slate-100"}>
+                  <div className={'bg-slate-100'}>
                     <JSONPretty
                       id="json-pretty"
                       data={jobListing.presentation_definition}
@@ -376,7 +374,7 @@ export const SupabaseJobListingDrilldown: FC = () => {
                   </div>
                 </>
               )}
-              {error && <div className={"text-red-500"}>{error}</div>}
+              {error && <div className={'text-red-500'}>{error}</div>}
             </div>
           </TabsContent>
           <TabsContent value="company">
