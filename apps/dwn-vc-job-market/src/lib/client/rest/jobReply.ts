@@ -54,8 +54,8 @@ export class RestJobReplyManager implements JobReplyManager<{ jwt: string }> {
   };
 
   async createJobReply(requestParameters: JwtRequestParam & JobReplyInsert): Promise<JobReply> {
-    const {jwt, ...rest} = requestParameters;
-    const res = await axios.post<JobReply>(`${REST_API_URL}/job-replies`, rest,{
+    const { jwt, ...rest } = requestParameters;
+    const res = await axios.post<JobReply>(`${REST_API_URL}/job-replies`, rest, {
       headers: {
         'x-access-token': jwt,
       },
@@ -64,11 +64,12 @@ export class RestJobReplyManager implements JobReplyManager<{ jwt: string }> {
   }
 
   async updateJobReply(requestParameters: JwtRequestParam & JobReplyUpdate): Promise<JobReply> {
-    const {jwt, ...rest} = requestParameters;
-    const res = await axios.post<JobReply>(`${REST_API_URL}/job-replies`, rest,{
+    const { jwt, ...rest } = requestParameters;
+    const res = await axios.post<JobReply>(`${REST_API_URL}/job-replies`, rest, {
       headers: {
         'x-access-token': jwt,
       },
     });
     return res.data;
+  }
 }
