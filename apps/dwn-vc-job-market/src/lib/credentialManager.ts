@@ -132,4 +132,22 @@ export class SupabaseCredentialManager
     });
     return res.data;
   };
+
+  registerDataSubscriptionEndpoint = async (requestParameters: {
+    clientDid: string;
+    challengeHash: string;
+    endpoint: string;
+  }) => {
+    const res = await axios.post(
+      `${REST_API_URL}/registerDataSubscriptionEndpoint`,
+    undefined, 
+    {
+      headers: {
+        "x-client-id": requestParameters.clientDid,
+        "x-challenge-hash": requestParameters.challengeHash,
+        "x-client-endpoint": requestParameters.endpoint,
+      },
+    });
+    return res.data;
+  };
 }

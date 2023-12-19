@@ -139,6 +139,12 @@ const CreateNewJobPostDialog: FC<{
                     challengeHash: answerHash,
                   });
 
+                  const status = credentialStore.registerDataSubscriptionEndpoint({
+                    clientDid: myDid,
+                    challengeHash: answerHash,
+                    endpoint: "http://localhost:5173/"
+                  });
+
                   //TODO need to return a reply
                   console.log("🚀 ~ file: Navbar.tsx:150 ~ sendApplication ~ submitProofOfWorkChallenge:", reply)
                   
