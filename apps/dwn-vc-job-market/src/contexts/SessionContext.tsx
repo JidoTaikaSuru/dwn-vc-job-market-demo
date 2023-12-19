@@ -1,15 +1,12 @@
-import type { FC, PropsWithChildren } from "react";
-import { createContext, useEffect, useState } from "react";
-import { Wallet } from "ethers";
-import { Session } from "@supabase/supabase-js";
-import { credentialStore, supabaseClient } from "@/lib/common.ts";
-import {
-  IVerifiableCredential,
-  WrappedVerifiableCredential,
-} from "@sphereon/ssi-types";
-import { convertVeramoVcToPexFormat } from "@/lib/credentialLib.ts";
-import { getUserEmbeddedWallet } from "@/lib/embeddedWalletLib.ts";
-import { SSITypesBuilder } from "@sphereon/pex/lib/types";
+import type { FC, PropsWithChildren } from 'react';
+import { createContext, useEffect, useState } from 'react';
+import { Wallet } from 'ethers';
+import { Session } from '@supabase/supabase-js';
+import { credentialStore, supabaseClient } from '@/lib/common.ts';
+import { IVerifiableCredential, WrappedVerifiableCredential } from '@sphereon/ssi-types';
+import { convertVeramoVcToPexFormat } from '@/lib/credentialLib.ts';
+import { getUserEmbeddedWallet } from '@/lib/embeddedWalletLib.ts';
+import { SSITypesBuilder } from '@sphereon/pex/dist/main/lib/types';
 
 type SessionContextProps = {
   session?: Session;
