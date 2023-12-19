@@ -1,21 +1,17 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import {
-  FilterFn,
-  getCoreRowModel,
-  getFilteredRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { rankItem } from "@tanstack/match-sorter-utils";
-import type { FC } from "react";
-import { useMemo, useState } from "react";
-import { supabaseClient } from "@/lib/common.ts";
-import { Link } from "react-router-dom";
-import { Database } from "@/__generated__/supabase-types.ts";
-import { selector, useRecoilValue } from "recoil";
-import { web5ConnectSelector } from "@/lib/web5Recoil.ts";
-import { Input } from "@/components/ui/input.tsx";
-import { GenericTable } from "@/components/GenericTable.tsx";
-import { TypographyH2 } from "./Typography";
+import type { ColumnDef } from '@tanstack/react-table';
+import { FilterFn, getCoreRowModel, getFilteredRowModel, useReactTable } from '@tanstack/react-table';
+import { rankItem } from '@tanstack/match-sorter-utils';
+import type { FC } from 'react';
+import { useMemo, useState } from 'react';
+import { supabaseClient } from '@/lib/common.ts';
+import { Link } from 'react-router-dom';
+import { Database } from '@/__generated__/supabase-types.ts';
+import { selector, useRecoilValue } from 'recoil';
+import { web5ConnectSelector } from '@/lib/web5Recoil.ts';
+import { Input } from '@/components/ui/input.tsx';
+import { GenericTable } from '@/components/GenericTable.tsx';
+import { TypographyH2 } from './Typography';
+import { restClient } from '@/lib/client/rest/client.ts';
 
 type RowData = Database["public"]["Tables"]["dwn_did_registry_2"]["Row"] & {
   jobpostcount: number;
@@ -89,7 +85,8 @@ const fetchCompanies = selector({
 
 //TODO Add pagination ... na   don't worry its a hackathon
 export const Companies: FC = () => {
-  const listings = useRecoilValue(fetchCompanies);
+  // const listings = useRecoilValue(fetchCompanies);
+  const listings = useRecoilValue(restClient.companies.getCompaniesSelector)
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
       {

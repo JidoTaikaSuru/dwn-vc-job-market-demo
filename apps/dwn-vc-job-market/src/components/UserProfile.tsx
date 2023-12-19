@@ -166,7 +166,7 @@ export const UserProfile: FC = () => {
       </div>
       <div className={"flex items-center break-all gap-2"}>
         <p style={{ fontWeight: "Bold" }}>web2 id :</p>
-        <p>{user.id}</p>
+        <p>{user?.id}</p>
         <CopyToClipboard
           text={targetDid || ""}
           onCopy={() => {

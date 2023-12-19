@@ -83,16 +83,18 @@ export interface Database {
           identity_data: Json
           last_sign_in_at: string | null
           provider: string
+          provider_id: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
           email?: string | null
-          id: string
+          id?: string
           identity_data: Json
           last_sign_in_at?: string | null
           provider: string
+          provider_id: string
           updated_at?: string | null
           user_id: string
         }
@@ -103,6 +105,7 @@ export interface Database {
           identity_data?: Json
           last_sign_in_at?: string | null
           provider?: string
+          provider_id?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -402,6 +405,7 @@ export interface Database {
           ip: unknown | null
           not_after: string | null
           refreshed_at: string | null
+          tag: string | null
           updated_at: string | null
           user_agent: string | null
           user_id: string
@@ -414,6 +418,7 @@ export interface Database {
           ip?: unknown | null
           not_after?: string | null
           refreshed_at?: string | null
+          tag?: string | null
           updated_at?: string | null
           user_agent?: string | null
           user_id: string
@@ -426,6 +431,7 @@ export interface Database {
           ip?: unknown | null
           not_after?: string | null
           refreshed_at?: string | null
+          tag?: string | null
           updated_at?: string | null
           user_agent?: string | null
           user_id?: string
@@ -702,6 +708,39 @@ export interface Database {
           }
         ]
       }
+      companies: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          industry: string | null
+          location: string
+          name: string
+          num_employees: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          location: string
+          name: string
+          num_employees?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          location?: string
+          name?: string
+          num_employees?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       credential: {
         Row: {
           context: string
@@ -752,6 +791,33 @@ export interface Database {
             referencedColumns: ["did"]
           }
         ]
+      }
+      data_subscribers: {
+        Row: {
+          created_at: string
+          did: string | null
+          endpoint: string | null
+          id: number
+          last_latency: number | null
+          successful_forwarding: number | null
+        }
+        Insert: {
+          created_at?: string
+          did?: string | null
+          endpoint?: string | null
+          id?: number
+          last_latency?: number | null
+          successful_forwarding?: number | null
+        }
+        Update: {
+          created_at?: string
+          did?: string | null
+          endpoint?: string | null
+          id?: number
+          last_latency?: number | null
+          successful_forwarding?: number | null
+        }
+        Relationships: []
       }
       dwn_did_registry_2: {
         Row: {
@@ -821,8 +887,14 @@ export interface Database {
           company: string
           created_at: string
           description: string | null
+          desired_salary: string | null
+          duration: string | null
+          experience_level: string | null
           id: string
+          level_of_involvement: string | null
           presentation_definition: Json | null
+          project_stage: string | null
+          required_skills: string[] | null
           title: string
           updated_at: string | null
         }
@@ -830,8 +902,14 @@ export interface Database {
           company: string
           created_at?: string
           description?: string | null
+          desired_salary?: string | null
+          duration?: string | null
+          experience_level?: string | null
           id?: string
+          level_of_involvement?: string | null
           presentation_definition?: Json | null
+          project_stage?: string | null
+          required_skills?: string[] | null
           title: string
           updated_at?: string | null
         }
@@ -839,12 +917,65 @@ export interface Database {
           company?: string
           created_at?: string
           description?: string | null
+          desired_salary?: string | null
+          duration?: string | null
+          experience_level?: string | null
           id?: string
+          level_of_involvement?: string | null
           presentation_definition?: Json | null
+          project_stage?: string | null
+          required_skills?: string[] | null
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "job_listings_company_fkey"
+            columns: ["company"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      job_replies: {
+        Row: {
+          created_at: string
+          id: string
+          job_listing_id: string
+          resume: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_listing_id: string
+          resume: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_listing_id?: string
+          resume?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_replies_job_listing_id_fkey"
+            columns: ["job_listing_id"]
+            isOneToOne: false
+            referencedRelation: "job_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_replies_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       key: {
         Row: {
@@ -1220,6 +1351,7 @@ export interface Database {
           did: string | null
           id: string
           iv: string | null
+          name: string | null
           password_encrypted_private_key: string | null
           public_key: string | null
         }
@@ -1228,6 +1360,7 @@ export interface Database {
           did?: string | null
           id: string
           iv?: string | null
+          name?: string | null
           password_encrypted_private_key?: string | null
           public_key?: string | null
         }
@@ -1236,6 +1369,7 @@ export interface Database {
           did?: string | null
           id?: string
           iv?: string | null
+          name?: string | null
           password_encrypted_private_key?: string | null
           public_key?: string | null
         }

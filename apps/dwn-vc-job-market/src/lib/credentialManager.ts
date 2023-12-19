@@ -1,11 +1,7 @@
-import type {
-  UniqueVerifiableCredential,
-  VerifiableCredential,
-} from "@veramo/core";
-import axios from "axios";
-import { Database } from "@/__generated__/supabase-types.ts";
+import type { UniqueVerifiableCredential, VerifiableCredential } from '@veramo/core';
+import axios from 'axios';
 
-export const REST_API_URL = "http://localhost:8080";
+export const REST_API_URL = import.meta.env.VITE_BACKEND_URL;
 
 type BootstrapServer = {
   url: string;
@@ -14,39 +10,58 @@ type BootstrapServer = {
   logo?: string;
   did: string;
 };
+export type GetChallengeResponse = {
+  challenge: string;
+  serverDid: string;
+};
+
 export const BOOTSTRAP_SERVERS: BootstrapServer[] = [
   {
-    name: "LOCAL",
+    name: 'LOCAL',
     url: REST_API_URL,
-    did: "did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b",
+    did: 'did:ethr:goerli:0x03ee6b214c87fe28cb5cbc486cfb60295bb05ebd2803e98fa5a6e658e89991aa8b',
   },
 ];
 
+export interface BasicCredentialManager<RequestParameters> {
+  getCredentials: (requestParameters: RequestParameters) => Promise<UniqueVerifiableCredential[]>;
+  requestIssueBasicCredentials: (requestParameters: RequestParameters) => Promise<VerifiableCredential[]>;
+}
+
+export interface ProofOfWorkManager<RequestParameters, ChallengeParameters> {
+  getProofOfWorkChallenge: (requestParameters: RequestParameters & ChallengeParameters) => Promise<GetChallengeResponse>;
+  submitProofOfWorkChallenge: (requestParameters: RequestParameters & ChallengeParameters) => Promise<null>;
+}
+
+
 export interface CredentialManager<
   RequestParameters,
-  CredentialsResponse = UniqueVerifiableCredential,
-  CredentialResponse = VerifiableCredential,
-  JobListingResponse = Database["public"]["Tables"]["job_listings"]["Row"],
 > {
   getCredentials: (
     requestParameters: RequestParameters,
-  ) => Promise<CredentialsResponse[]>;
+  ) => Promise<UniqueVerifiableCredential[]>;
   requestIssueBasicCredentials: (
     requestParameters: RequestParameters,
-  ) => Promise<CredentialResponse[]>;
-  getJobListing: (
+  ) => Promise<VerifiableCredential[]>;
+  getProofOfWorkChallenge: (
     requestParameters: RequestParameters & {
-      jobListingId: string;
+      clientDid: string;
     },
-  ) => Promise<JobListingResponse>;
+  ) => Promise<GetChallengeResponse>;
+  submitProofOfWorkChallenge: (
+    requestParameters: RequestParameters & {
+      clientDid: string;
+      challengeHash: string;
+    },
+  ) => Promise<null>;
 }
 
+
+
 export class SupabaseCredentialManager
-  implements
-    CredentialManager<{
-      jwt: string;
-    }>
-{
+  implements CredentialManager<{
+    jwt: string;
+  }> {
   getCredentials = async (requestParameters: {
     jwt: string;
   }): Promise<UniqueVerifiableCredential[]> => {
@@ -54,7 +69,7 @@ export class SupabaseCredentialManager
       `${REST_API_URL}/credentials`,
       {
         headers: {
-          "x-access-token": requestParameters.jwt,
+          'x-access-token': requestParameters.jwt,
         },
       },
     );
@@ -63,42 +78,30 @@ export class SupabaseCredentialManager
   requestIssueBasicCredentials = async (requestParameters: {
     jwt: string;
   }): Promise<VerifiableCredential[]> => {
-    console.log("requestIssueBasicCredentials", requestParameters.jwt);
+    console.log('requestIssueBasicCredentials', requestParameters.jwt);
     const res = await axios.post(
       `${REST_API_URL}/credentials/issue/has-account`,
       undefined,
       {
         headers: {
-          "x-access-token": requestParameters.jwt,
+          'x-access-token': requestParameters.jwt,
         },
       },
     );
-    console.log("requestIssueBasicCredentials", res);
+    console.log('requestIssueBasicCredentials', res);
     const res2 = await axios.post(
       `${REST_API_URL}/credentials/issue/has-verified-email`,
       undefined,
       {
         headers: {
-          "x-access-token": requestParameters.jwt,
+          'x-access-token': requestParameters.jwt,
         },
       },
     );
-    console.log("requestIssueBasicCredentials", res2);
+    console.log('requestIssueBasicCredentials', res2);
     return [res.data, res2.data];
   };
-  getJobListing = async (requestParameters: {
-    jwt: string;
-    jobListingId: string;
-  }) => {
-    const res = await axios.get<
-      Database["public"]["Tables"]["job_listings"]["Row"]
-    >(`${REST_API_URL}/job-listing/${requestParameters.jobListingId}`, {
-      headers: {
-        "x-access-token": requestParameters.jwt,
-      },
-    });
-    return res.data;
-  };
+
 
   getProofOfWorkChallenge = async (requestParameters: {
     clientDid: string;
@@ -110,7 +113,7 @@ export class SupabaseCredentialManager
       `${REST_API_URL}/proofOfWork/getChallenge`,
       {
         headers: {
-          "x-client-id": requestParameters.clientDid,
+          'x-client-id': requestParameters.clientDid,
         },
       },
     );
@@ -123,13 +126,13 @@ export class SupabaseCredentialManager
   }) => {
     const res = await axios.post(
       `${REST_API_URL}/proofOfWork`,
-    undefined, 
-    {
-      headers: {
-        "x-client-id": requestParameters.clientDid,
-        "x-challenge-hash": requestParameters.challengeHash,
-      },
-    });
+      undefined,
+      {
+        headers: {
+          'x-client-id': requestParameters.clientDid,
+          'x-challenge-hash': requestParameters.challengeHash,
+        },
+      });
     return res.data;
   };
 
