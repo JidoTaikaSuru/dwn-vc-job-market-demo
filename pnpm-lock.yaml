@@ -41,8 +41,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
       '@sphereon/pex':
-        specifier: workspace:*
-        version: link:../../packages/PEX
+        specifier: ^2.2.2
+        version: 2.2.2
       '@sphereon/ssi-types':
         specifier: ^0.17.5
         version: 0.17.5
@@ -221,6 +221,9 @@ importers:
 
   backend:
     dependencies:
+      '@fastify/aws-lambda':
+        specifier: ^3.5.0
+        version: 3.5.0
       '@fastify/cors':
         specifier: ^8.4.1
         version: 8.4.2
@@ -228,8 +231,8 @@ importers:
         specifier: ^10.1.5
         version: 10.1.5
       '@sphereon/pex':
-        specifier: workspace:*
-        version: link:../packages/PEX
+        specifier: ^2.2.2
+        version: 2.2.2
       '@sphereon/ssi-types':
         specifier: ^0.17.5
         version: 0.17.5
@@ -243,6 +246,9 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@veramo/core':
+        specifier: ^5.5.3
+        version: 5.5.3
+      '@veramo/core-types':
         specifier: ^5.5.3
         version: 5.5.3
       '@veramo/credential-w3c':
@@ -311,6 +317,9 @@ importers:
       typeorm:
         specifier: ^0.3.17
         version: 0.3.17(pg@8.11.3)(sqlite3@5.1.6)
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
       web-did-resolver:
         specifier: ^2.0.27
         version: 2.0.27
@@ -318,6 +327,9 @@ importers:
       '@types/node':
         specifier: ^20.10.4
         version: 20.10.4
+      '@types/trust__keyto':
+        specifier: ^1.0.4
+        version: 1.0.4
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.14.0
         version: 6.14.0(@typescript-eslint/parser@6.14.0)(eslint@8.55.0)(typescript@5.2.2)
@@ -351,9 +363,6 @@ importers:
       tsc-watch:
         specifier: ^6.0.4
         version: 6.0.4(typescript@5.2.2)
-      typescript:
-        specifier: ^5.2.2
-        version: 5.2.2
 
   packages/PEX:
     dependencies:
@@ -712,7 +721,7 @@ packages:
     resolution: {integrity: sha512-QkBXwGgaoC2GtGZRoma6kv7Szfv06khvhFav67ZExau2RaXzy8MpHSMO2PNoP2XtmQphJQRHFfg77Bq731Yizw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.23.3
+      '@babel/types': 7.23.6
     dev: false
 
   /@babel/helper-compilation-targets@7.22.15:
@@ -802,7 +811,7 @@ packages:
     resolution: {integrity: sha512-6gfrPwh7OuT6gZyJZvd6WbTfrqAo7vm4xCzAXOusKqq/vWdKXphTpj5klHKNmRUU6/QRGlBsyU9mAIPaWHlqJA==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.23.3
+      '@babel/types': 7.23.6
     dev: false
 
   /@babel/helper-module-imports@7.22.15:
@@ -828,7 +837,7 @@ packages:
     resolution: {integrity: sha512-HBwaojN0xFRx4yIvpwGqxiV2tUfl7401jlok564NgB9EHS1y6QT17FmKWm4ztqjeVdXLuC4fSvHc5ePpQjoTbw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.23.3
+      '@babel/types': 7.23.6
     dev: false
 
   /@babel/helper-plugin-utils@7.22.5:
@@ -870,7 +879,7 @@ packages:
     resolution: {integrity: sha512-tK14r66JZKiC43p8Ki33yLBVJKlQDFoA8GYN67lWCDCqoL6EMMSuM9b+Iff2jHaM/RRFYl7K+iiru7hbRqNx8Q==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.23.3
+      '@babel/types': 7.23.6
     dev: false
 
   /@babel/helper-split-export-declaration@7.22.6:
@@ -908,7 +917,7 @@ packages:
     dependencies:
       '@babel/helper-function-name': 7.23.0
       '@babel/template': 7.22.15
-      '@babel/types': 7.23.3
+      '@babel/types': 7.23.6
     dev: false
 
   /@babel/helpers@7.23.2:
@@ -1067,9 +1076,9 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/compat-data': 7.23.3
+      '@babel/compat-data': 7.23.5
       '@babel/core': 7.23.3
-      '@babel/helper-compilation-targets': 7.22.15
+      '@babel/helper-compilation-targets': 7.23.6
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.23.3)
       '@babel/plugin-transform-parameters': 7.23.3(@babel/core@7.23.3)
@@ -2040,7 +2049,7 @@ packages:
     dependencies:
       '@babel/core': 7.23.3
       '@babel/helper-plugin-utils': 7.22.5
-      '@babel/helper-validator-option': 7.22.15
+      '@babel/helper-validator-option': 7.23.5
       '@babel/plugin-transform-flow-strip-types': 7.23.3(@babel/core@7.23.3)
     dev: false
 
@@ -2051,7 +2060,7 @@ packages:
     dependencies:
       '@babel/core': 7.23.3
       '@babel/helper-plugin-utils': 7.22.5
-      '@babel/types': 7.23.3
+      '@babel/types': 7.23.6
       esutils: 2.0.3
     dev: false
 
@@ -2063,7 +2072,7 @@ packages:
     dependencies:
       '@babel/core': 7.23.3
       '@babel/helper-plugin-utils': 7.22.5
-      '@babel/helper-validator-option': 7.22.15
+      '@babel/helper-validator-option': 7.23.5
       '@babel/plugin-syntax-jsx': 7.23.3(@babel/core@7.23.3)
       '@babel/plugin-transform-modules-commonjs': 7.23.3(@babel/core@7.23.3)
       '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.23.3)
@@ -3639,6 +3648,10 @@ packages:
       ajv: 8.12.0
       ajv-formats: 2.1.1(ajv@8.12.0)
       fast-uri: 2.3.0
+    dev: false
+
+  /@fastify/aws-lambda@3.5.0:
+    resolution: {integrity: sha512-AWn6/uVJX+oi/kTkh72kfkrZ7bu8REshaaP2Sqbjya25olN5nvw0ht1K3jL8DPRlOGym3XAZ/GN0C9r23Mo5mw==}
     dev: false
 
   /@fastify/busboy@2.1.0:
@@ -5530,6 +5543,24 @@ packages:
     resolution: {integrity: sha512-0UX/CMwgiJSxzuBn6SLOTSKkm+uPq3dkNjl8w4EtppXp6zBB4lQMd1mJX7OifX5Bp5vPUfoz7bj2B+yyDtbZww==}
     dev: false
 
+  /@sphereon/pex-models@2.1.2:
+    resolution: {integrity: sha512-Ec1qZl8tuPd+s6E+ZM7v+HkGkSOjGDMLNN1kqaxAfWpITBYtTLb+d5YvwjvBZ1P2upZ7zwNER97FfW5n/30y2w==}
+    dev: false
+
+  /@sphereon/pex@2.2.2:
+    resolution: {integrity: sha512-NkR8iDTC2PSnYsOHlG2M2iOpFTTbzszs2/pL3iK3Dlv9QYLqX7NtPAlmeSwaoVP1NB1ewcs6U1DtemQAD+90yQ==}
+    engines: {node: '>=16'}
+    dependencies:
+      '@astronautlabs/jsonpath': 1.1.2
+      '@sphereon/pex-models': 2.1.2
+      '@sphereon/ssi-types': 0.17.5
+      ajv: 8.12.0
+      ajv-formats: 2.1.1(ajv@8.12.0)
+      jwt-decode: 3.1.2
+      nanoid: 3.3.7
+      string.prototype.matchall: 4.0.10
+    dev: false
+
   /@sphereon/react-native-argon2@2.0.9(react-native@0.73.0):
     resolution: {integrity: sha512-mXcp3meaKbv5TpEPxItZ1ZuRqkdNf8vjx3EM+GqNVQ8QQF9pbD3jw6wQfuFRPc+8kN+m9GEiVVbd9I0m50OPBg==}
     peerDependencies:
@@ -6334,6 +6365,12 @@ packages:
     resolution: {integrity: sha512-X3HPWTwXRerBZS7Mo1k6vMVR1Z6zmJcDVn5O/31whe0tnjE4te6ZJSJGq1RiqHPjzPdMTfjCFogDJmwng9xHaQ==}
     dependencies:
       '@types/superagent': 4.1.24
+    dev: true
+
+  /@types/trust__keyto@1.0.4:
+    resolution: {integrity: sha512-qUfZR9LG8txSmbYCGBWiy27yhr1aj7l8JVe8ocdSPnTmeVzslYNBHwRLUu5ITyvqAaQARgB7rA3gDOgph3vQTw==}
+    dependencies:
+      '@types/node': 20.10.4
     dev: true
 
   /@types/unist@2.0.10:
@@ -14891,7 +14928,7 @@ packages:
     engines: {node: '>=18'}
     dependencies:
       '@babel/traverse': 7.23.3
-      '@babel/types': 7.23.3
+      '@babel/types': 7.23.6
       invariant: 2.2.4
       metro-symbolicate: 0.80.1
       nullthrows: 1.1.1
@@ -14937,7 +14974,7 @@ packages:
       '@babel/core': 7.23.3
       '@babel/generator': 7.23.3
       '@babel/parser': 7.23.3
-      '@babel/types': 7.23.3
+      '@babel/types': 7.23.6
       metro: 0.80.1
       metro-babel-transformer: 0.80.1
       metro-cache: 0.80.1
@@ -14963,7 +15000,7 @@ packages:
       '@babel/parser': 7.23.3
       '@babel/template': 7.22.15
       '@babel/traverse': 7.23.3
-      '@babel/types': 7.23.3
+      '@babel/types': 7.23.6
       accepts: 1.3.8
       chalk: 4.1.2
       ci-info: 2.0.0
