@@ -71,7 +71,6 @@ export function truncateString(str: string, num: number): string {
 export const proofOfWork = async (
   validatorDid: string,
   myDid: string,
-  challenge: string,
 ): Promise<{ answerHash: string }> => {
   const randomHexString = () => {
     let size = Math.floor(Math.random() * Math.floor(500));
@@ -101,7 +100,7 @@ export const proofOfWork = async (
 
     const answerHex = buffer.Buffer.from(lastPart, 'base64').toString('hex');
 
-    if (eval(challenge)) {
+    if ((answerHex.match(/0000/g) || []).length > 0) {
       return { answerHash };
     }
   } while (Date.now() - startTime < 500000);

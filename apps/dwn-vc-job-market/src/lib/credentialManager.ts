@@ -11,7 +11,6 @@ type BootstrapServer = {
   did: string;
 };
 export type GetChallengeResponse = {
-  challenge: string;
   serverDid: string;
 };
 
@@ -107,7 +106,6 @@ export class SupabaseCredentialManager
     clientDid: string;
   }) => {
     const res = await axios.get<{
-      challenge: string;
       serverDid: string;
     }>(
       `${REST_API_URL}/proofOfWork/getChallenge`,
@@ -156,20 +154,20 @@ export class SupabaseCredentialManager
 
   getProofOfLatency = async () => {
     const res = await axios.get(
-      `${REST_API_URL}/proofOfLatency`,
+      `${REST_API_URL}/getProofOfLatency`,
     undefined);
     return res.data;
   };
 
   postProofOfLatency = async (requestParameters: {
-    jwk: string;
+    jwt: string;
   }) => {
     const res = await axios.post(
-      `${REST_API_URL}/proofOfLatency`,
+      `${REST_API_URL}/postProofOfLatency`,
     undefined, 
     {
       headers: {
-        "x-jwk": requestParameters.jwk,
+        "x-jwt": requestParameters.jwt,
       },
     });
     return res.data;

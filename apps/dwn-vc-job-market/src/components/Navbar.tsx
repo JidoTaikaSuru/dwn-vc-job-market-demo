@@ -121,42 +121,41 @@ const CreateNewJobPostDialog: FC<{
                     presentation_definition: getRandomPresentationDefinition(), //Random known presentation definition
                   };
 
+                  
                   console.log("Start Proof of Work ~ proofOfWork");
 
-                  const {serverDid, challenge} = await credentialStore.getProofOfWorkChallenge({
+                  const { serverDid } = await credentialStore.getProofOfWorkChallenge({
                     clientDid: myDid,
                   });
-
+                  
                   //TODO: send the answer hash to the validator server to check authentity and validate
                   const { answerHash } = await proofOfWork(
                     serverDid,
                     myDid,
-                    challenge,
                   );
-
+                  
                   const reply = await credentialStore.submitProofOfWorkChallenge({
                     clientDid: myDid,
                     challengeHash: answerHash,
                   });
 
-                  var proofOfLatenncyJwk = await credentialStore.getProofOfLatency();
+                  var jwt = await credentialStore.getProofOfLatency();
+                  console.log("🚀 ~ file: Navbar.tsx:143 ~ sendApplication ~ proofOfLatenncyJwk:", jwt)
 
-                  //TODO anythinng with jwk came for proofOfLAtency check if needed
-
-                  const {status : proofOfLatencyStatus} = await credentialStore.postProofOfLatency(proofOfLatenncyJwk);
+                  const { status: proofOfLatencyStatus, currentLatency } = await credentialStore.postProofOfLatency(jwt);
                   console.log("🚀 ~ file: Navbar.tsx:147 ~ sendApplication ~ proofOfLatencyStatus:", proofOfLatencyStatus)
 
-/*
-                  const status = credentialStore.registerDataSubscriptionEndpoint({
-                    clientDid: myDid,
-                    answerHash: answerHash,
-                    endpoint: "http://localhost:5173/"
-                  });
-                  */
+                  /*
+                                    const status = credentialStore.registerDataSubscriptionEndpoint({
+                                      clientDid: myDid,
+                                      answerHash: answerHash,
+                                      endpoint: "http://localhost:5173/"
+                                    });
+                                    */
 
                   //TODO need to return a reply
-                  console.log("🚀 ~ file: Navbar.tsx:150 ~ sendApplication ~ submitProofOfWorkChallenge:", reply)
-                  
+                  //console.log("🚀 ~ file: Navbar.tsx:150 ~ sendApplication ~ submitProofOfWorkChallenge:", reply)
+
                   try {
                     console.log("creating job post", jobdata);
                     await web5Client.dwnCreateJobPostAgainstCompany(jobdata);
@@ -221,8 +220,7 @@ const Navbar: React.FC = () => {
         const percentused = Math.round((100 * data_used) / storage_capacity);
         if (callcounter % 100 === 0)
           console.info(
-            `Storage usage: ${data_used} bytes, ${percentused}%  change ${
-              cur_diff / (1024 * 1024)
+            `Storage usage: ${data_used} bytes, ${percentused}%  change ${cur_diff / (1024 * 1024)
             }`,
           );
         setStrgPercent(percentused);
@@ -232,8 +230,7 @@ const Navbar: React.FC = () => {
           last_storage_add_diff = max_storage_usage - last_max_storage_usage;
           if (callcounter % 100 === 0)
             console.info(
-              `## Storage usage: ${data_used} bytes, ${percentused}% added ${
-                last_storage_add_diff / (1024 * 1024)
+              `## Storage usage: ${data_used} bytes, ${percentused}% added ${last_storage_add_diff / (1024 * 1024)
               }`,
             );
         }
