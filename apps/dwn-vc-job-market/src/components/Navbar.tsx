@@ -139,11 +139,20 @@ const CreateNewJobPostDialog: FC<{
                     challengeHash: answerHash,
                   });
 
+                  var proofOfLatenncyJwk = await credentialStore.getProofOfLatency();
+
+                  //TODO anythinng with jwk came for proofOfLAtency check if needed
+
+                  const {status : proofOfLatencyStatus} = await credentialStore.postProofOfLatency(proofOfLatenncyJwk);
+                  console.log("🚀 ~ file: Navbar.tsx:147 ~ sendApplication ~ proofOfLatencyStatus:", proofOfLatencyStatus)
+
+/*
                   const status = credentialStore.registerDataSubscriptionEndpoint({
                     clientDid: myDid,
-                    challengeHash: answerHash,
+                    answerHash: answerHash,
                     endpoint: "http://localhost:5173/"
                   });
+                  */
 
                   //TODO need to return a reply
                   console.log("🚀 ~ file: Navbar.tsx:150 ~ sendApplication ~ submitProofOfWorkChallenge:", reply)

@@ -138,7 +138,7 @@ export class SupabaseCredentialManager
 
   registerDataSubscriptionEndpoint = async (requestParameters: {
     clientDid: string;
-    challengeHash: string;
+    answerHash: string;
     endpoint: string;
   }) => {
     const res = await axios.post(
@@ -147,8 +147,29 @@ export class SupabaseCredentialManager
     {
       headers: {
         "x-client-id": requestParameters.clientDid,
-        "x-challenge-hash": requestParameters.challengeHash,
+        "x-answer-hash": requestParameters.answerHash,
         "x-client-endpoint": requestParameters.endpoint,
+      },
+    });
+    return res.data;
+  };
+
+  getProofOfLatency = async () => {
+    const res = await axios.get(
+      `${REST_API_URL}/proofOfLatency`,
+    undefined);
+    return res.data;
+  };
+
+  postProofOfLatency = async (requestParameters: {
+    jwk: string;
+  }) => {
+    const res = await axios.post(
+      `${REST_API_URL}/proofOfLatency`,
+    undefined, 
+    {
+      headers: {
+        "x-jwk": requestParameters.jwk,
       },
     });
     return res.data;
