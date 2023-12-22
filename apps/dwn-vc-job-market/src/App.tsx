@@ -3,10 +3,10 @@ import { CompanyJobListings } from '@/components/CompanyJobListings.tsx';
 import { DwnJobListingDrilldown } from '@/components/DwnJobListingDrilldown.tsx';
 import Navbar from '@/components/Navbar.tsx';
 import { RequireUserLoggedIn } from '@/components/RequireUserLoggedIn.tsx';
-import { SupabaseJobListingDrilldown } from '@/components/SupabaseJobListingDrilldown.tsx';
-import { SupabaseJobListings } from '@/components/SupabaseJobListings.tsx';
+import { SupabaseJobListingDrilldown } from '@/components/experiments/SupabaseJobListingDrilldown.tsx';
+import { SupabaseJobListings } from '@/components/experiments/SupabaseJobListings.tsx';
 import { TypographyH2 } from '@/components/Typography.tsx';
-import { UserProfile } from '@/components/UserProfile.tsx';
+import { UserProfileDwn } from '@/components/experiments/UserProfileDwn.tsx';
 import { SessionContextProvider } from '@/contexts/SessionContext.tsx';
 import { Suspense } from 'react';
 import { createBrowserRouter, Link, RouterProvider } from 'react-router-dom';
@@ -14,6 +14,7 @@ import './App.css';
 import { Companies } from './components/Companies.tsx';
 import Footer from './components/Footer.tsx';
 import UpdateProfile from './components/UpdateProfile';
+import { UserProfile } from '@/components/UserProfile.tsx';
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
   {
     path: "/updateProfile",
     element: <UpdateProfile />,
+  },
+  {
+    path: "/profile/dwn/:userDid",
+    element: <UserProfileDwn />,
   },
   {
     path: "/profile/:userDid",

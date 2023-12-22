@@ -46,3 +46,10 @@ Ask anyone for access to the following:
     git submodule update --ini
     docker-compose -f local-dwn-cluster.docker-compose.yml up
 ```
+
+
+### What has changed since DIF hackathon:
+1. Backend changes (the bulk):
+2. Frontend changes:
+   1. Code that fetches user data + credentials has been made generic
+      1. If the did:dht support comes in before the hackathon ends, we might have a client implementation based on DWNs

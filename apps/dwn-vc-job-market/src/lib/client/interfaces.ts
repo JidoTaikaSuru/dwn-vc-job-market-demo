@@ -6,6 +6,19 @@ import { selector, selectorFamily, SerializableParam } from 'recoil';
 import { Database } from '@/__generated__/supabase-types.ts';
 import { JwtRequestParam } from '@/lib/common.ts';
 
+
+export type DefaultJobListingSearchParams = {
+  title?: string;
+  description?: string;
+  duration?: string;
+  experience_level?: string;
+  required_skills?: string[];
+  project_stage?: string;
+  desired_salary?: string;
+  level_of_involvement?: string;
+  company?: string;
+}
+
 export interface JobReplyManager<RequestParameters,
   CreateParameters = JwtRequestParam & Database['public']['Tables']['job_replies']['Insert'],
   UpdateParameters = JwtRequestParam & Database['public']['Tables']['job_replies']['Update'],
@@ -18,14 +31,17 @@ export interface JobReplyManager<RequestParameters,
   updateJobReply: (requestParameters: UpdateParameters) => Promise<JobReply>;
 }
 
-export interface JobListingManager<RequestParameters,
+export interface JobListingManager<RequestParameters = {jwt: string},
   CreateParameters = JwtRequestParam & Database['public']['Tables']['job_listings']['Insert'],
   UpdateParameters = JwtRequestParam & Database['public']['Tables']['job_listings']['Update'],
+  SearchParameters extends SerializableParam = DefaultJobListingSearchParams,
   IdType extends SerializableParam = string> {
   getJobListingSelector: ReturnType<typeof selectorFamily<JobListing, IdType>>;
   getJobListingsSelector: ReturnType<typeof selector<JobListing[]>>;
+  searchJobListingsSelector: ReturnType<typeof selectorFamily<JobListing[], SearchParameters>>,
   getJobListing: (requestParameters: RequestParameters & { jobListingId: IdType }) => Promise<JobListing>;
   getJobListings: (requestParameters: RequestParameters) => Promise<JobListing[]>;
+  searchJobListings: (requestParameters: JwtRequestParam & SearchParameters) => Promise<JobListing[]>
   createJobListing: (requestParameters: CreateParameters) => Promise<JobListing>;
   updateJobListing: (requestParameters: UpdateParameters) => Promise<JobListing>;
 }
@@ -35,7 +51,9 @@ export interface CompanyManager<RequestParameters,
   UpdateParameters = JwtRequestParam & Database['public']['Tables']['companies']['Update'],
   IdType extends SerializableParam = string> {
   getCompanySelector: ReturnType<typeof selectorFamily<Company, IdType>>;
-  getCompaniesSelector: ReturnType<typeof selector<Company[]>>;
+  // getCompanySelector: ReturnType<typeof selectorFamily<Company & {jobPostCount: number}, IdType>>;
+  getCompaniesSelector: ReturnType<typeof selector<Array<Company>>>;
+  // getCompaniesSelector: ReturnType<typeof selector<Array<Company & {jobPostCount: number}>>>;
   getCompany: (requestParameters: RequestParameters & { companyId: IdType }) => Promise<Company>;
   getCompanies: (requestParameters: RequestParameters) => Promise<Company[]>;
   createCompany: (requestParameters: CreateParameters) => Promise<Company>;

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Database } from '@/__generated__/supabase-types.ts';
 import { REST_API_URL } from '@/lib/credentialManager.ts';
-import { JobListingManager } from '@/lib/client/interfaces.ts';
+import { DefaultJobListingSearchParams, JobListingManager } from '@/lib/client/interfaces.ts';
 import { selector, selectorFamily } from 'recoil';
 import { getSupabaseSession } from '@/lib/supabaseRecoil.ts';
 import { JwtRequestParam } from '@/lib/common.ts';
@@ -18,11 +18,19 @@ export class RestJobListingManager implements JobListingManager<{ jwt: string }>
       return await this.getJobListing({jwt: session.session?.access_token || "", jobListingId});
     },
   })
+
   public getJobListingsSelector = selector<JobListing[]>({
     key: 'jobListingsState',
     get: async ({ get }) => {
       const session = get(getSupabaseSession);
       return await this.getJobListings({ jwt: session.session?.access_token || "" });
+    },
+  })
+  public searchJobListingsSelector = selectorFamily<JobListing[], DefaultJobListingSearchParams>({
+    key: 'searchJobListingState',
+    get: (params) => async ({get}): Promise<Database['public']['Tables']['job_listings']['Row'][]> => {
+      const session = get(getSupabaseSession);
+      return await this.searchJobListings({jwt: session.session?.access_token || "", ...params});
     },
   })
 
@@ -49,6 +57,24 @@ export class RestJobListingManager implements JobListingManager<{ jwt: string }>
     });
     return res.data;
   };
+  searchJobListings = async (requestParameters: {jwt: string} & DefaultJobListingSearchParams) => {
+    const res = await axios.post<JobListing[]>(`${REST_API_URL}/job-listings/search`,{
+      title: requestParameters.title,
+      description: requestParameters.description,
+      duration: requestParameters.duration,
+      experience_level: requestParameters.experience_level,
+      required_skills: requestParameters.required_skills,
+      project_stage: requestParameters.project_stage,
+      desired_salary: requestParameters.desired_salary,
+      level_of_involvement: requestParameters.level_of_involvement,
+      company: requestParameters.company,
+    }, {
+      headers: {
+        'x-access-token': requestParameters.jwt,
+      },
+    });
+    return res.data;
+  }
 
   async createJobListing(requestParameters: JwtRequestParam & JobListingInsert): Promise<JobListing> {
     const {jwt, ...rest} = requestParameters;

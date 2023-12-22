@@ -1,48 +1,34 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import type { FC } from "react";
-import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Link, useParams } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import {
-  dwnQueryOtherDWNByProtocolSelector,
-  dwnReadOtherDWNSelector,
-  web5ConnectSelector,
-} from "@/lib/web5Recoil.ts";
+import type { ColumnDef } from '@tanstack/react-table';
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import type { FC } from 'react';
+import { useMemo } from 'react';
+import { Button } from '@/components/ui/button';
+import { Link, useParams } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
-import Identicon from "react-identicons";
-import { GenericTable } from "@/components/GenericTable.tsx";
+import Identicon from 'react-identicons';
+import { GenericTable } from '@/components/GenericTable.tsx';
+import { restClient } from '@/lib/client/rest/client.ts';
 
 type RowData = any;
 
 export const CompanyJobListings: FC = () => {
   const { companyDid } = useParams();
   if (!companyDid) return <>Accessed route without a DID</>;
-  return <CompanyJobListingsTable companyDid={companyDid} />;
+  return <CompanyJobListingsTable companyId={companyDid} />;
 };
+
 export const CompanyJobListingsTable: FC<{
-  companyDid: string;
+  companyId: string;
   concealHeader?: boolean;
-}> = ({ companyDid, concealHeader = false }) => {
-  const { web5Client, myDid, protocols } = useRecoilValue(web5ConnectSelector);
-  const company = useRecoilValue(
-    dwnReadOtherDWNSelector({
-      did: companyDid || "",
-      protocol: protocols["selfProfileProtocol"],
-    }),
-  );
+}> = ({ companyId, concealHeader = false }) => {
+  const company = useRecoilValue(restClient.companies.getCompanySelector(companyId))
+  const listings = useRecoilValue(restClient.jobListings.searchJobListingsSelector({company: companyId}))
 
-  const listings = useRecoilValue(
-    dwnQueryOtherDWNByProtocolSelector({
-      did: companyDid || "",
-      protocol: protocols["jobPostThatCanTakeApplicationsAsReplyProtocol"],
-    }),
-  );
-  console.debug(`job listings for company ${companyDid}`, listings);
 
-  const [open, setOpen] = useState<boolean>(false);
+  console.debug(`job listings for company ${companyId}`, listings);
+
 
   const columns: ColumnDef<RowData>[] = useMemo(
     () => [
@@ -50,7 +36,7 @@ export const CompanyJobListingsTable: FC<{
         header: "Id",
         cell: ({row}) => (
           <Link
-            to={`/listings/view?applicationRecordId=${row.original.id}&companyDid=${companyDid}`}
+            to={`/listings/view?applicationRecordId=${row.original.id}&companyDid=${companyId}`}
             className="text-blue-500"
           >
            {`${row.original.id}`.substring(0, 32) + "..." }
@@ -59,7 +45,7 @@ export const CompanyJobListingsTable: FC<{
       },
       {
         header: "Title",
-        cell: ({ row }) => row.original.data.title || row.original.data.name, //TODO clean up legacy data
+        cell: ({ row }) => row.original.title || row.original.name, //TODO clean up legacy data
       },
       {
         header: "Created",
@@ -70,7 +56,7 @@ export const CompanyJobListingsTable: FC<{
         accessorKey: "id",
         cell: (value) => (
           <Link
-            to={`/listings/view?applicationRecordId=${value.row.original.id}&companyDid=${companyDid}`}
+            to={`/listings/view?applicationRecordId=${value.row.original.id}&companyDid=${companyId}`}
             className="text-blue-500"
           >
             <Button variant="outline">Apply</Button>
@@ -81,7 +67,7 @@ export const CompanyJobListingsTable: FC<{
     [],
   );
 
-  console.log("LISTINGS", listings, "COMPANY", company, "DID", companyDid);
+  console.log("LISTINGS", listings, "COMPANY", company, "DID", companyId);
 
   const table = useReactTable({
     columns,
@@ -90,13 +76,13 @@ export const CompanyJobListingsTable: FC<{
   });
 
   if (!listings) return <></>;
-  if (!companyDid) return <>Accessed route without a DID</>; //TODO This might throw an error
+  if (!companyId) return <>Accessed route without a DID</>; //TODO This might throw an error
 
   return (
     <>
       {!concealHeader && (
         <div className="flex mt-5 mb-5 gap-5 ">
-          <Identicon className="mt-2" string={company?.did} size={40} />
+          <Identicon className="mt-2" string={company?.id} size={40} />
           <h1>Job Listings for {company?.name}</h1>
         </div>
       )}

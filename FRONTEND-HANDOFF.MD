@@ -62,7 +62,7 @@ This document contains info to onboard new team members who are working on the f
 * [apps/dwn-vc-job-market/src/lib/setupDwn.ts]() contains admin commands for forcing credential issuance and interacting
   with the DWN. Served through the playground at
   /playground ([apps/dwn-vc-job-market/src/components/AdminPlayground.tsx]())
-* [apps/dwn-vc-job-market/src/components/UserProfile.tsx]() Contains UI for most of the web5 library code. Very useful
+* [apps/dwn-vc-job-market/src/components/UserProfileDwn.tsx]() Contains UI for most of the web5 library code. Very useful
   for debugging
 * There is a site map at /site-map that's current
 * Any code that's commented out is dead, but was left in for reference since some parts can be used

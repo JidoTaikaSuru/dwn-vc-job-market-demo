@@ -1,15 +1,10 @@
-import { Button } from "@/components/ui/button";
-import React, { FC, useContext, useEffect, useState } from "react";
-import { SessionContext } from "@/contexts/SessionContext";
-import { credentialStore, proofOfWork, supabaseClient } from "@/lib/common.ts";
-import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip.tsx";
+import { Button } from '@/components/ui/button';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { SessionContext } from '@/contexts/SessionContext';
+import { credentialStore, proofOfWork, supabaseClient } from '@/lib/common.ts';
+import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip.tsx';
 import {
   Dialog,
   DialogContent,
@@ -18,24 +13,20 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { useRecoilValue } from "recoil";
-import {
-  dwnReadSelfProfileSelector,
-  web5ConnectSelector,
-} from "@/lib/web5Recoil.ts";
-import { truncateAddress } from "@/lib/embeddedWalletLib.ts";
+} from '@/components/ui/dialog';
+import { useRecoilValue } from 'recoil';
+import { dwnReadSelfProfileSelector, web5ConnectSelector } from '@/lib/web5Recoil.ts';
+import { truncateAddress } from '@/lib/embeddedWalletLib.ts';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore https://github.com/doke-v/react-identicons/issues/40
-import Identicon from "react-identicons";
+import Identicon from 'react-identicons';
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast.ts";
-import { faker } from "@faker-js/faker";
-import { getRandomPresentationDefinition } from "@/lib/presentationExchangeLib.ts";
-import { TextArea } from "@/components/ui/text-area.tsx";
-import { BOOTSTRAP_SERVERS } from "@/lib/credentialManager.ts";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/use-toast.ts';
+import { faker } from '@faker-js/faker';
+import { getRandomPresentationDefinition } from '@/lib/presentationExchangeLib.ts';
+import { TextArea } from '@/components/ui/text-area.tsx';
 
 export const APP_NAME = "Decentralinked";
 
@@ -195,7 +186,6 @@ const CreateNewJobPostDialog: FC<{
 };
 
 const Navbar: React.FC = () => {
-  const { myDid } = useRecoilValue(web5ConnectSelector);
   const { session, setSession, wallet } = useContext(SessionContext);
   const [startLogout, setStartLogout] = useState(false);
   const [strgPercent, setStrgPercent] = useState(0);
@@ -305,13 +295,13 @@ const Navbar: React.FC = () => {
               company={company}
             />
           )}
-          {wallet && (
-            <a href={`/profile/${myDid}`} style={{ color: "#213547" }}>
+          {session && wallet && (
+            <a href={`/profile/${session.user.id}`} style={{ color: "#213547" }}>
               <Button
                 variant="outline"
                 className="tracking-wider text-base font-semibold flex gap-2"
               >
-                {<Identicon string={myDid} size={24} />}
+                {<Identicon string={session.user.id} size={24} />}
                 {truncateAddress(wallet.address)}
               </Button>
             </a>

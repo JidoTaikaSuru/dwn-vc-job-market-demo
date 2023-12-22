@@ -27,6 +27,7 @@ export class RestCompanyManager implements CompanyManager<{ jwt: string }> {
     jwt: string;
     companyId: string;
   }) => {
+    console.log()
     const res = await axios.get<Company>(`${REST_API_URL}/companies/${requestParameters.companyId}`, {
       headers: {
         'x-access-token': requestParameters.jwt,
