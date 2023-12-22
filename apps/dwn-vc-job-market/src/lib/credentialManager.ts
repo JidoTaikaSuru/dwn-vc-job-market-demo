@@ -160,14 +160,18 @@ export class SupabaseCredentialManager
   };
 
   postProofOfLatency = async (requestParameters: {
+    did: string;
     jwt: string;
+    endpoint : string;
   }) => {
     const res = await axios.post(
       `${REST_API_URL}/postProofOfLatency`,
     undefined, 
     {
       headers: {
+        "x-did": requestParameters.did,
         "x-jwt": requestParameters.jwt,
+        "x-endpoint": requestParameters.endpoint,
       },
     });
     return res.data;

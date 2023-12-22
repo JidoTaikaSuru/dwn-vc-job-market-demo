@@ -142,7 +142,11 @@ const CreateNewJobPostDialog: FC<{
                   var jwt = await credentialStore.getProofOfLatency();
                   console.log("🚀 ~ file: Navbar.tsx:143 ~ sendApplication ~ proofOfLatenncyJwk:", jwt)
 
-                  const { status: proofOfLatencyStatus, currentLatency } = await credentialStore.postProofOfLatency(jwt);
+                  const { status: proofOfLatencyStatus } = await credentialStore.postProofOfLatency({
+                    jwt, 
+                    did : myDid,  
+                    endpoint :"localhost" 
+                  });
                   console.log("🚀 ~ file: Navbar.tsx:147 ~ sendApplication ~ proofOfLatencyStatus:", proofOfLatencyStatus)
 
                   /*
