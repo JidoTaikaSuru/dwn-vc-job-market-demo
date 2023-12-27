@@ -130,6 +130,7 @@ const CreateNewJobPostDialog: FC<{
                     challengeHash: answerHash,
                   });
 
+                  /*
                   var jwt = await credentialStore.getProofOfLatency();
                   console.log("🚀 ~ file: Navbar.tsx:143 ~ sendApplication ~ proofOfLatenncyJwk:", jwt)
 
@@ -140,7 +141,6 @@ const CreateNewJobPostDialog: FC<{
                   });
                   console.log("🚀 ~ file: Navbar.tsx:147 ~ sendApplication ~ proofOfLatencyStatus:", proofOfLatencyStatus)
 
-                  /*
                                     const status = credentialStore.registerDataSubscriptionEndpoint({
                                       clientDid: myDid,
                                       answerHash: answerHash,
