@@ -176,4 +176,26 @@ export class SupabaseCredentialManager
     });
     return res.data;
   };
+  
+  postPublish = async (requestParameters: {
+    did: string;
+    jwt: string;
+    proofOfWork: string;
+    text : string;
+    endpoint : string;
+  }) => {
+    const res = await axios.post(
+      `${REST_API_URL}/publish`,
+    undefined, 
+    {
+      headers: {
+        "did": requestParameters.did,
+        "proof-of-work": requestParameters.proofOfWork,
+        "jwt": requestParameters.jwt,
+        "text": requestParameters.text,
+        "endpoint": requestParameters.endpoint,
+      },
+    });
+    return res.data;
+  };
 }

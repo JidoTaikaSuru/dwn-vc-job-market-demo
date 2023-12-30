@@ -115,6 +115,8 @@ const CreateNewJobPostDialog: FC<{
                   
                   console.log("Start Proof of Work ~ proofOfWork");
 
+                  //TODO change to getRandomTier to get tier2 DID only
+                  //nothing to do with challenge anymore
                   const { serverDid } = await credentialStore.getProofOfWorkChallenge({
                     clientDid: myDid,
                   });
@@ -125,10 +127,22 @@ const CreateNewJobPostDialog: FC<{
                     myDid,
                   );
                   
-                  const reply = await credentialStore.submitProofOfWorkChallenge({
+                  /* const reply = await credentialStore.submitProofOfWorkChallenge({
                     clientDid: myDid,
                     challengeHash: answerHash,
-                  });
+                  }); */
+
+                  //TODO maybe we need separate REST to get JWT not in the scope of proofOfLatency
+                  var {jwt} = await credentialStore.getProofOfLatency();
+
+                  const publishResult = await credentialStore.postPublish({
+                    did: myDid,
+                    jwt,
+                    proofOfWork: answerHash,
+                    text: jobTitle,
+                    endpoint: "http://localhost:5173/"
+                  })
+
 
                   /*
                   var jwt = await credentialStore.getProofOfLatency();
